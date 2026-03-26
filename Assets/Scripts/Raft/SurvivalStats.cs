@@ -7,19 +7,24 @@ public class SurvivalStats : MonoBehaviour
     public float Thirst { get; private set; } = 100f;
     public bool IsDead { get; private set; }
 
-    const float HungerRate = 100f / 180f;  // Depletes in 180 seconds
-    const float ThirstRate = 100f / 120f;  // Depletes in 120 seconds
-    const float StarveDamage = 5f;         // HP/sec when hunger or thirst is 0
+    // ========== Configurable rates ==========
+    /// <summary>Hunger lost per second. Default: depletes in 180s.</summary>
+    public float HungerRate = 100f / 180f;
+
+    /// <summary>Thirst lost per second. Default: depletes in 120s.</summary>
+    public float ThirstRate = 100f / 120f;
+
+    /// <summary>HP damage per second when hunger or thirst is 0.</summary>
+    public float StarveDamage = 5f;
+    // =========================================
 
     void Update()
     {
         if (IsDead) return;
 
-        // Decrease hunger and thirst
         Hunger = Mathf.Max(0, Hunger - HungerRate * Time.deltaTime);
         Thirst = Mathf.Max(0, Thirst - ThirstRate * Time.deltaTime);
 
-        // Damage when starving/dehydrated
         if (Hunger <= 0 || Thirst <= 0)
         {
             Health -= StarveDamage * Time.deltaTime;
@@ -34,7 +39,6 @@ public class SurvivalStats : MonoBehaviour
     void Die()
     {
         IsDead = true;
-        // Respawn after delay
         Invoke(nameof(Respawn), 3f);
     }
 
@@ -45,7 +49,6 @@ public class SurvivalStats : MonoBehaviour
         Thirst = 80f;
         IsDead = false;
 
-        // Move player back to raft
         var raftCenter = RaftGame.Instance.RaftMgr.GetCenter();
         RaftGame.Instance.Player.transform.position = raftCenter + Vector3.up * 2f;
     }

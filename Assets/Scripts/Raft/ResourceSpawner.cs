@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class ResourceSpawner : MonoBehaviour
 {
-    const int MaxResources = 15;
-    const float SpawnInterval = 3f;
+    const int MaxResources = 20;
+    const float SpawnInterval = 2.5f;
     const float MinDist = 15f;
     const float MaxDist = 40f;
     const float DespawnDist = 60f;
@@ -36,11 +36,20 @@ public class ResourceSpawner : MonoBehaviour
         go.transform.position = pos;
         var res = go.AddComponent<FloatingResource>();
 
-        // Random type: 40% wood, 35% plastic, 25% coconut
+        // Spawn weights: 30% wood, 25% plastic, 15% coconut, 15% beet, 15% water bottle
         float roll = Random.value;
-        ResourceType type = roll < 0.4f ? ResourceType.Wood
-                          : roll < 0.75f ? ResourceType.Plastic
-                          : ResourceType.Coconut;
+        ResourceType type;
+        if (roll < 0.30f)
+            type = ResourceType.Wood;
+        else if (roll < 0.55f)
+            type = ResourceType.Plastic;
+        else if (roll < 0.70f)
+            type = ResourceType.Coconut;
+        else if (roll < 0.85f)
+            type = ResourceType.Beet;
+        else
+            type = ResourceType.WaterBottle;
+
         res.Init(type);
 
         activeResources.Add(go);

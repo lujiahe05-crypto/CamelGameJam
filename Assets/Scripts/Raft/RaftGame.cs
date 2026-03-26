@@ -23,11 +23,28 @@ public class RaftGame : MonoBehaviour
     public Material WoodMat { get; private set; }
     public Material PlasticMat { get; private set; }
     public Material CoconutMat { get; private set; }
+    public Material BeetMat { get; private set; }
+    public Material WaterBottleMat { get; private set; }
     public Material WaterMat { get; private set; }
     public Material SharkMat { get; private set; }
     public Material GhostMat { get; private set; }
 
     public const float WaterLevel = 0f;
+
+    // ========== Configurable survival rates ==========
+    [Header("Survival Config")]
+    public float HungerRate = 100f / 180f;   // Hunger lost per second
+    public float ThirstRate = 100f / 120f;   // Thirst lost per second
+    public float StarveDamage = 5f;          // HP/sec when starving
+
+    [Header("Consumable Config")]
+    public float BeetHungerRestore = 35f;
+    public float BeetThirstRestore = 0f;
+    public float WaterBottleHungerRestore = 0f;
+    public float WaterBottleThirstRestore = 40f;
+    public float CoconutHungerRestore = 15f;
+    public float CoconutThirstRestore = 20f;
+    // =================================================
 
     void Awake()
     {
@@ -44,11 +61,25 @@ public class RaftGame : MonoBehaviour
         CreateRaft();
         CreatePlayer();
         CreateSystems();
+        ApplyConfig();
         CreateUI();
         GiveStartingItems();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    void ApplyConfig()
+    {
+        // Apply survival rates
+        Survival.HungerRate = HungerRate;
+        Survival.ThirstRate = ThirstRate;
+        Survival.StarveDamage = StarveDamage;
+
+        // Apply consumable configs
+        Inventory.SetConsumableConfig(ItemType.Beet, BeetHungerRestore, BeetThirstRestore);
+        Inventory.SetConsumableConfig(ItemType.WaterBottle, WaterBottleHungerRestore, WaterBottleThirstRestore);
+        Inventory.SetConsumableConfig(ItemType.Coconut, CoconutHungerRestore, CoconutThirstRestore);
     }
 
     void CreateSharedAssets()
@@ -58,6 +89,8 @@ public class RaftGame : MonoBehaviour
         WoodMat = ProceduralMeshUtil.CreateMaterial(new Color(0.55f, 0.35f, 0.15f));
         PlasticMat = ProceduralMeshUtil.CreateMaterial(new Color(0.85f, 0.85f, 0.9f));
         CoconutMat = ProceduralMeshUtil.CreateMaterial(new Color(0.3f, 0.65f, 0.2f));
+        BeetMat = ProceduralMeshUtil.CreateMaterial(new Color(0.7f, 0.15f, 0.3f));
+        WaterBottleMat = ProceduralMeshUtil.CreateMaterial(new Color(0.3f, 0.7f, 0.95f, 0.8f), true);
         SharkMat = ProceduralMeshUtil.CreateMaterial(new Color(0.45f, 0.5f, 0.55f));
         GhostMat = ProceduralMeshUtil.CreateMaterial(new Color(0.3f, 0.9f, 0.3f, 0.4f), true);
 
@@ -112,29 +145,23 @@ public class RaftGame : MonoBehaviour
         player.transform.position = new Vector3(0.5f, 2f, 0.5f);
 
         Player = player.AddComponent<PlayerController>();
-
-        // Hook system on player
         player.AddComponent<HookThrower>();
     }
 
     void CreateSystems()
     {
-        // Inventory
         var invGo = new GameObject("Inventory");
         invGo.transform.SetParent(rootContainer.transform);
         Inv = invGo.AddComponent<Inventory>();
 
-        // Survival
         var survGo = new GameObject("Survival");
         survGo.transform.SetParent(rootContainer.transform);
         Survival = survGo.AddComponent<SurvivalStats>();
 
-        // Resource spawner
         var spawnGo = new GameObject("ResourceSpawner");
         spawnGo.transform.SetParent(rootContainer.transform);
         spawnGo.AddComponent<ResourceSpawner>();
 
-        // Shark
         var sharkGo = new GameObject("Shark");
         sharkGo.transform.SetParent(rootContainer.transform);
         sharkGo.AddComponent<SharkAI>();
@@ -156,12 +183,12 @@ public class RaftGame : MonoBehaviour
 
     void GiveStartingItems()
     {
-        // Give Hook in slot 0, BuildHammer in slot 1
         Inv.Add(ItemType.Hook);
         Inv.Add(ItemType.BuildHammer);
-        // Give some starting wood for testing
         Inv.Add(ItemType.Wood, 5);
-        // Select Hook by default
+        // Give some starting food/drink for testing
+        Inv.Add(ItemType.Beet, 2);
+        Inv.Add(ItemType.WaterBottle, 2);
         Inv.SelectSlot(0);
     }
 

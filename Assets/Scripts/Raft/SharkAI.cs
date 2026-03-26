@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SharkAI : MonoBehaviour
 {
@@ -23,10 +24,13 @@ public class SharkAI : MonoBehaviour
     GameObject visual;
     float swimDepth = -1.5f;
 
+    // Name label
+    Canvas labelCanvas;
+
     void Start()
     {
         CreateVisual();
-        // Start at a distance
+        CreateNameLabel();
         Vector3 startPos = new Vector3(PatrolRadius, swimDepth, 0);
         transform.position = startPos;
         PickPatrolTarget();
@@ -39,6 +43,42 @@ public class SharkAI : MonoBehaviour
         visual = ProceduralMeshUtil.CreatePrimitive("SharkBody", sharkMesh, RaftGame.Instance.SharkMat, transform);
         visual.transform.localScale = Vector3.one * 2f;
         visual.transform.localPosition = Vector3.zero;
+    }
+
+    void CreateNameLabel()
+    {
+        var canvasGo = new GameObject("SharkLabel");
+        canvasGo.transform.SetParent(transform);
+        canvasGo.transform.localPosition = new Vector3(0, 3f, 0);
+        canvasGo.transform.localScale = Vector3.one * 0.025f;
+
+        labelCanvas = canvasGo.AddComponent<Canvas>();
+        labelCanvas.renderMode = RenderMode.WorldSpace;
+        labelCanvas.sortingOrder = 100;
+
+        var rt = canvasGo.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(200, 50);
+
+        var textGo = new GameObject("Text");
+        textGo.transform.SetParent(canvasGo.transform, false);
+        var text = textGo.AddComponent<Text>();
+        text.font = Font.CreateDynamicFontFromOSFont("Microsoft YaHei", 30);
+        text.fontSize = 30;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.horizontalOverflow = HorizontalWrapMode.Overflow;
+        text.color = new Color(1f, 0.3f, 0.3f);
+        text.text = "\u9ca8\u9c7c";  // 鲨鱼
+        text.fontStyle = FontStyle.Bold;
+
+        var outline = textGo.AddComponent<Outline>();
+        outline.effectColor = new Color(0, 0, 0, 0.9f);
+        outline.effectDistance = new Vector2(1.5f, -1.5f);
+
+        var textRect = textGo.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
     }
 
     void Update()
@@ -55,7 +95,6 @@ public class SharkAI : MonoBehaviour
                 UpdateCharge();
                 break;
             case State.Bite:
-                // Brief pause
                 if (stateTimer <= 0)
                 {
                     state = State.Flee;
@@ -68,9 +107,19 @@ public class SharkAI : MonoBehaviour
                 break;
         }
 
-        // Bob slightly
         float bob = Mathf.Sin(Time.time * 2f) * 0.1f;
         transform.position = new Vector3(transform.position.x, swimDepth + bob, transform.position.z);
+
+        // Billboard label
+        if (labelCanvas != null)
+        {
+            var cam = Camera.main;
+            if (cam != null)
+            {
+                labelCanvas.transform.rotation = Quaternion.LookRotation(
+                    labelCanvas.transform.position - cam.transform.position);
+            }
+        }
     }
 
     void UpdatePatrol()
@@ -83,7 +132,6 @@ public class SharkAI : MonoBehaviour
             PickPatrolTarget();
         }
 
-        // Try to charge if cooldown is ready
         if (cooldownTimer <= 0)
         {
             var raftCenter = RaftGame.Instance.RaftMgr.GetCenter();
@@ -114,7 +162,6 @@ public class SharkAI : MonoBehaviour
         float dist = Vector2Distance(transform.position, target);
         if (dist < BiteDistance)
         {
-            // Bite!
             targetBlock.TakeDamage(BiteDamage);
             state = State.Bite;
             stateTimer = 0.5f;
@@ -140,7 +187,6 @@ public class SharkAI : MonoBehaviour
             dir.Normalize();
             transform.position += dir * speed * Time.deltaTime;
 
-            // Face movement direction
             Quaternion targetRot = Quaternion.LookRotation(dir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 5f);
         }

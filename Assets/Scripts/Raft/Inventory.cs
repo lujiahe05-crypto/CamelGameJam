@@ -6,7 +6,9 @@ public enum ResourceType
 {
     Wood,
     Plastic,
-    Coconut
+    Coconut,
+    Beet,
+    WaterBottle
 }
 
 public enum ItemType
@@ -16,7 +18,9 @@ public enum ItemType
     BuildHammer,
     Wood,
     Plastic,
-    Coconut
+    Coconut,
+    Beet,
+    WaterBottle
 }
 
 [System.Serializable]
@@ -40,6 +44,21 @@ public class InventorySlot
     }
 }
 
+/// <summary>
+/// Configurable consumable item definition.
+/// </summary>
+public class ConsumableConfig
+{
+    public float hungerRestore;
+    public float thirstRestore;
+
+    public ConsumableConfig(float hunger, float thirst)
+    {
+        hungerRestore = hunger;
+        thirstRestore = thirst;
+    }
+}
+
 public class Inventory : MonoBehaviour
 {
     public const int SlotCount = 10;
@@ -49,16 +68,39 @@ public class Inventory : MonoBehaviour
     public event Action OnChanged;
     public event Action<int> OnSelectedChanged;
 
+    // ========== Configurable consumable values ==========
+    static Dictionary<ItemType, ConsumableConfig> consumables = new Dictionary<ItemType, ConsumableConfig>
+    {
+        { ItemType.Coconut,     new ConsumableConfig(15f, 20f) },
+        { ItemType.Beet,        new ConsumableConfig(35f, 0f)  },
+        { ItemType.WaterBottle, new ConsumableConfig(0f, 40f)  },
+    };
+
+    /// <summary>
+    /// Change consumable restore values at runtime.
+    /// </summary>
+    public static void SetConsumableConfig(ItemType type, float hungerRestore, float thirstRestore)
+    {
+        consumables[type] = new ConsumableConfig(hungerRestore, thirstRestore);
+    }
+
+    public static bool IsConsumable(ItemType type)
+    {
+        return consumables.ContainsKey(type);
+    }
+
+    public static ConsumableConfig GetConsumableConfig(ItemType type)
+    {
+        return consumables.TryGetValue(type, out var cfg) ? cfg : null;
+    }
+    // ====================================================
+
     void Awake()
     {
         for (int i = 0; i < SlotCount; i++)
             slots[i] = new InventorySlot();
     }
 
-    /// <summary>
-    /// Add item to inventory. Tools (Hook, BuildHammer) don't stack beyond 1.
-    /// Resources stack in existing slot or first empty slot.
-    /// </summary>
     public bool Add(ItemType type, int amount = 1)
     {
         if (type == ItemType.None) return false;
@@ -67,13 +109,11 @@ public class Inventory : MonoBehaviour
 
         if (isTool)
         {
-            // Check if already have this tool
             for (int i = 0; i < SlotCount; i++)
             {
                 if (slots[i].type == type)
-                    return false; // already have it
+                    return false;
             }
-            // Find first empty slot
             for (int i = 0; i < SlotCount; i++)
             {
                 if (slots[i].IsEmpty)
@@ -84,10 +124,10 @@ public class Inventory : MonoBehaviour
                     return true;
                 }
             }
-            return false; // no room
+            return false;
         }
 
-        // Resource: try to stack in existing slot first
+        // Resource / consumable: stack in existing slot first
         for (int i = 0; i < SlotCount; i++)
         {
             if (slots[i].type == type)
@@ -97,7 +137,6 @@ public class Inventory : MonoBehaviour
                 return true;
             }
         }
-        // Find first empty slot
         for (int i = 0; i < SlotCount; i++)
         {
             if (slots[i].IsEmpty)
@@ -108,7 +147,7 @@ public class Inventory : MonoBehaviour
                 return true;
             }
         }
-        return false; // full
+        return false;
     }
 
     public bool Remove(ItemType type, int amount = 1)
@@ -120,7 +159,6 @@ public class Inventory : MonoBehaviour
                 slots[i].count -= amount;
                 if (slots[i].count <= 0)
                 {
-                    // Don't remove tools when count hits 0
                     bool isTool = (type == ItemType.Hook || type == ItemType.BuildHammer);
                     if (!isTool)
                     {
@@ -129,7 +167,7 @@ public class Inventory : MonoBehaviour
                     }
                     else
                     {
-                        slots[i].count = 1; // tools always stay at 1
+                        slots[i].count = 1;
                     }
                 }
                 OnChanged?.Invoke();
@@ -150,7 +188,7 @@ public class Inventory : MonoBehaviour
         return total;
     }
 
-    /// Keep old ResourceType API working for existing code (shark, survival, etc.)
+    // Backward-compatible ResourceType API
     public void Add(ResourceType type, int amount = 1)
     {
         Add(ResourceToItem(type), amount);
@@ -173,6 +211,8 @@ public class Inventory : MonoBehaviour
             case ResourceType.Wood: return ItemType.Wood;
             case ResourceType.Plastic: return ItemType.Plastic;
             case ResourceType.Coconut: return ItemType.Coconut;
+            case ResourceType.Beet: return ItemType.Beet;
+            case ResourceType.WaterBottle: return ItemType.WaterBottle;
             default: return ItemType.None;
         }
     }
@@ -192,6 +232,31 @@ public class Inventory : MonoBehaviour
     public ItemType GetSelectedItemType()
     {
         return slots[SelectedIndex].type;
+    }
+
+    /// <summary>
+    /// Try to use (consume) the selected item. Returns true if consumed.
+    /// </summary>
+    public bool UseSelectedItem()
+    {
+        var slot = GetSelectedSlot();
+        if (slot.IsEmpty) return false;
+
+        var cfg = GetConsumableConfig(slot.type);
+        if (cfg == null) return false;
+
+        var surv = RaftGame.Instance.Survival;
+        if (surv == null) return false;
+
+        // Only consume if it would actually help
+        bool wouldHelp = (cfg.hungerRestore > 0 && surv.Hunger < 100f)
+                      || (cfg.thirstRestore > 0 && surv.Thirst < 100f);
+        if (!wouldHelp) return false;
+
+        surv.RestoreHunger(cfg.hungerRestore);
+        surv.RestoreThirst(cfg.thirstRestore);
+        Remove(slot.type, 1);
+        return true;
     }
 
     void Update()
@@ -216,17 +281,25 @@ public class Inventory : MonoBehaviour
         {
             SelectSlot((SelectedIndex + 1) % SlotCount);
         }
+
+        // Right-click to use/eat selected consumable
+        if (Input.GetMouseButtonDown(1))
+        {
+            UseSelectedItem();
+        }
     }
 
     public static string GetItemName(ItemType type)
     {
         switch (type)
         {
-            case ItemType.Hook: return "Hook";
-            case ItemType.BuildHammer: return "Hammer";
-            case ItemType.Wood: return "Wood";
-            case ItemType.Plastic: return "Plastic";
-            case ItemType.Coconut: return "Coconut";
+            case ItemType.Hook: return "\u9497\u5b50";        // 钩子
+            case ItemType.BuildHammer: return "\u5efa\u9020\u9524";  // 建造锤
+            case ItemType.Wood: return "\u6728\u6750";        // 木材
+            case ItemType.Plastic: return "\u5851\u6599";      // 塑料
+            case ItemType.Coconut: return "\u6930\u5b50";      // 椰子
+            case ItemType.Beet: return "\u751c\u83dc";         // 甜菜
+            case ItemType.WaterBottle: return "\u77ff\u6cc9\u6c34";  // 矿泉水
             default: return "";
         }
     }
@@ -240,6 +313,8 @@ public class Inventory : MonoBehaviour
             case ItemType.Wood: return new Color(0.55f, 0.35f, 0.15f);
             case ItemType.Plastic: return new Color(0.85f, 0.85f, 0.9f);
             case ItemType.Coconut: return new Color(0.3f, 0.65f, 0.2f);
+            case ItemType.Beet: return new Color(0.7f, 0.15f, 0.3f);
+            case ItemType.WaterBottle: return new Color(0.3f, 0.7f, 0.95f);
             default: return Color.clear;
         }
     }
