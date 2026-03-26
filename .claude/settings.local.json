@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p Snake Tetris Lobby Raft)",
+      "Bash(mv SnakeGame.cs Snake/)",
+      "Bash(mv SnakeGame.cs.meta Snake/)",
+      "Bash(mv TetrisGame.cs Tetris/)",
+      "Bash(mv TetrisGame.cs.meta Tetris/)"
+    ]
+  }
+}
