@@ -2,6 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum ResourceType
+{
+    Wood,
+    Plastic,
+    Coconut
+}
+
 public enum ItemType
 {
     None,

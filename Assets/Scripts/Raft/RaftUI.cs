@@ -18,7 +18,7 @@ public class RaftUI : MonoBehaviour
     Image[] slotBGs = new Image[Inventory.SlotCount];
     Image[] slotIcons = new Image[Inventory.SlotCount];
     Text[] slotTexts = new Text[Inventory.SlotCount];
-    Image selectionFrame;
+    RectTransform selectionFrameRect;
 
     // Build panel
     GameObject buildPanel;
@@ -101,24 +101,16 @@ public class RaftUI : MonoBehaviour
             CreateSlot(hotbarRoot, i, x);
         }
 
-        // Selection frame
+        // Selection frame (border only, no Image on root)
         var frameGo = new GameObject("SelectionFrame");
         frameGo.transform.SetParent(hotbarRoot, false);
-        selectionFrame = frameGo.AddComponent<Image>();
-        selectionFrame.color = new Color(1, 1, 1, 0.8f);
-        selectionFrame.type = Image.Type.Sliced;
-        var frameRect = frameGo.GetComponent<RectTransform>();
+        var frameRect = frameGo.AddComponent<RectTransform>();
         frameRect.sizeDelta = new Vector2(SlotSize + 6, SlotSize + 6);
         frameRect.anchorMin = new Vector2(0.5f, 0.5f);
         frameRect.anchorMax = new Vector2(0.5f, 0.5f);
         frameRect.pivot = new Vector2(0.5f, 0.5f);
-
-        // Make frame render behind nothing (it'll be on top due to sibling order, but we want outline effect)
-        // Create outline by using 4 thin images
-        Destroy(selectionFrame); // remove the image, we'll make border manually
         CreateBorderFrame(frameGo.transform, SlotSize + 6, SlotSize + 6, 3, new Color(1, 0.9f, 0.3f, 0.9f));
-        selectionFrame = frameGo.AddComponent<Image>();
-        selectionFrame.color = Color.clear; // transparent center
+        selectionFrameRect = frameRect;
     }
 
     void CreateBorderFrame(Transform parent, float w, float h, float thickness, Color color)
@@ -296,11 +288,11 @@ public class RaftUI : MonoBehaviour
         }
 
         // Move selection frame
-        if (selectionFrame != null)
+        if (selectionFrameRect != null)
         {
             float totalWidth = Inventory.SlotCount * (SlotSize + SlotGap) - SlotGap;
             float x = inv.SelectedIndex * (SlotSize + SlotGap) - totalWidth / 2f + SlotSize / 2f;
-            selectionFrame.rectTransform.anchoredPosition = new Vector2(x, 0);
+            selectionFrameRect.anchoredPosition = new Vector2(x, 0);
         }
     }
 
