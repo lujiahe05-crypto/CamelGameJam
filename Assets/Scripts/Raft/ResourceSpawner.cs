@@ -3,32 +3,32 @@ using System.Collections.Generic;
 
 public class ResourceSpawner : MonoBehaviour
 {
-    const int MaxResources = 20;
-    const float SpawnInterval = 2.5f;
-    const float MinDist = 15f;
-    const float MaxDist = 40f;
-    const float DespawnDist = 60f;
-
     List<GameObject> activeResources = new List<GameObject>();
     float spawnTimer;
 
     void Update()
     {
+        var config = RaftConfigTables.GetRefreshTable();
+        float spawnInterval = Mathf.Max(0.1f, config.spawnInterval);
+
         spawnTimer += Time.deltaTime;
-        if (spawnTimer >= SpawnInterval)
+        if (spawnTimer >= spawnInterval)
         {
             spawnTimer = 0;
             CleanupFar();
-            if (activeResources.Count < MaxResources)
+            if (activeResources.Count < Mathf.Max(1, config.maxResources))
                 SpawnResource();
         }
     }
 
     void SpawnResource()
     {
+        var config = RaftConfigTables.GetRefreshTable();
         var raftCenter = RaftGame.Instance.RaftMgr.GetCenter();
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
-        float dist = Random.Range(MinDist, MaxDist);
+        float minDist = Mathf.Max(0f, config.minSpawnDistance);
+        float maxDist = Mathf.Max(minDist, config.maxSpawnDistance);
+        float dist = Random.Range(minDist, maxDist);
         Vector3 pos = raftCenter + new Vector3(Mathf.Cos(angle) * dist, 0, Mathf.Sin(angle) * dist);
         pos.y = RaftGame.WaterLevel + 0.1f;
 
@@ -36,27 +36,14 @@ public class ResourceSpawner : MonoBehaviour
         go.transform.position = pos;
         var res = go.AddComponent<FloatingResource>();
 
-        // Spawn weights: 30% wood, 25% plastic, 15% coconut, 15% beet, 15% water bottle
-        float roll = Random.value;
-        ResourceType type;
-        if (roll < 0.30f)
-            type = ResourceType.Wood;
-        else if (roll < 0.55f)
-            type = ResourceType.Plastic;
-        else if (roll < 0.70f)
-            type = ResourceType.Coconut;
-        else if (roll < 0.85f)
-            type = ResourceType.Beet;
-        else
-            type = ResourceType.WaterBottle;
-
-        res.Init(type);
+        res.Init(RaftConfigTables.RollRefreshResource());
 
         activeResources.Add(go);
     }
 
     void CleanupFar()
     {
+        float despawnDist = Mathf.Max(0f, RaftConfigTables.GetRefreshTable().despawnDistance);
         var raftCenter = RaftGame.Instance.RaftMgr.GetCenter();
         for (int i = activeResources.Count - 1; i >= 0; i--)
         {
@@ -66,7 +53,7 @@ public class ResourceSpawner : MonoBehaviour
                 continue;
             }
             float dist = Vector3.Distance(activeResources[i].transform.position, raftCenter);
-            if (dist > DespawnDist)
+            if (dist > despawnDist)
             {
                 Destroy(activeResources[i]);
                 activeResources.RemoveAt(i);

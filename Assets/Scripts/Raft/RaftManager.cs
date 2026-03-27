@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class RaftManager : MonoBehaviour
 {
+    public const string FoundationBuildingId = RaftConfigTables.FoundationBuildingId;
+
     Dictionary<Vector2Int, RaftBlock> blocks = new Dictionary<Vector2Int, RaftBlock>();
 
     // Building
@@ -194,11 +196,8 @@ public class RaftManager : MonoBehaviour
             if (ghostValid && Input.GetMouseButtonDown(0))
             {
                 var inv = RaftGame.Instance.Inv;
-                if (inv.GetCount(ItemType.Wood) >= 1)
-                {
-                    inv.Remove(ItemType.Wood, 1);
+                if (RaftConfigTables.ConsumeBuildingCost(inv, FoundationBuildingId))
                     AddBlock(ghostGridPos);
-                }
             }
         }
         else

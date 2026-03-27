@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class RaftUI : MonoBehaviour
@@ -26,6 +26,7 @@ public class RaftUI : MonoBehaviour
 
     // Build panel
     GameObject buildPanel;
+    Text buildTitleText;
     Text buildCostText;
     bool buildPanelVisible;
 
@@ -42,9 +43,9 @@ public class RaftUI : MonoBehaviour
         CreateCrosshair(canvas);
 
         // Survival bars - bottom left (above hotbar)
-        healthBar = CreateBar(canvas, new Vector2(20, 150), new Color(0.9f, 0.2f, 0.2f), out healthText, "\u8840\u91cf");      // 血量
-        hungerBar = CreateBar(canvas, new Vector2(20, 120), new Color(0.8f, 0.6f, 0.1f), out hungerText, "\u9965\u997f\u503c"); // 饥饿值
-        thirstBar = CreateBar(canvas, new Vector2(20, 90), new Color(0.2f, 0.5f, 0.9f), out thirstText, "\u53e3\u6e34\u503c"); // 口渴值
+        healthBar = CreateBar(canvas, new Vector2(20, 150), new Color(0.9f, 0.2f, 0.2f), out healthText, "\u8840\u91cf");      // 琛€閲?
+        hungerBar = CreateBar(canvas, new Vector2(20, 120), new Color(0.8f, 0.6f, 0.1f), out hungerText, "\u9965\u997f\u503c"); // 楗ラタ鍊?
+        thirstBar = CreateBar(canvas, new Vector2(20, 90), new Color(0.2f, 0.5f, 0.9f), out thirstText, "\u53e3\u6e34\u503c"); // 鍙ｆ复鍊?
 
         // Status text - top right
         statusText = CreateUIText(canvas, "StatusText",
@@ -61,10 +62,10 @@ public class RaftUI : MonoBehaviour
                       + "\u5de6\u952e \u4f7f\u7528\u5de5\u5177 | \u53f3\u952e \u98df\u7528\u9009\u4e2d\u98df\u7269\n"
                       + "\u9497\u5b50: \u6295\u63b7\u6253\u635e | \u5efa\u9020\u9524: \u653e\u7f6e\u5730\u57fa\n"
                       + "ESC \u8fd4\u56de\u5927\u5385";
-        // WASD 移动 | Space 跳跃 | 1-0 选择物品 | 滚轮切换
-        // 左键 使用工具 | 右键 食用选中物品
-        // 钩子: 投掷打捞 | 建造锤: 放置地基
-        // ESC 返回大厅
+        // WASD 绉诲姩 | Space 璺宠穬 | 1-0 閫夋嫨鐗╁搧 | 婊氳疆鍒囨崲
+        // 宸﹂敭 浣跨敤宸ュ叿 | 鍙抽敭 椋熺敤閫変腑鐗╁搧
+        // 閽╁瓙: 鎶曟幏鎵撴崬 | 寤洪€犻敜: 鏀剧疆鍦板熀
+        // ESC 杩斿洖澶у巺
 
         // Death text
         deathText = CreateUIText(canvas, "DeathText",
@@ -208,11 +209,11 @@ public class RaftUI : MonoBehaviour
         panelRect.anchoredPosition = new Vector2(0, 100);
         panelRect.sizeDelta = new Vector2(320, 120);
 
-        var titleText = CreateUIText(buildPanel.transform, "Title",
+        Text titleText = buildTitleText = CreateUIText(buildPanel.transform, "Title",
             new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
             new Vector2(0, -5), new Vector2(300, 30),
             22, new Color(1, 0.9f, 0.3f), TextAnchor.MiddleCenter);
-        titleText.text = "\u5efa\u9020: \u6728\u7b50\u5730\u57fa";  // 建造: 木筏地基
+        titleText.text = "\u5efa\u9020: \u6728\u7b50\u5730\u57fa";  // 寤洪€? 鏈ㄧ瓘鍦板熀
 
         var btnGo = new GameObject("BuildBtn");
         btnGo.transform.SetParent(buildPanel.transform, false);
@@ -236,7 +237,7 @@ public class RaftUI : MonoBehaviour
         var instrRect = instrText.GetComponent<RectTransform>();
         instrRect.offsetMin = Vector2.zero;
         instrRect.offsetMax = Vector2.zero;
-        instrText.text = "\u7784\u51c6\u6728\u7b50\u65c1\u6c34\u9762\uff0c\u5de6\u952e\u653e\u7f6e";  // 瞄准木筏旁水面，左键放置
+        instrText.text = "\u7784\u51c6\u6728\u7b50\u65c1\u6c34\u9762\uff0c\u5de6\u952e\u653e\u7f6e";  // 鐬勫噯鏈ㄧ瓘鏃佹按闈紝宸﹂敭鏀剧疆
 
         buildPanel.SetActive(false);
     }
@@ -254,6 +255,7 @@ public class RaftUI : MonoBehaviour
         UpdateSurvivalBars();
         UpdateHotbar();
         UpdateBuildPanel();
+        ApplyConfiguredBuildPanelText();
         UpdateStatus();
         UpdateDeath();
         UpdateToast();
@@ -264,13 +266,13 @@ public class RaftUI : MonoBehaviour
         var surv = RaftGame.Instance.Survival;
         if (surv == null) return;
 
-        SetBarFill(healthBar, surv.Health / 100f);
-        SetBarFill(hungerBar, surv.Hunger / 100f);
-        SetBarFill(thirstBar, surv.Thirst / 100f);
+        SetBarFill(healthBar, surv.Health / surv.MaxHealth);
+        SetBarFill(hungerBar, surv.Hunger / surv.MaxHunger);
+        SetBarFill(thirstBar, surv.Thirst / surv.MaxThirst);
 
-        healthText.text = "\u8840\u91cf " + Mathf.CeilToInt(surv.Health);  // 血量
-        hungerText.text = "\u9965\u997f " + Mathf.CeilToInt(surv.Hunger); // 饥饿
-        thirstText.text = "\u53e3\u6e34 " + Mathf.CeilToInt(surv.Thirst); // 口渴
+        healthText.text = "\u8840\u91cf " + Mathf.CeilToInt(surv.Health);  // 琛€閲?
+        hungerText.text = "\u9965\u997f " + Mathf.CeilToInt(surv.Hunger); // 楗ラタ
+        thirstText.text = "\u53e3\u6e34 " + Mathf.CeilToInt(surv.Thirst); // 鍙ｆ复
     }
 
     void UpdateHotbar()
@@ -321,12 +323,32 @@ public class RaftUI : MonoBehaviour
 
         if (hammerSelected)
         {
-            int woodCount = inv.GetCount(ItemType.Wood);
-            bool canBuild = woodCount >= 1;
-            // 木筏地基 [消耗: 1木材] (拥有: X)
-            buildCostText.text = $"\u6728\u7b50\u5730\u57fa  [\u6d88\u8017: 1\u6728\u6750]  (\u62e5\u6709: {woodCount})";
+            bool canBuild = RaftConfigTables.CanAffordBuilding(inv, RaftManager.FoundationBuildingId);
+            // 鏈ㄧ瓘鍦板熀 [娑堣€? 1鏈ㄦ潗] (鎷ユ湁: X)
+            buildCostText.text = $"\u6728\u7b50\u5730\u57fa  [\u6d88\u8017: {RaftConfigTables.FormatBuildingCost(RaftManager.FoundationBuildingId)}]";
             buildCostText.color = canBuild ? Color.white : new Color(1, 0.3f, 0.3f);
         }
+    }
+
+    void ApplyConfiguredBuildPanelText()
+    {
+        if (!buildPanelVisible || buildCostText == null)
+            return;
+
+        var inv = RaftGame.Instance.Inv;
+        if (inv == null)
+            return;
+
+        var buildingConfig = RaftConfigTables.GetBuildingConfig(RaftManager.FoundationBuildingId);
+        string buildingName = buildingConfig != null ? buildingConfig.displayName : "\u6728\u7b4f\u5730\u57fa";
+        bool canBuild = RaftConfigTables.CanAffordBuilding(inv, RaftManager.FoundationBuildingId);
+        string costText = RaftConfigTables.FormatBuildingCost(RaftManager.FoundationBuildingId);
+
+        if (buildTitleText != null)
+            buildTitleText.text = "\u5efa\u9020: " + buildingName;
+
+        buildCostText.text = $"{buildingName}  [\u6d88\u8017: {costText}]";
+        buildCostText.color = canBuild ? Color.white : new Color(1, 0.3f, 0.3f);
     }
 
     void UpdateStatus()
@@ -335,20 +357,20 @@ public class RaftUI : MonoBehaviour
         var raftMgr = RaftGame.Instance.RaftMgr;
         var selectedType = inv.GetSelectedItemType();
         string tool = Inventory.GetItemName(selectedType);
-        if (string.IsNullOrEmpty(tool)) tool = "\u7a7a";  // 空
+        if (string.IsNullOrEmpty(tool)) tool = "\u7a7a";  // 绌?
 
-        string line1 = $"\u624b\u6301: {tool}";  // 手持:
-        string line2 = $"\u6728\u7b50: {raftMgr.BlockCount} \u5757";  // 木筏: N 块
+        string line1 = $"\u624b\u6301: {tool}";  // 鎵嬫寔:
+        string line2 = $"\u6728\u7b50: {raftMgr.BlockCount} \u5757";  // 鏈ㄧ瓘: N 鍧?
 
         // Show consumable restore preview
         var cfg = Inventory.GetConsumableConfig(selectedType);
         if (cfg != null)
         {
-            string preview = "[\u53f3\u952e\u98df\u7528]";  // [右键食用]
+            string preview = "[\u53f3\u952e\u98df\u7528]";  // [鍙抽敭椋熺敤]
             if (cfg.hungerRestore > 0)
-                preview += $" \u9965\u997f\u503c+{cfg.hungerRestore:0}";  // 饥饿值+X
+                preview += $" \u9965\u997f\u503c+{cfg.hungerRestore:0}";  // 楗ラタ鍊?X
             if (cfg.thirstRestore > 0)
-                preview += $" \u53e3\u6e34\u503c+{cfg.thirstRestore:0}";  // 口渴值+X
+                preview += $" \u53e3\u6e34\u503c+{cfg.thirstRestore:0}";  // 鍙ｆ复鍊?X
             line1 += "\n" + preview;
         }
 
@@ -359,7 +381,7 @@ public class RaftUI : MonoBehaviour
     {
         var surv = RaftGame.Instance.Survival;
         deathText.text = surv.IsDead ? "\u4f60\u6b7b\u4e86\n\u6b63\u5728\u590d\u6d3b..." : "";
-        // 你死了 / 正在复活...
+        // 浣犳浜?/ 姝ｅ湪澶嶆椿...
     }
 
     void UpdateToast()
@@ -442,3 +464,4 @@ public class RaftUI : MonoBehaviour
         return text;
     }
 }
+

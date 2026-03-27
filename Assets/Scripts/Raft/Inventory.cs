@@ -249,8 +249,8 @@ public class Inventory : MonoBehaviour
         if (surv == null) return false;
 
         // Only consume if it would actually help
-        bool wouldHelp = (cfg.hungerRestore > 0 && surv.Hunger < 100f)
-                      || (cfg.thirstRestore > 0 && surv.Thirst < 100f);
+        bool wouldHelp = (cfg.hungerRestore > 0 && surv.Hunger < surv.MaxHunger)
+                      || (cfg.thirstRestore > 0 && surv.Thirst < surv.MaxThirst);
         if (!wouldHelp) return false;
 
         surv.RestoreHunger(cfg.hungerRestore);

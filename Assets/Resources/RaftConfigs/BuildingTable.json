@@ -1,0 +1,14 @@
+{
+    "buildings": [
+        {
+            "buildingId": "raft_foundation",
+            "displayName": "木筏地基",
+            "costs": [
+                {
+                    "itemType": "Wood",
+                    "amount": 5
+                }
+            ]
+        }
+    ]
+}

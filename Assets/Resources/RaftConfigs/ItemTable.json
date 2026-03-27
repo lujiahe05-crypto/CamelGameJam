@@ -1,0 +1,22 @@
+{
+    "items": [
+        {
+            "itemType": "Beet",
+            "displayName": "甜菜",
+            "hungerRestore": 35.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemType": "WaterBottle",
+            "displayName": "矿泉水",
+            "hungerRestore": 0.0,
+            "thirstRestore": 40.0
+        },
+        {
+            "itemType": "Coconut",
+            "displayName": "椰子",
+            "hungerRestore": 15.0,
+            "thirstRestore": 20.0
+        }
+    ]
+}

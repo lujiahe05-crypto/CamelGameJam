@@ -1,0 +1,29 @@
+{
+    "maxResources": 20,
+    "spawnInterval": 2.5,
+    "minSpawnDistance": 15.0,
+    "maxSpawnDistance": 40.0,
+    "despawnDistance": 60.0,
+    "resources": [
+        {
+            "resourceType": "Wood",
+            "weight": 30.0
+        },
+        {
+            "resourceType": "Plastic",
+            "weight": 25.0
+        },
+        {
+            "resourceType": "Coconut",
+            "weight": 15.0
+        },
+        {
+            "resourceType": "Beet",
+            "weight": 15.0
+        },
+        {
+            "resourceType": "WaterBottle",
+            "weight": 15.0
+        }
+    ]
+}

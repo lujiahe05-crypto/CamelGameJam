@@ -31,21 +31,6 @@ public class RaftGame : MonoBehaviour
 
     public const float WaterLevel = 0f;
 
-    // ========== Configurable survival rates ==========
-    [Header("Survival Config")]
-    public float HungerRate = 100f / 180f;   // Hunger lost per second
-    public float ThirstRate = 100f / 120f;   // Thirst lost per second
-    public float StarveDamage = 5f;          // HP/sec when starving
-
-    [Header("Consumable Config")]
-    public float BeetHungerRestore = 35f;
-    public float BeetThirstRestore = 0f;
-    public float WaterBottleHungerRestore = 0f;
-    public float WaterBottleThirstRestore = 40f;
-    public float CoconutHungerRestore = 15f;
-    public float CoconutThirstRestore = 20f;
-    // =================================================
-
     void Awake()
     {
         Instance = this;
@@ -71,15 +56,10 @@ public class RaftGame : MonoBehaviour
 
     void ApplyConfig()
     {
-        // Apply survival rates
-        Survival.HungerRate = HungerRate;
-        Survival.ThirstRate = ThirstRate;
-        Survival.StarveDamage = StarveDamage;
+        RaftConfigTables.Reload();
 
-        // Apply consumable configs
-        Inventory.SetConsumableConfig(ItemType.Beet, BeetHungerRestore, BeetThirstRestore);
-        Inventory.SetConsumableConfig(ItemType.WaterBottle, WaterBottleHungerRestore, WaterBottleThirstRestore);
-        Inventory.SetConsumableConfig(ItemType.Coconut, CoconutHungerRestore, CoconutThirstRestore);
+        Survival.ApplyConfig(RaftConfigTables.GetSurvivalTable());
+        RaftConfigTables.ApplyItemConfigs();
     }
 
     void CreateSharedAssets()
