@@ -3,18 +3,18 @@ using System.Text;
 using UnityEngine;
 
 [Serializable]
-public class BuildingCostEntry
+public class ItemAmountEntry
 {
-    public string itemType;
+    public int itemTypeId;
     public int amount;
 }
 
 [Serializable]
 public class BuildingConfig
 {
-    public string buildingId;
+    public int buildingId;
     public string displayName;
-    public BuildingCostEntry[] costs;
+    public ItemAmountEntry[] costs;
 }
 
 [Serializable]
@@ -26,7 +26,7 @@ public class BuildingTable
 [Serializable]
 public class ItemConfig
 {
-    public string itemType;
+    public int itemTypeId;
     public string displayName;
     public float hungerRestore;
     public float thirstRestore;
@@ -39,9 +39,9 @@ public class ItemTable
 }
 
 [Serializable]
-public class ResourceRefreshRule
+public class RefreshRule
 {
-    public string resourceType;
+    public int itemTypeId;
     public float weight;
 }
 
@@ -53,7 +53,7 @@ public class RefreshTable
     public float minSpawnDistance = 15f;
     public float maxSpawnDistance = 40f;
     public float despawnDistance = 60f;
-    public ResourceRefreshRule[] resources;
+    public RefreshRule[] resources;
 }
 
 [Serializable]
@@ -74,24 +74,43 @@ public class SurvivalTable
     public float respawnThirst = 80f;
 }
 
+[Serializable]
+public class SynthesisRecipe
+{
+    public string recipeId;
+    public string displayName;
+    public ItemAmountEntry[] inputs;
+    public int outputItemTypeId;
+    public int outputAmount = 1;
+}
+
+[Serializable]
+public class SynthesisTable
+{
+    public SynthesisRecipe[] recipes;
+}
+
 public static class RaftConfigTables
 {
-    public const string FoundationBuildingId = "raft_foundation";
+    public const int FoundationBuildingId = 1;
 
     const string BuildingTablePath = "RaftConfigs/BuildingTable";
     const string ItemTablePath = "RaftConfigs/ItemTable";
     const string RefreshTablePath = "RaftConfigs/RefreshTable";
     const string SurvivalTablePath = "RaftConfigs/SurvivalTable";
+    const string SynthesisTablePath = "RaftConfigs/SynthesisTable";
 
     static BuildingTable buildingTable;
     static ItemTable itemTable;
     static RefreshTable refreshTable;
     static SurvivalTable survivalTable;
+    static SynthesisTable synthesisTable;
 
     public static BuildingTable BuildingTableData => buildingTable ?? (buildingTable = LoadTable(BuildingTablePath, CreateDefaultBuildingTable()));
     public static ItemTable ItemTableData => itemTable ?? (itemTable = LoadTable(ItemTablePath, CreateDefaultItemTable()));
     public static RefreshTable RefreshTableData => refreshTable ?? (refreshTable = LoadTable(RefreshTablePath, CreateDefaultRefreshTable()));
     public static SurvivalTable SurvivalTableData => survivalTable ?? (survivalTable = LoadTable(SurvivalTablePath, CreateDefaultSurvivalTable()));
+    public static SynthesisTable SynthesisTableData => synthesisTable ?? (synthesisTable = LoadTable(SynthesisTablePath, CreateDefaultSynthesisTable()));
 
     public static void Reload()
     {
@@ -99,6 +118,7 @@ public static class RaftConfigTables
         itemTable = null;
         refreshTable = null;
         survivalTable = null;
+        synthesisTable = null;
     }
 
     public static void ApplyItemConfigs()
@@ -108,9 +128,9 @@ public static class RaftConfigTables
         foreach (var entry in ItemTableData.items)
         {
             if (entry == null) continue;
-            if (!TryParseItemType(entry.itemType, out var itemType))
+            if (!TryGetItemTypeById(entry.itemTypeId, out var itemType))
             {
-                Debug.LogWarning($"Unknown item type in ItemTable: {entry.itemType}");
+                Debug.LogWarning($"Unknown item type id in ItemTable: {entry.itemTypeId}");
                 continue;
             }
 
@@ -118,13 +138,58 @@ public static class RaftConfigTables
         }
     }
 
-    public static BuildingConfig GetBuildingConfig(string buildingId)
+    public static bool TryGetItemTypeById(int itemTypeId, out ItemType itemType)
+    {
+        if (Enum.IsDefined(typeof(ItemType), itemTypeId))
+        {
+            itemType = (ItemType)itemTypeId;
+            return true;
+        }
+
+        itemType = ItemType.None;
+        return false;
+    }
+
+    public static int GetItemTypeId(ItemType itemType)
+    {
+        return (int)itemType;
+    }
+
+    public static bool TryGetResourceTypeByItemTypeId(int itemTypeId, out ResourceType resourceType)
+    {
+        if (TryGetItemTypeById(itemTypeId, out var itemType))
+        {
+            switch (itemType)
+            {
+                case ItemType.Wood:
+                    resourceType = ResourceType.Wood;
+                    return true;
+                case ItemType.Plastic:
+                    resourceType = ResourceType.Plastic;
+                    return true;
+                case ItemType.Coconut:
+                    resourceType = ResourceType.Coconut;
+                    return true;
+                case ItemType.Beet:
+                    resourceType = ResourceType.Beet;
+                    return true;
+                case ItemType.WaterBottle:
+                    resourceType = ResourceType.WaterBottle;
+                    return true;
+            }
+        }
+
+        resourceType = ResourceType.Wood;
+        return false;
+    }
+
+    public static BuildingConfig GetBuildingConfig(int buildingId)
     {
         if (BuildingTableData.buildings == null) return null;
 
         foreach (var entry in BuildingTableData.buildings)
         {
-            if (entry != null && string.Equals(entry.buildingId, buildingId, StringComparison.OrdinalIgnoreCase))
+            if (entry != null && entry.buildingId == buildingId)
                 return entry;
         }
 
@@ -135,17 +200,22 @@ public static class RaftConfigTables
     {
         if (ItemTableData.items == null) return null;
 
+        int itemTypeId = GetItemTypeId(itemType);
         foreach (var entry in ItemTableData.items)
         {
-            if (entry == null) continue;
-            if (TryParseItemType(entry.itemType, out var parsedType) && parsedType == itemType)
+            if (entry != null && entry.itemTypeId == itemTypeId)
                 return entry;
         }
 
         return null;
     }
 
-    public static bool CanAffordBuilding(Inventory inventory, string buildingId)
+    public static SynthesisTable GetSynthesisTable()
+    {
+        return SynthesisTableData;
+    }
+
+    public static bool CanAffordBuilding(Inventory inventory, int buildingId)
     {
         var config = GetBuildingConfig(buildingId);
         if (inventory == null || config == null || config.costs == null) return false;
@@ -153,9 +223,9 @@ public static class RaftConfigTables
         foreach (var cost in config.costs)
         {
             if (cost == null) continue;
-            if (!TryParseItemType(cost.itemType, out var itemType))
+            if (!TryGetItemTypeById(cost.itemTypeId, out var itemType))
             {
-                Debug.LogWarning($"Unknown build cost item type: {cost.itemType}");
+                Debug.LogWarning($"Unknown build cost item type id: {cost.itemTypeId}");
                 return false;
             }
 
@@ -166,7 +236,7 @@ public static class RaftConfigTables
         return true;
     }
 
-    public static bool ConsumeBuildingCost(Inventory inventory, string buildingId)
+    public static bool ConsumeBuildingCost(Inventory inventory, int buildingId)
     {
         if (!CanAffordBuilding(inventory, buildingId))
             return false;
@@ -176,15 +246,15 @@ public static class RaftConfigTables
 
         foreach (var cost in config.costs)
         {
-            if (cost == null) continue;
-            if (TryParseItemType(cost.itemType, out var itemType) && cost.amount > 0)
+            if (cost == null || cost.amount <= 0) continue;
+            if (TryGetItemTypeById(cost.itemTypeId, out var itemType))
                 inventory.Remove(itemType, cost.amount);
         }
 
         return true;
     }
 
-    public static string FormatBuildingCost(string buildingId)
+    public static string FormatBuildingCost(int buildingId)
     {
         var config = GetBuildingConfig(buildingId);
         if (config == null || config.costs == null || config.costs.Length == 0)
@@ -199,8 +269,8 @@ public static class RaftConfigTables
             if (builder.Length > 0)
                 builder.Append(" + ");
 
-            string itemName = cost.itemType;
-            if (TryParseItemType(cost.itemType, out var itemType))
+            string itemName = cost.itemTypeId.ToString();
+            if (TryGetItemTypeById(cost.itemTypeId, out var itemType))
                 itemName = Inventory.GetItemName(itemType);
 
             builder.Append(cost.amount);
@@ -230,7 +300,7 @@ public static class RaftConfigTables
         foreach (var entry in table.resources)
         {
             if (entry == null) continue;
-            if (!TryParseResourceType(entry.resourceType, out _)) continue;
+            if (!TryGetResourceTypeByItemTypeId(entry.itemTypeId, out _)) continue;
             if (entry.weight > 0f)
                 totalWeight += entry.weight;
         }
@@ -244,7 +314,7 @@ public static class RaftConfigTables
         foreach (var entry in table.resources)
         {
             if (entry == null || entry.weight <= 0f) continue;
-            if (!TryParseResourceType(entry.resourceType, out var resourceType)) continue;
+            if (!TryGetResourceTypeByItemTypeId(entry.itemTypeId, out var resourceType)) continue;
 
             cumulative += entry.weight;
             if (roll <= cumulative)
@@ -252,16 +322,6 @@ public static class RaftConfigTables
         }
 
         return ResourceType.Wood;
-    }
-
-    static bool TryParseItemType(string raw, out ItemType itemType)
-    {
-        return Enum.TryParse(raw, true, out itemType);
-    }
-
-    static bool TryParseResourceType(string raw, out ResourceType resourceType)
-    {
-        return Enum.TryParse(raw, true, out resourceType);
     }
 
     static T LoadTable<T>(string resourcePath, T fallback) where T : class
@@ -295,7 +355,7 @@ public static class RaftConfigTables
                     displayName = "\u6728\u7b4f\u5730\u57fa",
                     costs = new[]
                     {
-                        new BuildingCostEntry { itemType = nameof(ItemType.Wood), amount = 1 }
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Wood), amount = 1 }
                     }
                 }
             }
@@ -310,24 +370,52 @@ public static class RaftConfigTables
             {
                 new ItemConfig
                 {
-                    itemType = nameof(ItemType.Beet),
+                    itemTypeId = GetItemTypeId(ItemType.Hook),
+                    displayName = "\u9497\u5b50",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.BuildHammer),
+                    displayName = "\u5efa\u9020\u9524",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.Wood),
+                    displayName = "\u6728\u6750",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.Plastic),
+                    displayName = "\u5851\u6599",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.Coconut),
+                    displayName = "\u6930\u5b50",
+                    hungerRestore = 15f,
+                    thirstRestore = 20f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.Beet),
                     displayName = "\u751c\u83dc",
                     hungerRestore = 35f,
                     thirstRestore = 0f
                 },
                 new ItemConfig
                 {
-                    itemType = nameof(ItemType.WaterBottle),
+                    itemTypeId = GetItemTypeId(ItemType.WaterBottle),
                     displayName = "\u77ff\u6cc9\u6c34",
                     hungerRestore = 0f,
                     thirstRestore = 40f
-                },
-                new ItemConfig
-                {
-                    itemType = nameof(ItemType.Coconut),
-                    displayName = "\u6930\u5b50",
-                    hungerRestore = 15f,
-                    thirstRestore = 20f
                 }
             }
         };
@@ -344,11 +432,11 @@ public static class RaftConfigTables
             despawnDistance = 60f,
             resources = new[]
             {
-                new ResourceRefreshRule { resourceType = nameof(ResourceType.Wood), weight = 30f },
-                new ResourceRefreshRule { resourceType = nameof(ResourceType.Plastic), weight = 25f },
-                new ResourceRefreshRule { resourceType = nameof(ResourceType.Coconut), weight = 15f },
-                new ResourceRefreshRule { resourceType = nameof(ResourceType.Beet), weight = 15f },
-                new ResourceRefreshRule { resourceType = nameof(ResourceType.WaterBottle), weight = 15f }
+                new RefreshRule { itemTypeId = GetItemTypeId(ItemType.Wood), weight = 30f },
+                new RefreshRule { itemTypeId = GetItemTypeId(ItemType.Plastic), weight = 25f },
+                new RefreshRule { itemTypeId = GetItemTypeId(ItemType.Coconut), weight = 15f },
+                new RefreshRule { itemTypeId = GetItemTypeId(ItemType.Beet), weight = 15f },
+                new RefreshRule { itemTypeId = GetItemTypeId(ItemType.WaterBottle), weight = 15f }
             }
         };
     }
@@ -370,6 +458,28 @@ public static class RaftConfigTables
             respawnHealth = 100f,
             respawnHunger = 80f,
             respawnThirst = 80f
+        };
+    }
+
+    static SynthesisTable CreateDefaultSynthesisTable()
+    {
+        return new SynthesisTable
+        {
+            recipes = new[]
+            {
+                new SynthesisRecipe
+                {
+                    recipeId = "craft_water_bottle",
+                    displayName = "\u5408\u6210\u77ff\u6cc9\u6c34",
+                    inputs = new[]
+                    {
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Plastic), amount = 2 },
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Coconut), amount = 1 }
+                    },
+                    outputItemTypeId = GetItemTypeId(ItemType.WaterBottle),
+                    outputAmount = 1
+                }
+            }
         };
     }
 }

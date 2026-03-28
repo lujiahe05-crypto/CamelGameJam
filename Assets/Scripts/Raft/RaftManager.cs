@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class RaftManager : MonoBehaviour
 {
-    public const string FoundationBuildingId = RaftConfigTables.FoundationBuildingId;
+    public const int FoundationBuildingId = RaftConfigTables.FoundationBuildingId;
 
     Dictionary<Vector2Int, RaftBlock> blocks = new Dictionary<Vector2Int, RaftBlock>();
 

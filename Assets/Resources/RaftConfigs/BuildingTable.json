@@ -1,12 +1,42 @@
 {
     "buildings": [
         {
-            "buildingId": "raft_foundation",
+            "buildingId": 1,
             "displayName": "木筏地基",
             "costs": [
                 {
-                    "itemType": "Wood",
-                    "amount": 3
+                    "itemTypeId": 3,
+                    "amount": 4
+                }
+            ]
+        },
+        {
+            "buildingId": 2,
+            "displayName": "种植盆",
+            "costs": [
+                {
+                    "itemTypeId": 8,
+                    "amount": 1
+                }
+            ]
+        },
+        {
+            "buildingId": 3,
+            "displayName": "晾水器",
+            "costs": [
+                {
+                    "itemTypeId": 9,
+                    "amount": 1
+                }
+            ]
+        },
+        {
+            "buildingId": 4,
+            "displayName": "储物箱",
+            "costs": [
+                {
+                    "itemTypeId": 10,
+                    "amount": 1
                 }
             ]
         }

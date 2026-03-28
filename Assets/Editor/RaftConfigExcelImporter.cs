@@ -45,6 +45,7 @@ public static class RaftConfigExcelImporter
         WriteJson("ItemTable.json", ImportItemTable(workbook.RequireSheet("item")));
         WriteJson("RefreshTable.json", ImportRefreshTable(workbook.RequireSheet("refresh")));
         WriteJson("SurvivalTable.json", ImportSurvivalTable(workbook.RequireSheet("survival")));
+        WriteJson("SynthesisTable.json", ImportSynthesisTable(workbook.RequireSheet("synthesis")));
 
         AssetDatabase.Refresh();
         Debug.Log($"Imported Raft config excel: {excelPath}");
@@ -52,27 +53,27 @@ public static class RaftConfigExcelImporter
 
     static BuildingTable ImportBuildingTable(ExcelSheet sheet)
     {
-        var configs = new Dictionary<string, BuildingConfig>(StringComparer.OrdinalIgnoreCase);
+        var configs = new Dictionary<int, BuildingConfig>();
 
         foreach (var row in sheet.Rows)
         {
-            string buildingId = row.GetRequired("buildingId");
+            int buildingId = row.GetInt("buildingId");
             if (!configs.TryGetValue(buildingId, out var config))
             {
                 config = new BuildingConfig
                 {
                     buildingId = buildingId,
-                    displayName = row.GetOrDefault("displayName", buildingId)
+                    displayName = row.GetOrDefault("displayName", buildingId.ToString(CultureInfo.InvariantCulture))
                 };
                 configs.Add(buildingId, config);
             }
 
-            string costItemType = row.GetRequired("costItemType");
+            int costItemTypeId = row.GetInt("costItemTypeId");
             int costAmount = row.GetInt("costAmount");
-            var costs = config.costs == null ? new List<BuildingCostEntry>() : new List<BuildingCostEntry>(config.costs);
-            costs.Add(new BuildingCostEntry
+            var costs = config.costs == null ? new List<ItemAmountEntry>() : new List<ItemAmountEntry>(config.costs);
+            costs.Add(new ItemAmountEntry
             {
-                itemType = costItemType,
+                itemTypeId = costItemTypeId,
                 amount = costAmount
             });
             config.costs = costs.ToArray();
@@ -91,8 +92,8 @@ public static class RaftConfigExcelImporter
         {
             items.Add(new ItemConfig
             {
-                itemType = row.GetRequired("itemType"),
-                displayName = row.GetOrDefault("displayName", row.GetRequired("itemType")),
+                itemTypeId = row.GetInt("itemTypeId"),
+                displayName = row.GetOrDefault("displayName", row.GetRequired("itemTypeId")),
                 hungerRestore = row.GetFloat("hungerRestore"),
                 thirstRestore = row.GetFloat("thirstRestore")
             });
@@ -107,7 +108,7 @@ public static class RaftConfigExcelImporter
     static RefreshTable ImportRefreshTable(ExcelSheet sheet)
     {
         var table = new RefreshTable();
-        var resources = new List<ResourceRefreshRule>();
+        var resources = new List<RefreshRule>();
 
         foreach (var row in sheet.Rows)
         {
@@ -120,9 +121,9 @@ public static class RaftConfigExcelImporter
             }
             else if (rowType == "resource")
             {
-                resources.Add(new ResourceRefreshRule
+                resources.Add(new RefreshRule
                 {
-                    resourceType = row.GetRequired("resourceType"),
+                    itemTypeId = row.GetInt("itemTypeId"),
                     weight = row.GetFloat("weight")
                 });
             }
@@ -148,6 +149,42 @@ public static class RaftConfigExcelImporter
         }
 
         return table;
+    }
+
+    static SynthesisTable ImportSynthesisTable(ExcelSheet sheet)
+    {
+        var recipes = new Dictionary<string, SynthesisRecipe>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var row in sheet.Rows)
+        {
+            string recipeId = row.GetRequired("recipeId");
+            if (!recipes.TryGetValue(recipeId, out var recipe))
+            {
+                recipe = new SynthesisRecipe
+                {
+                    recipeId = recipeId,
+                    displayName = row.GetOrDefault("displayName", recipeId),
+                    outputItemTypeId = row.GetInt("outputItemTypeId"),
+                    outputAmount = row.GetInt("outputAmount")
+                };
+                recipes.Add(recipeId, recipe);
+            }
+
+            int inputItemTypeId = row.GetInt("inputItemTypeId");
+            int inputAmount = row.GetInt("inputAmount");
+            var inputs = recipe.inputs == null ? new List<ItemAmountEntry>() : new List<ItemAmountEntry>(recipe.inputs);
+            inputs.Add(new ItemAmountEntry
+            {
+                itemTypeId = inputItemTypeId,
+                amount = inputAmount
+            });
+            recipe.inputs = inputs.ToArray();
+        }
+
+        return new SynthesisTable
+        {
+            recipes = recipes.Values.ToArray()
+        };
     }
 
     static void ApplyRefreshSetting(RefreshTable table, string key, string value)
@@ -178,45 +215,19 @@ public static class RaftConfigExcelImporter
     {
         switch (key.Trim().ToLowerInvariant())
         {
-            case "maxhealth":
-                table.maxHealth = value;
-                break;
-            case "maxhunger":
-                table.maxHunger = value;
-                break;
-            case "maxthirst":
-                table.maxThirst = value;
-                break;
-            case "initialhealth":
-                table.initialHealth = value;
-                break;
-            case "initialhunger":
-                table.initialHunger = value;
-                break;
-            case "initialthirst":
-                table.initialThirst = value;
-                break;
-            case "hungerrate":
-                table.hungerRate = value;
-                break;
-            case "thirstrate":
-                table.thirstRate = value;
-                break;
-            case "starvedamage":
-                table.starveDamage = value;
-                break;
-            case "respawndelay":
-                table.respawnDelay = value;
-                break;
-            case "respawnhealth":
-                table.respawnHealth = value;
-                break;
-            case "respawnhunger":
-                table.respawnHunger = value;
-                break;
-            case "respawnthirst":
-                table.respawnThirst = value;
-                break;
+            case "maxhealth": table.maxHealth = value; break;
+            case "maxhunger": table.maxHunger = value; break;
+            case "maxthirst": table.maxThirst = value; break;
+            case "initialhealth": table.initialHealth = value; break;
+            case "initialhunger": table.initialHunger = value; break;
+            case "initialthirst": table.initialThirst = value; break;
+            case "hungerrate": table.hungerRate = value; break;
+            case "thirstrate": table.thirstRate = value; break;
+            case "starvedamage": table.starveDamage = value; break;
+            case "respawndelay": table.respawnDelay = value; break;
+            case "respawnhealth": table.respawnHealth = value; break;
+            case "respawnhunger": table.respawnHunger = value; break;
+            case "respawnthirst": table.respawnThirst = value; break;
             default:
                 throw new InvalidDataException($"Unknown survival setting key: {key}");
         }
@@ -269,7 +280,6 @@ public static class RaftConfigExcelImporter
             XNamespace docRelNs = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
             var sharedStrings = LoadSharedStrings(archive, mainNs);
-
             var workbookXml = LoadXml(archive, "xl/workbook.xml");
             var relsXml = LoadXml(archive, "xl/_rels/workbook.xml.rels");
             var relMap = relsXml.Root.Elements(relNs + "Relationship")
@@ -357,17 +367,17 @@ public static class RaftConfigExcelImporter
                 rawRows.Add(row);
             }
 
-            if (rawRows.Count == 0)
+            if (rawRows.Count < 2)
                 return new ExcelSheet(new List<ExcelRow>());
 
-            var headerRow = rawRows[0];
+            var headerRow = rawRows[1];
             int maxColumn = headerRow.Keys.Count == 0 ? -1 : headerRow.Keys.Max();
             var headers = new string[maxColumn + 1];
             foreach (var pair in headerRow)
                 headers[pair.Key] = pair.Value?.Trim();
 
             var rows = new List<ExcelRow>();
-            for (int i = 1; i < rawRows.Count; i++)
+            for (int i = 2; i < rawRows.Count; i++)
             {
                 var rawRow = rawRows[i];
                 var data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -463,3 +473,4 @@ public static class RaftConfigExcelImporter
         }
     }
 }
+

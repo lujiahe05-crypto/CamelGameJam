@@ -1,89 +1,91 @@
-# Raft Config Excel 说明
+﻿# Raft Config Excel 说明
 
-把一个 `.xlsx` 文件导入到 Unity 后，可以通过菜单 `Tools/Raft/Import Config Excel...` 转成：
-
-- `Assets/Resources/RaftConfigs/BuildingTable.json`
-- `Assets/Resources/RaftConfigs/ItemTable.json`
-- `Assets/Resources/RaftConfigs/RefreshTable.json`
-- `Assets/Resources/RaftConfigs/SurvivalTable.json`
-
-## 工作表名称
-
-Excel 里需要这 4 张工作表，名字固定：
+Excel 需要 5 张工作表：
 
 - `building`
 - `item`
 - `refresh`
 - `survival`
+- `synthesis`
+
+## 读取规则
+
+- 第 1 行：中文备注，不读取，只给策划看含义。
+- 第 2 行：字段名，导入器按这一行识别列。
+- 第 3 行开始：正式数据。
+
+## 道具 ID
+
+当前 `ItemType` 数字 ID：
+
+- `0` = None
+- `1` = Hook
+- `2` = BuildHammer
+- `3` = Wood
+- `4` = Plastic
+- `5` = Coconut
+- `6` = Beet
+- `7` = WaterBottle
 
 ## building 表
 
-一行代表一个建造消耗项。
+- 一行表示一个建造消耗项。`buildingId` 使用数字 ID 配置。
+- 同一个 `buildingId` 可以写多行，表示多个消耗。
 
-| buildingId | displayName | costItemType | costAmount |
-| --- | --- | --- | --- |
-| raft_foundation | 木筏地基 | Wood | 1 |
-| raft_foundation | 木筏地基 | Plastic | 2 |
+字段：
 
-说明：
-
-- 同一个 `buildingId` 可以写多行，表示多个消耗项。
-- `costItemType` 必须和代码里的 `ItemType` 名字一致，比如 `Wood`、`Plastic`。
+- `buildingId`
+- `displayName`
+- `costItemTypeId`
+- `costAmount`
 
 ## item 表
 
-一行代表一个可恢复物品。
+- 一行表示一个物品配置。
+- 建议把当前游戏内全部道具都维护进来，不只是可食用道具。
+- 非消耗类道具的 `hungerRestore` 和 `thirstRestore` 填 `0`。
 
-| itemType | displayName | hungerRestore | thirstRestore |
-| --- | --- | --- | --- |
-| Beet | 甜菜 | 35 | 0 |
-| WaterBottle | 矿泉水 | 0 | 40 |
-| Coconut | 椰子 | 15 | 20 |
+字段：
+
+- `itemTypeId`
+- `displayName`
+- `hungerRestore`
+- `thirstRestore`
 
 ## refresh 表
 
-同一张表里同时写刷新基础规则和资源权重。
+- `rowType=setting`：刷新系统基础配置。
+- `rowType=resource`：漂浮物权重配置。
 
-### 设置行
+字段：
 
-| rowType | key | value |
-| --- | --- | --- |
-| setting | maxResources | 20 |
-| setting | spawnInterval | 2.5 |
-| setting | minSpawnDistance | 15 |
-| setting | maxSpawnDistance | 40 |
-| setting | despawnDistance | 60 |
-
-### 资源权重行
-
-| rowType | resourceType | weight |
-| --- | --- | --- |
-| resource | Wood | 30 |
-| resource | Plastic | 25 |
-| resource | Coconut | 15 |
-| resource | Beet | 15 |
-| resource | WaterBottle | 15 |
-
-说明：
-
-- `resourceType` 必须和代码里的 `ResourceType` 名字一致。
+- `rowType`
+- `key`
+- `value`
+- `itemTypeId`
+- `weight`
 
 ## survival 表
 
-用键值形式写生存数值。
+- 使用键值配置生存数值。
 
-| key | value |
-| --- | --- |
-| maxHealth | 100 |
-| maxHunger | 100 |
-| maxThirst | 100 |
-| initialHealth | 100 |
-| initialHunger | 100 |
-| initialThirst | 100 |
-| hungerRate | 0.5555556 |
-| thirstRate | 0.8333333 |
-| starveDamage | 5 |
-| respawnDelay | 3 |
-| respawnHealth | 100 |
-| respawnHunger | 80 |
-| respawnThirst | 80 |
+字段：
+
+- `key`
+- `value`
+
+## synthesis 表
+
+- 一行表示一个合成输入项。
+- 同一个 `recipeId` 可以写多行，表示多个输入材料。
+- 当前只负责配置数据，不负责实现合成逻辑。
+
+字段：
+
+- `recipeId`
+- `displayName`
+- `inputItemTypeId`
+- `inputAmount`
+- `outputItemTypeId`
+- `outputAmount`
+

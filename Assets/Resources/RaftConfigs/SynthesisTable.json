@@ -1,0 +1,20 @@
+﻿{
+  "recipes": [
+    {
+      "recipeId": "craft_water_bottle",
+      "displayName": "合成矿泉水",
+      "inputs": [
+        {
+          "itemTypeId": 4,
+          "amount": 2
+        },
+        {
+          "itemTypeId": 5,
+          "amount": 1
+        }
+      ],
+      "outputItemTypeId": 7,
+      "outputAmount": 1
+    }
+  ]
+}
