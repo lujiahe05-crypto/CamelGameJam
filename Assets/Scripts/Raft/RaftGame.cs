@@ -145,6 +145,10 @@ public class RaftGame : MonoBehaviour
         var sharkGo = new GameObject("Shark");
         sharkGo.transform.SetParent(rootContainer.transform);
         sharkGo.AddComponent<SharkAI>();
+
+        var interactGo = new GameObject("InteractionSystem");
+        interactGo.transform.SetParent(rootContainer.transform);
+        interactGo.AddComponent<InteractionSystem>();
     }
 
     void CreateUI()
@@ -159,6 +163,10 @@ public class RaftGame : MonoBehaviour
         canvasGo.AddComponent<UnityEngine.UI.GraphicRaycaster>();
 
         UI = canvasGo.AddComponent<RaftUI>();
+
+        // Crafting & Storage panels (on same canvas)
+        canvasGo.AddComponent<RaftCraftingUI>();
+        canvasGo.AddComponent<RaftStorageUI>();
     }
 
     void GiveStartingItems()

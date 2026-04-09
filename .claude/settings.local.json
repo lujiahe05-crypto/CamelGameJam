@@ -5,7 +5,14 @@
       "Bash(mv SnakeGame.cs Snake/)",
       "Bash(mv SnakeGame.cs.meta Snake/)",
       "Bash(mv TetrisGame.cs Tetris/)",
-      "Bash(mv TetrisGame.cs.meta Tetris/)"
+      "Bash(mv TetrisGame.cs.meta Tetris/)",
+      "Bash(find /d/UnityProject/ClaudeTest/Test01-Snake/Assets/Editor -name *.cs)",
+      "Bash(cd /d D:UnityProjectClaudeTestTest01-Snake)",
+      "Bash(find . -name *Craft* -o -name *craft*)",
+      "Bash(find /c/Users/RuanHaoYu -name SKILL.md -o -name *skill*.md)",
+      "WebSearch",
+      "Bash(/dev/null:*)",
+      "Bash(mkdir -p \"C:/Users/RuanHaoYu/.claude/commands\")",
     ]
   }
 }

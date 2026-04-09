@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (RaftUI.IsUIOpen) return;
         HandleMouseLook();
         HandleMovement();
     }

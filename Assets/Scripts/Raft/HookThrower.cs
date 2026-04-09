@@ -28,6 +28,8 @@ public class HookThrower : MonoBehaviour
 
     void Update()
     {
+        if (RaftUI.IsUIOpen) return;
+
         // Only allow throwing when Hook is the selected item
         bool hookSelected = RaftGame.Instance.Inv.GetSelectedItemType() == ItemType.Hook;
 

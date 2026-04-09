@@ -116,10 +116,23 @@ public class RaftManager : MonoBehaviour
     {
         UpdateBuoyancy();
 
+        if (RaftUI.IsUIOpen)
+        {
+            ghostBlock.SetActive(false);
+            return;
+        }
+
+        var selectedType = RaftGame.Instance.Inv.GetSelectedItemType();
+
         if (IsBuildMode)
         {
             ghostBlock.SetActive(true);
             UpdateBuildMode();
+        }
+        else if (IsPlaceableItem(selectedType))
+        {
+            ghostBlock.SetActive(true);
+            UpdatePlacementMode(selectedType);
         }
         else
         {
@@ -215,4 +228,102 @@ public class RaftManager : MonoBehaviour
     }
 
     public int BlockCount => blocks.Count;
+
+    public static bool IsPlaceableItem(ItemType type)
+    {
+        return type == ItemType.Planter || type == ItemType.WaterPurifier || type == ItemType.StorageBox;
+    }
+
+    public static int GetBuildingIdForItem(ItemType type)
+    {
+        switch (type)
+        {
+            case ItemType.Planter: return 2;
+            case ItemType.WaterPurifier: return 3;
+            case ItemType.StorageBox: return 4;
+            default: return 0;
+        }
+    }
+
+    void UpdatePlacementMode(ItemType selectedType)
+    {
+        var cam = Camera.main;
+        var ray = cam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 10f))
+        {
+            var block = hit.collider.GetComponent<RaftBlock>();
+            if (block == null) block = hit.collider.GetComponentInParent<RaftBlock>();
+
+            if (block != null && !block.HasBuilding)
+            {
+                Vector3 ghostPos = block.transform.position + new Vector3(0, 0.5f, 0);
+                ghostBlock.transform.position = ghostPos;
+                ghostBlock.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f);
+                ghostBlock.SetActive(true);
+
+                var mr = ghostBlock.GetComponent<MeshRenderer>();
+                mr.material.color = new Color(0.3f, 0.9f, 0.3f, 0.4f);
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    var inv = RaftGame.Instance.Inv;
+                    int buildingId = GetBuildingIdForItem(selectedType);
+                    if (RaftConfigTables.ConsumeBuildingCost(inv, buildingId))
+                    {
+                        SpawnBuilding(block, buildingId, selectedType);
+                    }
+                }
+            }
+            else
+            {
+                ghostBlock.SetActive(false);
+            }
+        }
+        else
+        {
+            ghostBlock.SetActive(false);
+        }
+    }
+
+    void SpawnBuilding(RaftBlock block, int buildingId, ItemType itemType)
+    {
+        var config = RaftConfigTables.GetBuildingConfig(buildingId);
+        string displayName = config != null ? config.displayName : Inventory.GetItemName(itemType);
+
+        var buildingGo = new GameObject("Building_" + displayName);
+
+        // Visual mesh
+        var mf = buildingGo.AddComponent<MeshFilter>();
+        mf.mesh = RaftGame.Instance.CubeMesh;
+        var mr = buildingGo.AddComponent<MeshRenderer>();
+
+        // Collider for interaction raycast
+        var col = buildingGo.AddComponent<BoxCollider>();
+        col.size = Vector3.one;
+
+        switch (itemType)
+        {
+            case ItemType.Planter:
+                buildingGo.transform.localScale = new Vector3(1.2f, 0.4f, 1.2f);
+                mr.material = ProceduralMeshUtil.CreateMaterial(new Color(0.45f, 0.3f, 0.15f));
+                buildingGo.AddComponent<PlacedPlanter>();
+                break;
+            case ItemType.WaterPurifier:
+                buildingGo.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+                mr.material = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.75f, 0.85f));
+                buildingGo.AddComponent<PlacedWaterPurifier>();
+                break;
+            case ItemType.StorageBox:
+                buildingGo.transform.localScale = new Vector3(1.0f, 0.6f, 1.0f);
+                mr.material = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.35f, 0.1f));
+                buildingGo.AddComponent<PlacedStorageBox>();
+                break;
+        }
+
+        block.SetBuilding(buildingId, buildingGo);
+
+        if (RaftGame.Instance.UI != null)
+            RaftGame.Instance.UI.ShowToast("\u5df2\u653e\u7f6e " + displayName);
+    }
 }

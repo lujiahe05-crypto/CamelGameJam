@@ -1,17 +1,55 @@
-﻿{
+{
   "recipes": [
+    {
+      "recipeId": "craft_planter",
+      "displayName": "制造种植盆",
+      "category": "survival",
+      "inputs": [
+        { "itemTypeId": 3, "amount": 6 },
+        { "itemTypeId": 4, "amount": 4 }
+      ],
+      "outputItemTypeId": 8,
+      "outputAmount": 1
+    },
+    {
+      "recipeId": "craft_water_purifier",
+      "displayName": "制造晾水器",
+      "category": "survival",
+      "inputs": [
+        { "itemTypeId": 3, "amount": 4 },
+        { "itemTypeId": 4, "amount": 6 }
+      ],
+      "outputItemTypeId": 9,
+      "outputAmount": 1
+    },
+    {
+      "recipeId": "craft_storage_box",
+      "displayName": "制造储物箱",
+      "category": "storage",
+      "inputs": [
+        { "itemTypeId": 3, "amount": 8 },
+        { "itemTypeId": 4, "amount": 2 }
+      ],
+      "outputItemTypeId": 10,
+      "outputAmount": 1
+    },
+    {
+      "recipeId": "craft_empty_cup",
+      "displayName": "制造水杯",
+      "category": "tool",
+      "inputs": [
+        { "itemTypeId": 4, "amount": 2 }
+      ],
+      "outputItemTypeId": 11,
+      "outputAmount": 1
+    },
     {
       "recipeId": "craft_water_bottle",
       "displayName": "合成矿泉水",
+      "category": "tool",
       "inputs": [
-        {
-          "itemTypeId": 4,
-          "amount": 2
-        },
-        {
-          "itemTypeId": 5,
-          "amount": 1
-        }
+        { "itemTypeId": 4, "amount": 2 },
+        { "itemTypeId": 5, "amount": 1 }
       ],
       "outputItemTypeId": 7,
       "outputAmount": 1

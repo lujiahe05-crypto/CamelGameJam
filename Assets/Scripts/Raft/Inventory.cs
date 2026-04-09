@@ -20,7 +20,13 @@ public enum ItemType
     Plastic,
     Coconut,
     Beet,
-    WaterBottle
+    WaterBottle,
+    Planter,
+    WaterPurifier,
+    StorageBox,
+    EmptyCup,
+    SeawaterCup,
+    FreshwaterCup
 }
 
 [System.Serializable]
@@ -71,9 +77,10 @@ public class Inventory : MonoBehaviour
     // ========== Configurable consumable values ==========
     static Dictionary<ItemType, ConsumableConfig> consumables = new Dictionary<ItemType, ConsumableConfig>
     {
-        { ItemType.Coconut,     new ConsumableConfig(15f, 20f) },
-        { ItemType.Beet,        new ConsumableConfig(35f, 0f)  },
-        { ItemType.WaterBottle, new ConsumableConfig(0f, 40f)  },
+        { ItemType.Coconut,        new ConsumableConfig(15f, 20f) },
+        { ItemType.Beet,           new ConsumableConfig(35f, 0f)  },
+        { ItemType.WaterBottle,    new ConsumableConfig(0f, 40f)  },
+        { ItemType.FreshwaterCup,  new ConsumableConfig(0f, 30f)  },
     };
 
     /// <summary>
@@ -255,7 +262,13 @@ public class Inventory : MonoBehaviour
 
         surv.RestoreHunger(cfg.hungerRestore);
         surv.RestoreThirst(cfg.thirstRestore);
+        var consumedType = slot.type;
         Remove(slot.type, 1);
+
+        // Drinking freshwater returns the empty cup
+        if (consumedType == ItemType.FreshwaterCup)
+            Add(ItemType.EmptyCup, 1);
+
         return true;
     }
 
@@ -293,13 +306,19 @@ public class Inventory : MonoBehaviour
     {
         switch (type)
         {
-            case ItemType.Hook: return "\u9497\u5b50";        // 钩子
-            case ItemType.BuildHammer: return "\u5efa\u9020\u9524";  // 建造锤
-            case ItemType.Wood: return "\u6728\u6750";        // 木材
-            case ItemType.Plastic: return "\u5851\u6599";      // 塑料
-            case ItemType.Coconut: return "\u6930\u5b50";      // 椰子
-            case ItemType.Beet: return "\u751c\u83dc";         // 甜菜
-            case ItemType.WaterBottle: return "\u77ff\u6cc9\u6c34";  // 矿泉水
+            case ItemType.Hook: return "\u9497\u5b50";
+            case ItemType.BuildHammer: return "\u5efa\u9020\u9524";
+            case ItemType.Wood: return "\u6728\u6750";
+            case ItemType.Plastic: return "\u5851\u6599";
+            case ItemType.Coconut: return "\u6930\u5b50";
+            case ItemType.Beet: return "\u751c\u83dc";
+            case ItemType.WaterBottle: return "\u77ff\u6cc9\u6c34";
+            case ItemType.Planter: return "\u79cd\u690d\u76c6";
+            case ItemType.WaterPurifier: return "\u6652\u6c34\u5668";
+            case ItemType.StorageBox: return "\u50a8\u7269\u7bb1";
+            case ItemType.EmptyCup: return "\u7a7a\u676f\u5b50";
+            case ItemType.SeawaterCup: return "\u6d77\u6c34\u676f";
+            case ItemType.FreshwaterCup: return "\u6de1\u6c34\u676f";
             default: return "";
         }
     }
@@ -315,6 +334,12 @@ public class Inventory : MonoBehaviour
             case ItemType.Coconut: return new Color(0.3f, 0.65f, 0.2f);
             case ItemType.Beet: return new Color(0.7f, 0.15f, 0.3f);
             case ItemType.WaterBottle: return new Color(0.3f, 0.7f, 0.95f);
+            case ItemType.Planter: return new Color(0.45f, 0.3f, 0.15f);
+            case ItemType.WaterPurifier: return new Color(0.6f, 0.75f, 0.85f);
+            case ItemType.StorageBox: return new Color(0.5f, 0.35f, 0.1f);
+            case ItemType.EmptyCup: return new Color(0.7f, 0.7f, 0.7f);
+            case ItemType.SeawaterCup: return new Color(0.2f, 0.4f, 0.6f);
+            case ItemType.FreshwaterCup: return new Color(0.4f, 0.8f, 0.95f);
             default: return Color.clear;
         }
     }

@@ -79,6 +79,7 @@ public class SynthesisRecipe
 {
     public string recipeId;
     public string displayName;
+    public string category;
     public ItemAmountEntry[] inputs;
     public int outputItemTypeId;
     public int outputAmount = 1;
@@ -213,6 +214,66 @@ public static class RaftConfigTables
     public static SynthesisTable GetSynthesisTable()
     {
         return SynthesisTableData;
+    }
+
+    public static SynthesisRecipe[] GetRecipesByCategory(string category)
+    {
+        var table = SynthesisTableData;
+        if (table.recipes == null) return new SynthesisRecipe[0];
+
+        int count = 0;
+        foreach (var r in table.recipes)
+            if (r != null && r.category == category) count++;
+
+        var result = new SynthesisRecipe[count];
+        int idx = 0;
+        foreach (var r in table.recipes)
+            if (r != null && r.category == category) result[idx++] = r;
+
+        return result;
+    }
+
+    public static bool CanAffordRecipe(Inventory inventory, SynthesisRecipe recipe)
+    {
+        if (inventory == null || recipe == null || recipe.inputs == null) return false;
+
+        foreach (var input in recipe.inputs)
+        {
+            if (input == null) continue;
+            if (!TryGetItemTypeById(input.itemTypeId, out var itemType))
+                return false;
+            if (inventory.GetCount(itemType) < input.amount)
+                return false;
+        }
+        return true;
+    }
+
+    public static bool ConsumeRecipeInputs(Inventory inventory, SynthesisRecipe recipe)
+    {
+        if (!CanAffordRecipe(inventory, recipe)) return false;
+
+        foreach (var input in recipe.inputs)
+        {
+            if (input == null || input.amount <= 0) continue;
+            if (TryGetItemTypeById(input.itemTypeId, out var itemType))
+                inventory.Remove(itemType, input.amount);
+        }
+        return true;
+    }
+
+    public static string GetItemDisplayName(int itemTypeId)
+    {
+        if (ItemTableData.items != null)
+        {
+            foreach (var item in ItemTableData.items)
+            {
+                if (item != null && item.itemTypeId == itemTypeId)
+                    return item.displayName;
+            }
+        }
+        if (TryGetItemTypeById(itemTypeId, out var itemType))
+            return Inventory.GetItemName(itemType);
+        return itemTypeId.ToString();
     }
 
     public static bool CanAffordBuilding(Inventory inventory, int buildingId)
@@ -416,6 +477,48 @@ public static class RaftConfigTables
                     displayName = "\u77ff\u6cc9\u6c34",
                     hungerRestore = 0f,
                     thirstRestore = 40f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.Planter),
+                    displayName = "\u79cd\u690d\u76c6",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.WaterPurifier),
+                    displayName = "\u6652\u6c34\u5668",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.StorageBox),
+                    displayName = "\u50a8\u7269\u7bb1",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.EmptyCup),
+                    displayName = "\u7a7a\u676f\u5b50",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.SeawaterCup),
+                    displayName = "\u6d77\u6c34\u676f",
+                    hungerRestore = 0f,
+                    thirstRestore = 0f
+                },
+                new ItemConfig
+                {
+                    itemTypeId = GetItemTypeId(ItemType.FreshwaterCup),
+                    displayName = "\u6de1\u6c34\u676f",
+                    hungerRestore = 0f,
+                    thirstRestore = 30f
                 }
             }
         };
@@ -469,8 +572,60 @@ public static class RaftConfigTables
             {
                 new SynthesisRecipe
                 {
+                    recipeId = "craft_planter",
+                    displayName = "\u5236\u9020\u79cd\u690d\u76c6",
+                    category = "survival",
+                    inputs = new[]
+                    {
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Wood), amount = 6 },
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Plastic), amount = 4 }
+                    },
+                    outputItemTypeId = GetItemTypeId(ItemType.Planter),
+                    outputAmount = 1
+                },
+                new SynthesisRecipe
+                {
+                    recipeId = "craft_water_purifier",
+                    displayName = "\u5236\u9020\u6652\u6c34\u5668",
+                    category = "survival",
+                    inputs = new[]
+                    {
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Wood), amount = 4 },
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Plastic), amount = 6 }
+                    },
+                    outputItemTypeId = GetItemTypeId(ItemType.WaterPurifier),
+                    outputAmount = 1
+                },
+                new SynthesisRecipe
+                {
+                    recipeId = "craft_storage_box",
+                    displayName = "\u5236\u9020\u50a8\u7269\u7bb1",
+                    category = "storage",
+                    inputs = new[]
+                    {
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Wood), amount = 8 },
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Plastic), amount = 2 }
+                    },
+                    outputItemTypeId = GetItemTypeId(ItemType.StorageBox),
+                    outputAmount = 1
+                },
+                new SynthesisRecipe
+                {
+                    recipeId = "craft_empty_cup",
+                    displayName = "\u5236\u9020\u6c34\u676f",
+                    category = "tool",
+                    inputs = new[]
+                    {
+                        new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Plastic), amount = 2 }
+                    },
+                    outputItemTypeId = GetItemTypeId(ItemType.EmptyCup),
+                    outputAmount = 1
+                },
+                new SynthesisRecipe
+                {
                     recipeId = "craft_water_bottle",
                     displayName = "\u5408\u6210\u77ff\u6cc9\u6c34",
+                    category = "tool",
                     inputs = new[]
                     {
                         new ItemAmountEntry { itemTypeId = GetItemTypeId(ItemType.Plastic), amount = 2 },
