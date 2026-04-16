@@ -45,7 +45,7 @@ public class GameLobby : MonoBehaviour
         cam.orthographic = true;
         cam.orthographicSize = 5;
         cam.transform.position = new Vector3(0, 0, -10);
-        cam.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
+        cam.backgroundColor = new Color(0.031f, 0.035f, 0.039f);
         cam.clearFlags = CameraClearFlags.SolidColor;
     }
 
@@ -65,8 +65,8 @@ public class GameLobby : MonoBehaviour
                 sr.sprite = pixelSprite;
                 sr.sortingOrder = -1;
                 sr.color = (x + y) % 2 == 0
-                    ? new Color(0.11f, 0.11f, 0.16f)
-                    : new Color(0.13f, 0.13f, 0.18f);
+                    ? new Color(0.035f, 0.039f, 0.043f)
+                    : new Color(0.043f, 0.047f, 0.051f);
             }
         }
     }
