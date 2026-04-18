@@ -293,17 +293,17 @@ public static class ThronefallConfigTables
         {
             buildings = new[]
             {
-                new TFBuildingConfig { buildingId = 1, buildingName = "Arrow Tower", description = "Shoots arrows at nearby enemies", buildingType = "tower", coinCost = 50, maxHP = 200, atk = 15, def = 2, attackRange = 10f, attackInterval = 1.5f, arrowSpeed = 15f, arcHeight = 4f, upgradeIds = new[] { 10, 11 } },
-                new TFBuildingConfig { buildingId = 2, buildingName = "Wall", description = "Blocks enemy path to the base", buildingType = "wall", coinCost = 30, maxHP = 400, def = 5, upgradeIds = new[] { 20 } },
-                new TFBuildingConfig { buildingId = 3, buildingName = "Castle Center", description = "Your main base - protect it!", buildingType = "base", coinCost = 0, maxHP = 300, def = 3 },
-                new TFBuildingConfig { buildingId = 4, buildingName = "House", description = "Produces gold each morning", buildingType = "economic", coinCost = 40, maxHP = 150, dailyYield = 15, upgradeIds = new[] { 40 } },
-                new TFBuildingConfig { buildingId = 5, buildingName = "Spearman Barracks", description = "Recruit spearmen to fight for you", buildingType = "barracks", coinCost = 60, maxHP = 250, recruitCost = 20, maxRecruits = 3, allyUnitType = "spearman" },
-                new TFBuildingConfig { buildingId = 6, buildingName = "Archer Barracks", description = "Recruit archers for ranged support", buildingType = "barracks", coinCost = 70, maxHP = 200, recruitCost = 25, maxRecruits = 2, allyUnitType = "archer" },
-                new TFBuildingConfig { buildingId = 7, buildingName = "Knight Barracks", description = "Recruit knights with charge attack", buildingType = "barracks", coinCost = 80, maxHP = 300, recruitCost = 30, maxRecruits = 2, allyUnitType = "knight" },
-                new TFBuildingConfig { buildingId = 10, buildingName = "Longbow Tower", description = "Extended range, powerful single target", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 20, def = 2, attackRange = 15f, attackInterval = 2f, arrowSpeed = 18f, arcHeight = 5f, branchIcon = "LB" },
-                new TFBuildingConfig { buildingId = 11, buildingName = "Fire Oil Tower", description = "Short range area damage", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 25, def = 2, attackRange = 8f, attackInterval = 2.5f, arrowSpeed = 10f, arcHeight = 6f, aoeRadius = 3f, branchIcon = "FO" },
-                new TFBuildingConfig { buildingId = 20, buildingName = "Fortified Wall", description = "Extremely tough barrier", buildingType = "wall", coinCost = 25, maxHP = 700, def = 8 },
-                new TFBuildingConfig { buildingId = 40, buildingName = "Manor", description = "Produces more gold each morning", buildingType = "economic", coinCost = 30, maxHP = 200, dailyYield = 25 }
+                new TFBuildingConfig { buildingId = 1, buildingName = "箭塔", description = "射击附近的敌人", buildingType = "tower", coinCost = 50, maxHP = 200, atk = 15, def = 2, attackRange = 10f, attackInterval = 1.5f, arrowSpeed = 15f, arcHeight = 4f, upgradeIds = new[] { 10, 11 } },
+                new TFBuildingConfig { buildingId = 2, buildingName = "城墙", description = "阻挡敌人前进", buildingType = "wall", coinCost = 30, maxHP = 400, def = 5, upgradeIds = new[] { 20 } },
+                new TFBuildingConfig { buildingId = 3, buildingName = "城堡中心", description = "你的主基地，保护它！", buildingType = "base", coinCost = 0, maxHP = 300, def = 3 },
+                new TFBuildingConfig { buildingId = 4, buildingName = "房屋", description = "每天早晨产出金币", buildingType = "economic", coinCost = 40, maxHP = 150, dailyYield = 15, upgradeIds = new[] { 40 } },
+                new TFBuildingConfig { buildingId = 5, buildingName = "长矛兵营", description = "招募长矛兵为你战斗", buildingType = "barracks", coinCost = 60, maxHP = 250, recruitCost = 20, maxRecruits = 3, allyUnitType = "spearman" },
+                new TFBuildingConfig { buildingId = 6, buildingName = "弓箭手兵营", description = "招募弓箭手提供远程支援", buildingType = "barracks", coinCost = 70, maxHP = 200, recruitCost = 25, maxRecruits = 2, allyUnitType = "archer" },
+                new TFBuildingConfig { buildingId = 7, buildingName = "骑士兵营", description = "招募骑士发动冲锋攻击", buildingType = "barracks", coinCost = 80, maxHP = 300, recruitCost = 30, maxRecruits = 2, allyUnitType = "knight" },
+                new TFBuildingConfig { buildingId = 10, buildingName = "长弓塔", description = "远距离强力单体攻击", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 20, def = 2, attackRange = 15f, attackInterval = 2f, arrowSpeed = 18f, arcHeight = 5f, branchIcon = "长弓" },
+                new TFBuildingConfig { buildingId = 11, buildingName = "火油塔", description = "近距离范围伤害", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 25, def = 2, attackRange = 8f, attackInterval = 2.5f, arrowSpeed = 10f, arcHeight = 6f, aoeRadius = 3f, branchIcon = "火油" },
+                new TFBuildingConfig { buildingId = 20, buildingName = "强化城墙", description = "极其坚固的屏障", buildingType = "wall", coinCost = 25, maxHP = 700, def = 8 },
+                new TFBuildingConfig { buildingId = 40, buildingName = "庄园", description = "每天早晨产出更多金币", buildingType = "economic", coinCost = 30, maxHP = 200, dailyYield = 25 }
             }
         };
     }
@@ -314,9 +314,9 @@ public static class ThronefallConfigTables
         {
             units = new[]
             {
-                new TFAllyUnitConfig { unitType = "spearman", unitName = "Spearman", maxHP = 80, atk = 12, def = 5, moveSpeed = 3f, attackRange = 1.8f, attackInterval = 1f, respawnTime = 15f },
-                new TFAllyUnitConfig { unitType = "archer", unitName = "Archer", maxHP = 40, atk = 15, def = 1, moveSpeed = 3.5f, attackRange = 10f, attackInterval = 1.5f, respawnTime = 18f, arrowSpeed = 15f, arcHeight = 3f, kiteDistance = 7f },
-                new TFAllyUnitConfig { unitType = "knight", unitName = "Knight", maxHP = 60, atk = 18, def = 3, moveSpeed = 4f, attackRange = 2f, attackInterval = 1.2f, respawnTime = 20f, chargeSpeed = 12f, chargeDuration = 0.6f, chargeMultiplier = 2f, chargeCooldown = 8f }
+                new TFAllyUnitConfig { unitType = "spearman", unitName = "长矛兵", maxHP = 80, atk = 12, def = 5, moveSpeed = 3f, attackRange = 1.8f, attackInterval = 1f, respawnTime = 15f },
+                new TFAllyUnitConfig { unitType = "archer", unitName = "弓箭手", maxHP = 40, atk = 15, def = 1, moveSpeed = 3.5f, attackRange = 10f, attackInterval = 1.5f, respawnTime = 18f, arrowSpeed = 15f, arcHeight = 3f, kiteDistance = 7f },
+                new TFAllyUnitConfig { unitType = "knight", unitName = "骑士", maxHP = 60, atk = 18, def = 3, moveSpeed = 4f, attackRange = 2f, attackInterval = 1.2f, respawnTime = 20f, chargeSpeed = 12f, chargeDuration = 0.6f, chargeMultiplier = 2f, chargeCooldown = 8f }
             }
         };
     }
@@ -327,9 +327,9 @@ public static class ThronefallConfigTables
         {
             monsters = new[]
             {
-                new TFMonsterConfig { monsterId = 1, monsterName = "Goblin", maxHP = 30, atk = 8, def = 1, moveSpeed = 3.5f, attackRange = 1.5f, attackInterval = 1f, iconLabel = "G" },
-                new TFMonsterConfig { monsterId = 2, monsterName = "Orc", maxHP = 80, atk = 15, def = 4, moveSpeed = 2f, attackRange = 2f, attackInterval = 1.5f, iconLabel = "O" },
-                new TFMonsterConfig { monsterId = 3, monsterName = "Skeleton", maxHP = 50, atk = 12, def = 2, moveSpeed = 2.8f, attackRange = 1.5f, attackInterval = 1.2f, iconLabel = "S" }
+                new TFMonsterConfig { monsterId = 1, monsterName = "哥布林", maxHP = 30, atk = 8, def = 1, moveSpeed = 3.5f, attackRange = 1.5f, attackInterval = 1f, iconLabel = "哥" },
+                new TFMonsterConfig { monsterId = 2, monsterName = "兽人", maxHP = 80, atk = 15, def = 4, moveSpeed = 2f, attackRange = 2f, attackInterval = 1.5f, iconLabel = "兽" },
+                new TFMonsterConfig { monsterId = 3, monsterName = "骷髅", maxHP = 50, atk = 12, def = 2, moveSpeed = 2.8f, attackRange = 1.5f, attackInterval = 1.2f, iconLabel = "骷" }
             }
         };
     }
@@ -409,7 +409,7 @@ public static class ThronefallConfigTables
                 {
                     new TFWeaponConfig
                     {
-                        weaponId = "spear", weaponName = "Spear",
+                        weaponId = "spear", weaponName = "长矛",
                         atk = 20, def = 3, attackRange = 2.5f, attackInterval = 0.8f,
                         skill = new TFSkillConfig
                         {
@@ -419,7 +419,7 @@ public static class ThronefallConfigTables
                     },
                     new TFWeaponConfig
                     {
-                        weaponId = "bow", weaponName = "Bow",
+                        weaponId = "bow", weaponName = "弓",
                         atk = 12, def = 1, attackRange = 12f, attackInterval = 1.2f,
                         arrowSpeed = 15f, arcHeight = 4f,
                         skill = new TFSkillConfig

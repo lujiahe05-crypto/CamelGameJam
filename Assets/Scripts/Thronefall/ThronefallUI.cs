@@ -139,7 +139,7 @@ public class ThronefallUI : MonoBehaviour
         revivalHintText.color = new Color(0.7f, 0.7f, 0.7f);
         revivalHintText.alignment = TextAnchor.MiddleCenter;
         revivalHintText.raycastTarget = false;
-        revivalHintText.text = "Waiting for Revival...";
+        revivalHintText.text = "等待复活...";
 
         revivalPanel.SetActive(false);
     }
@@ -242,7 +242,7 @@ public class ThronefallUI : MonoBehaviour
         hintText.fontSize = 14;
         hintText.color = new Color(0.5f, 0.5f, 0.5f);
         hintText.alignment = TextAnchor.MiddleCenter;
-        hintText.text = "Left/Right to select  |  Space to confirm  |  Esc to cancel";
+        hintText.text = "左/右选择  |  空格确认  |  Esc取消";
         hintText.raycastTarget = false;
 
         branchOverlay.SetActive(false);
@@ -445,10 +445,10 @@ public class ThronefallUI : MonoBehaviour
         switch (game.CurrentPhase)
         {
             case ThronefallGame.GamePhase.Day:
-                dayText.text = $"Day {game.CurrentDay} - Press R to start night";
+                dayText.text = $"第 {game.CurrentDay} 天 - 按R开始夜晚";
                 break;
             case ThronefallGame.GamePhase.Night:
-                dayText.text = $"Night {game.CurrentDay} - Survive!";
+                dayText.text = $"第 {game.CurrentDay} 夜 - 存活！";
                 break;
             case ThronefallGame.GamePhase.GameOver:
                 dayText.text = "";
@@ -472,23 +472,23 @@ public class ThronefallUI : MonoBehaviour
         switch (config.buildingType)
         {
             case "tower":
-                statName = "ATK";
+                statName = "攻击";
                 statAfter = config.atk.ToString();
                 break;
             case "wall":
-                statName = "DEF";
+                statName = "防御";
                 statAfter = config.def.ToString();
                 break;
             case "economic":
-                statName = "YIELD";
+                statName = "产出";
                 statAfter = config.dailyYield.ToString();
                 break;
             case "barracks":
-                statName = "RECRUIT";
+                statName = "招募";
                 statAfter = config.maxRecruits.ToString();
                 break;
             default:
-                statName = "HP";
+                statName = "生命";
                 statAfter = config.maxHP.ToString();
                 break;
         }
@@ -509,12 +509,12 @@ public class ThronefallUI : MonoBehaviour
         if (config == null) return;
 
         var unitConfig = ThronefallConfigTables.GetAllyUnitConfig(config.allyUnitType);
-        string unitName = unitConfig != null ? unitConfig.unitName : "Soldier";
+        string unitName = unitConfig != null ? unitConfig.unitName : "士兵";
         int unitAtk = unitConfig != null ? unitConfig.atk : 0;
 
-        if (buildTitleText != null) buildTitleText.text = $"Recruit {unitName}";
-        if (buildDescText != null) buildDescText.text = $"Units: {currentCount}/{config.maxRecruits}";
-        if (buildStatIconText != null) buildStatIconText.text = "ATK";
+        if (buildTitleText != null) buildTitleText.text = $"招募{unitName}";
+        if (buildDescText != null) buildDescText.text = $"数量: {currentCount}/{config.maxRecruits}";
+        if (buildStatIconText != null) buildStatIconText.text = "攻击";
         if (buildStatBeforeText != null) buildStatBeforeText.text = "";
         if (buildStatAfterText != null) buildStatAfterText.text = unitAtk.ToString();
         if (buildCostAmountText != null) buildCostAmountText.text = config.recruitCost.ToString();

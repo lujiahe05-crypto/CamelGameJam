@@ -2,7 +2,7 @@
     "units": [
         {
             "unitType": "spearman",
-            "unitName": "Spearman",
+            "unitName": "长矛兵",
             "maxHP": 80,
             "atk": 12,
             "def": 5,
@@ -20,7 +20,7 @@
         },
         {
             "unitType": "archer",
-            "unitName": "Archer",
+            "unitName": "弓箭手",
             "maxHP": 40,
             "atk": 15,
             "def": 1,
@@ -38,7 +38,7 @@
         },
         {
             "unitType": "knight",
-            "unitName": "Knight",
+            "unitName": "骑士",
             "maxHP": 60,
             "atk": 18,
             "def": 3,
