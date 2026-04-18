@@ -136,6 +136,13 @@ public class ThronefallPlayer : MonoBehaviour, ICombatEntity
             return;
         }
 
+        // Branch panel takes priority over all input
+        if (game.UI != null && game.UI.IsBranchPanelOpen)
+        {
+            UpdateBranchPanelInput();
+            return;
+        }
+
         UpdateMovement();
         UpdateAutoAttack();
         UpdateSkillInput();
@@ -147,6 +154,28 @@ public class ThronefallPlayer : MonoBehaviour, ICombatEntity
             heroUI.UpdateHPBar((float)currentHP / maxHP);
             heroUI.UpdateSkillRing(skillCooldownTimer, skillCooldownTotal);
         }
+    }
+
+    void UpdateBranchPanelInput()
+    {
+        var game = ThronefallGame.Instance;
+        if (game == null || game.UI == null) return;
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            game.UI.NavigateBranch(-1);
+        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            game.UI.NavigateBranch(1);
+
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
+        {
+            int selectedId = game.UI.GetSelectedBranchId();
+            if (selectedId >= 0 && currentNearMarker != null)
+                game.BuildSys.TryBranchUpgrade(currentNearMarker.nodeIndex, selectedId);
+            game.UI.HideBranchPanel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            game.UI.HideBranchPanel();
     }
 
     void UpdateMovement()
@@ -345,12 +374,29 @@ public class ThronefallPlayer : MonoBehaviour, ICombatEntity
     {
         var game = ThronefallGame.Instance;
         if (game == null) return;
+        if (game.CurrentPhase != ThronefallGame.GamePhase.Day) return;
+        if (!Input.GetKeyDown(KeyCode.Space)) return;
+        if (currentNearMarker == null) return;
 
-        if (game.CurrentPhase == ThronefallGame.GamePhase.Day &&
-            Input.GetKeyDown(KeyCode.Space) &&
-            currentNearMarker != null)
+        int nodeIndex = currentNearMarker.nodeIndex;
+        var actionType = game.BuildSys.GetNodeActionType(nodeIndex);
+
+        switch (actionType)
         {
-            game.BuildSys.TryBuild(currentNearMarker.nodeIndex);
+            case ThronefallBuildSystem.NodeActionType.Build:
+                game.BuildSys.TryBuild(nodeIndex);
+                break;
+            case ThronefallBuildSystem.NodeActionType.Upgrade:
+                game.BuildSys.TryUpgrade(nodeIndex);
+                break;
+            case ThronefallBuildSystem.NodeActionType.BranchUpgrade:
+                var options = game.BuildSys.GetBranchConfigs(nodeIndex);
+                if (options != null && game.UI != null)
+                    game.UI.ShowBranchPanel(options);
+                break;
+            case ThronefallBuildSystem.NodeActionType.Recruit:
+                game.BuildSys.TryRecruit(nodeIndex);
+                break;
         }
     }
 
@@ -450,11 +496,37 @@ public class ThronefallPlayer : MonoBehaviour, ICombatEntity
         currentNearMarker = marker;
 
         var game = ThronefallGame.Instance;
-        if (game != null && game.CurrentPhase == ThronefallGame.GamePhase.Day && game.UI != null)
+        if (game == null || game.CurrentPhase != ThronefallGame.GamePhase.Day || game.UI == null)
+            return;
+
+        int nodeIndex = marker.nodeIndex;
+        var actionType = game.BuildSys.GetNodeActionType(nodeIndex);
+
+        switch (actionType)
         {
-            var config = game.BuildSys.GetNodeConfig(marker.nodeIndex);
-            if (config != null)
-                game.UI.ShowBuildPanel(config);
+            case ThronefallBuildSystem.NodeActionType.Build:
+                var buildConfig = game.BuildSys.GetActionConfig(nodeIndex);
+                if (buildConfig != null)
+                    game.UI.ShowBuildPanel(buildConfig);
+                break;
+            case ThronefallBuildSystem.NodeActionType.Upgrade:
+                var upgradeConfig = game.BuildSys.GetActionConfig(nodeIndex);
+                if (upgradeConfig != null)
+                    game.UI.ShowBuildPanel(upgradeConfig);
+                break;
+            case ThronefallBuildSystem.NodeActionType.BranchUpgrade:
+                var currentConfig = game.BuildSys.GetCurrentBuildingConfig(nodeIndex);
+                if (currentConfig != null)
+                    game.UI.ShowBuildPanel(currentConfig);
+                break;
+            case ThronefallBuildSystem.NodeActionType.Recruit:
+                var recConfig = game.BuildSys.GetCurrentBuildingConfig(nodeIndex);
+                if (recConfig != null)
+                {
+                    int count = game.BuildSys.GetRecruitCount(nodeIndex);
+                    game.UI.ShowBuildPanelForRecruit(recConfig, count);
+                }
+                break;
         }
     }
 
@@ -467,7 +539,7 @@ public class ThronefallPlayer : MonoBehaviour, ICombatEntity
         {
             currentNearMarker = null;
             var game = ThronefallGame.Instance;
-            if (game != null && game.UI != null)
+            if (game != null && game.UI != null && !game.UI.IsBranchPanelOpen)
                 game.UI.HideBuildPanel();
         }
     }

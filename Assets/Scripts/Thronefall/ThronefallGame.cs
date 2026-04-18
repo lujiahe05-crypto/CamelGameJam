@@ -36,6 +36,9 @@ public class ThronefallGame : MonoBehaviour
     public Material SpearMat { get; private set; }
     public Material BowMat { get; private set; }
     public Material ThrustTrailMat { get; private set; }
+    public Material HouseMat { get; private set; }
+    public Material BarracksMat { get; private set; }
+    public Material AllyMat { get; private set; }
 
     void Awake()
     {
@@ -78,6 +81,9 @@ public class ThronefallGame : MonoBehaviour
         SpearMat = ProceduralMeshUtil.CreateMaterial(new Color(0.35f, 0.35f, 0.4f));
         BowMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.3f, 0.15f));
         ThrustTrailMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.7f, 1f, 0.5f), true);
+        HouseMat = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.45f, 0.25f));
+        BarracksMat = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.2f, 0.15f));
+        AllyMat = ProceduralMeshUtil.CreateMaterial(new Color(0.2f, 0.7f, 0.6f));
     }
 
     void SetupCamera()
@@ -159,7 +165,8 @@ public class ThronefallGame : MonoBehaviour
 
     void SetupInitialWorld()
     {
-        var baseConfig = ThronefallConfigTables.GetBuildingNodeConfig(3);
+        // Castle Center (main base)
+        var baseConfig = ThronefallConfigTables.GetBuildingConfig(3);
         if (baseConfig != null)
         {
             var baseGo = new GameObject("CastleCenter");
@@ -169,27 +176,44 @@ public class ThronefallGame : MonoBehaviour
             building.Init(baseConfig, true);
         }
 
-        // Wall nodes in a ring
+        // Wall nodes (inner ring)
         BuildSys.CreateBuildNode(new Vector3(6, 0, 0), 2, rootContainer.transform);
         BuildSys.CreateBuildNode(new Vector3(-6, 0, 0), 2, rootContainer.transform);
         BuildSys.CreateBuildNode(new Vector3(0, 0, 6), 2, rootContainer.transform);
         BuildSys.CreateBuildNode(new Vector3(0, 0, -6), 2, rootContainer.transform);
 
-        // Tower nodes further out
-        BuildSys.CreateBuildNode(new Vector3(8, 0, 8), 1, rootContainer.transform);
-        BuildSys.CreateBuildNode(new Vector3(-8, 0, -8), 1, rootContainer.transform);
+        // Tower nodes (outer corners)
+        BuildSys.CreateBuildNode(new Vector3(10, 0, 10), 1, rootContainer.transform);
+        BuildSys.CreateBuildNode(new Vector3(-10, 0, -10), 1, rootContainer.transform);
+
+        // House nodes (behind castle)
+        BuildSys.CreateBuildNode(new Vector3(-5, 0, -4), 4, rootContainer.transform);
+        BuildSys.CreateBuildNode(new Vector3(5, 0, -4), 4, rootContainer.transform);
+
+        // Barracks node
+        BuildSys.CreateBuildNode(new Vector3(0, 0, -8), 5, rootContainer.transform);
     }
 
     public void StartDay(int day)
     {
         CurrentPhase = GamePhase.Day;
         CurrentDay = day;
+
+        // Dawn recovery
+        BuildSys.DawnRecover();
+
+        // Economic production + daily base coins (not on day 1)
+        if (day > 1)
+        {
+            Coins += BuildSys.CalculateDawnIncome();
+            Coins += ThronefallConfigTables.WaveTableData.dailyBaseCoins;
+        }
+
         BuildSys.SetBuildingEnabled(true);
 
         var waveConfig = ThronefallConfigTables.GetWaveConfig(day);
         if (waveConfig == null)
         {
-            // No more waves — loop last day
             var lastWave = ThronefallConfigTables.WaveTableData.waves;
             if (lastWave != null && lastWave.Length > 0)
                 waveConfig = lastWave[lastWave.Length - 1];
@@ -227,7 +251,6 @@ public class ThronefallGame : MonoBehaviour
     public void OnAllMonstersDead()
     {
         if (CurrentPhase == GamePhase.GameOver) return;
-        Coins += ThronefallConfigTables.WaveTableData.dailyBaseCoins;
         StartDay(CurrentDay + 1);
     }
 
@@ -245,6 +268,10 @@ public class ThronefallGame : MonoBehaviour
 
     void Update()
     {
+        // Block input while branch panel is open (except branch panel handles its own)
+        if (UI != null && UI.IsBranchPanelOpen)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Cleanup();
@@ -260,6 +287,9 @@ public class ThronefallGame : MonoBehaviour
 
     public void Cleanup()
     {
+        if (UI != null && UI.IsBranchPanelOpen)
+            UI.HideBranchPanel();
+
         Instance = null;
         if (Cam != null) Destroy(Cam);
         if (rootContainer != null) Destroy(rootContainer);

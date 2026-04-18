@@ -19,32 +19,50 @@ Excel 需要 4 张工作表：
 
 ---
 
-## building 表（建筑节点配置）
+## building 表（建筑配置）
 
-一行表示一个建筑节点。
+一行表示一个建筑变体（含升级后的版本）。
 
 字段：
 
 | 字段名 | 类型 | 说明 |
 |--------|------|------|
-| `nodeId` | int | 建筑节点 ID |
+| `buildingId` | int | 建筑唯一 ID |
 | `buildingName` | string | 建筑名称 |
 | `description` | string | 功能描述 |
-| `statName` | string | 属性图标（如 ATK、HP） |
-| `statBefore` | int | 建造前属性值 |
-| `statAfter` | int | 建造后属性值 |
-| `coinCost` | int | 建造消耗金币 |
+| `buildingType` | string | 类型：`economic` / `tower` / `wall` / `barracks` / `base` |
+| `coinCost` | int | 建造/升级消耗金币 |
 | `maxHP` | int | 最大生命值 |
-| `atk` | int | 攻击力（无攻击填 0） |
+| `atk` | int | 攻击力（非攻击建筑填 0） |
 | `def` | int | 防御力 |
-| `attackRange` | float | 攻击距离（无攻击填 0） |
-| `attackInterval` | float | 攻击间隔（无攻击填 0） |
+| `attackRange` | float | 攻击距离（非攻击建筑填 0） |
+| `attackInterval` | float | 攻击间隔（非攻击建筑填 0） |
+| `arrowSpeed` | float | 箭矢飞行速度（塔类填值，其他填 0） |
+| `arcHeight` | float | 抛物线最高点高度（塔类填值，其他填 0） |
+| `aoeRadius` | float | 范围伤害半径（0 = 单体伤害） |
+| `dailyYield` | int | 每日产出金币（经济类填值，其他填 0） |
+| `recruitCost` | int | 单次招募花费金币（兵营填值，其他填 0） |
+| `maxRecruits` | int | 最大招募人数（兵营填值，其他填 0） |
+| `upgradeIds` | string | 升级指向的建筑 ID 列表，逗号分隔（如 `10,11`）。单线升级填 1 个，分支填多个，终极不填 |
+| `branchIcon` | string | 分支选择面板的图标文字（如 `LB`、`FO`） |
+| `allyMaxHP` | int | 友军最大生命值（兵营填值，其他填 0） |
+| `allyAtk` | int | 友军攻击力（兵营填值，其他填 0） |
+| `allyDef` | int | 友军防御力（兵营填值，其他填 0） |
+| `allyMoveSpeed` | float | 友军移动速度（兵营填值，其他填 0） |
+| `allyAttackRange` | float | 友军攻击距离（兵营填值，其他填 0） |
+| `allyAttackInterval` | float | 友军攻击间隔（兵营填值，其他填 0） |
 
 当前建筑 ID：
 
-- `1` = Arrow Tower（箭塔）
-- `2` = Wall（城墙）
+- `1` = Arrow Tower（箭塔，可升级为 10 或 11）
+- `2` = Wall（城墙，可升级为 20）
 - `3` = Castle Center（城堡中心 / 主基地）
+- `4` = House（房屋，可升级为 40）
+- `5` = Barracks（兵营）
+- `10` = Longbow Tower（长弓塔，箭塔分支升级）
+- `11` = Fire Oil Tower（火油塔，箭塔分支升级）
+- `20` = Fortified Wall（强化城墙，城墙升级）
+- `40` = Manor（庄园，房屋升级）
 
 ---
 

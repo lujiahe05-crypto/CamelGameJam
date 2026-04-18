@@ -2,26 +2,38 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class TFBuildingNodeConfig
+public class TFBuildingConfig
 {
-    public int nodeId;
+    public int buildingId;
     public string buildingName;
     public string description;
-    public string statName;
-    public int statBefore;
-    public int statAfter;
+    public string buildingType;
     public int coinCost;
     public int maxHP;
     public int atk;
     public int def;
     public float attackRange;
     public float attackInterval;
+    public float arrowSpeed;
+    public float arcHeight;
+    public float aoeRadius;
+    public int dailyYield;
+    public int recruitCost;
+    public int maxRecruits;
+    public int[] upgradeIds;
+    public string branchIcon;
+    public int allyMaxHP;
+    public int allyAtk;
+    public int allyDef;
+    public float allyMoveSpeed;
+    public float allyAttackRange;
+    public float allyAttackInterval;
 }
 
 [Serializable]
-public class TFBuildingNodeTable
+public class TFBuildingTable
 {
-    public TFBuildingNodeConfig[] nodes;
+    public TFBuildingConfig[] buildings;
 }
 
 [Serializable]
@@ -133,18 +145,18 @@ public class TFHeroTable
 
 public static class ThronefallConfigTables
 {
-    const string BuildingNodeTablePath = "ThronefallConfigs/BuildingNodeTable";
+    const string BuildingTablePath = "ThronefallConfigs/BuildingTable";
     const string MonsterTablePath = "ThronefallConfigs/MonsterTable";
     const string WaveTablePath = "ThronefallConfigs/WaveTable";
     const string HeroTablePath = "ThronefallConfigs/HeroTable";
 
-    static TFBuildingNodeTable buildingNodeTable;
+    static TFBuildingTable buildingTable;
     static TFMonsterTable monsterTable;
     static TFWaveTable waveTable;
     static TFHeroTable heroTable;
 
-    public static TFBuildingNodeTable BuildingNodeTableData =>
-        buildingNodeTable ?? (buildingNodeTable = LoadTable(BuildingNodeTablePath, CreateDefaultBuildingNodeTable()));
+    public static TFBuildingTable BuildingTableData =>
+        buildingTable ?? (buildingTable = LoadTable(BuildingTablePath, CreateDefaultBuildingTable()));
 
     public static TFMonsterTable MonsterTableData =>
         monsterTable ?? (monsterTable = LoadTable(MonsterTablePath, CreateDefaultMonsterTable()));
@@ -159,19 +171,19 @@ public static class ThronefallConfigTables
 
     public static void Reload()
     {
-        buildingNodeTable = null;
+        buildingTable = null;
         monsterTable = null;
         waveTable = null;
         heroTable = null;
     }
 
-    public static TFBuildingNodeConfig GetBuildingNodeConfig(int nodeId)
+    public static TFBuildingConfig GetBuildingConfig(int buildingId)
     {
-        if (BuildingNodeTableData.nodes == null) return null;
-        foreach (var node in BuildingNodeTableData.nodes)
+        if (BuildingTableData.buildings == null) return null;
+        foreach (var b in BuildingTableData.buildings)
         {
-            if (node != null && node.nodeId == nodeId)
-                return node;
+            if (b != null && b.buildingId == buildingId)
+                return b;
         }
         return null;
     }
@@ -235,15 +247,21 @@ public static class ThronefallConfigTables
         return table;
     }
 
-    static TFBuildingNodeTable CreateDefaultBuildingNodeTable()
+    static TFBuildingTable CreateDefaultBuildingTable()
     {
-        return new TFBuildingNodeTable
+        return new TFBuildingTable
         {
-            nodes = new[]
+            buildings = new[]
             {
-                new TFBuildingNodeConfig { nodeId = 1, buildingName = "Arrow Tower", description = "Shoots arrows at nearby enemies", statName = "ATK", statBefore = 0, statAfter = 15, coinCost = 50, maxHP = 200, atk = 15, def = 2, attackRange = 10f, attackInterval = 1.5f },
-                new TFBuildingNodeConfig { nodeId = 2, buildingName = "Wall", description = "Blocks enemy path to the base", statName = "HP", statBefore = 0, statAfter = 400, coinCost = 30, maxHP = 400, atk = 0, def = 5, attackRange = 0f, attackInterval = 0f },
-                new TFBuildingNodeConfig { nodeId = 3, buildingName = "Castle Center", description = "Your main base - protect it!", statName = "HP", statBefore = 100, statAfter = 300, coinCost = 0, maxHP = 300, atk = 0, def = 3, attackRange = 0f, attackInterval = 0f }
+                new TFBuildingConfig { buildingId = 1, buildingName = "Arrow Tower", description = "Shoots arrows at nearby enemies", buildingType = "tower", coinCost = 50, maxHP = 200, atk = 15, def = 2, attackRange = 10f, attackInterval = 1.5f, arrowSpeed = 15f, arcHeight = 4f, upgradeIds = new[] { 10, 11 } },
+                new TFBuildingConfig { buildingId = 2, buildingName = "Wall", description = "Blocks enemy path to the base", buildingType = "wall", coinCost = 30, maxHP = 400, def = 5, upgradeIds = new[] { 20 } },
+                new TFBuildingConfig { buildingId = 3, buildingName = "Castle Center", description = "Your main base - protect it!", buildingType = "base", coinCost = 0, maxHP = 300, def = 3 },
+                new TFBuildingConfig { buildingId = 4, buildingName = "House", description = "Produces gold each morning", buildingType = "economic", coinCost = 40, maxHP = 150, dailyYield = 15, upgradeIds = new[] { 40 } },
+                new TFBuildingConfig { buildingId = 5, buildingName = "Barracks", description = "Recruit soldiers to fight for you", buildingType = "barracks", coinCost = 60, maxHP = 250, recruitCost = 20, maxRecruits = 3, allyMaxHP = 50, allyAtk = 10, allyDef = 2, allyMoveSpeed = 3f, allyAttackRange = 1.8f, allyAttackInterval = 1f },
+                new TFBuildingConfig { buildingId = 10, buildingName = "Longbow Tower", description = "Extended range, powerful single target", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 20, def = 2, attackRange = 15f, attackInterval = 2f, arrowSpeed = 18f, arcHeight = 5f, branchIcon = "LB" },
+                new TFBuildingConfig { buildingId = 11, buildingName = "Fire Oil Tower", description = "Short range area damage", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 25, def = 2, attackRange = 8f, attackInterval = 2.5f, arrowSpeed = 10f, arcHeight = 6f, aoeRadius = 3f, branchIcon = "FO" },
+                new TFBuildingConfig { buildingId = 20, buildingName = "Fortified Wall", description = "Extremely tough barrier", buildingType = "wall", coinCost = 25, maxHP = 700, def = 8 },
+                new TFBuildingConfig { buildingId = 40, buildingName = "Manor", description = "Produces more gold each morning", buildingType = "economic", coinCost = 30, maxHP = 200, dailyYield = 25 }
             }
         };
     }

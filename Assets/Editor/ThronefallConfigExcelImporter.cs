@@ -41,7 +41,7 @@ public static class ThronefallConfigExcelImporter
 
         var workbook = ExcelWorkbook.Load(excelPath);
 
-        WriteJson("BuildingNodeTable.json", ImportBuildingNodeTable(workbook.RequireSheet("building")));
+        WriteJson("BuildingTable.json", ImportBuildingTable(workbook.RequireSheet("building")));
         WriteJson("MonsterTable.json", ImportMonsterTable(workbook.RequireSheet("monster")));
         WriteJson("WaveTable.json", ImportWaveTable(workbook.RequireSheet("wave")));
         WriteJson("HeroTable.json", ImportHeroTable(workbook.RequireSheet("hero")));
@@ -50,32 +50,62 @@ public static class ThronefallConfigExcelImporter
         Debug.Log($"Imported Thronefall config excel: {excelPath}");
     }
 
-    // ─── Building Node Table ──────────────────────────────────────────
+    // ─── Building Table ─────────────────────────────────────────────
 
-    static TFBuildingNodeTable ImportBuildingNodeTable(ExcelSheet sheet)
+    static TFBuildingTable ImportBuildingTable(ExcelSheet sheet)
     {
-        var nodes = new List<TFBuildingNodeConfig>();
+        var buildings = new List<TFBuildingConfig>();
 
         foreach (var row in sheet.Rows)
         {
-            nodes.Add(new TFBuildingNodeConfig
+            var config = new TFBuildingConfig
             {
-                nodeId = row.GetInt("nodeId"),
+                buildingId = row.GetInt("buildingId"),
                 buildingName = row.GetOrDefault("buildingName", ""),
                 description = row.GetOrDefault("description", ""),
-                statName = row.GetOrDefault("statName", ""),
-                statBefore = row.GetIntOrDefault("statBefore"),
-                statAfter = row.GetIntOrDefault("statAfter"),
-                coinCost = row.GetInt("coinCost"),
+                buildingType = row.GetOrDefault("buildingType", ""),
+                coinCost = row.GetIntOrDefault("coinCost"),
                 maxHP = row.GetInt("maxHP"),
                 atk = row.GetIntOrDefault("atk"),
                 def = row.GetIntOrDefault("def"),
                 attackRange = row.GetFloatOrDefault("attackRange"),
-                attackInterval = row.GetFloatOrDefault("attackInterval")
-            });
+                attackInterval = row.GetFloatOrDefault("attackInterval"),
+                arrowSpeed = row.GetFloatOrDefault("arrowSpeed"),
+                arcHeight = row.GetFloatOrDefault("arcHeight"),
+                aoeRadius = row.GetFloatOrDefault("aoeRadius"),
+                dailyYield = row.GetIntOrDefault("dailyYield"),
+                recruitCost = row.GetIntOrDefault("recruitCost"),
+                maxRecruits = row.GetIntOrDefault("maxRecruits"),
+                branchIcon = row.GetOrDefault("branchIcon", ""),
+                allyMaxHP = row.GetIntOrDefault("allyMaxHP"),
+                allyAtk = row.GetIntOrDefault("allyAtk"),
+                allyDef = row.GetIntOrDefault("allyDef"),
+                allyMoveSpeed = row.GetFloatOrDefault("allyMoveSpeed"),
+                allyAttackRange = row.GetFloatOrDefault("allyAttackRange"),
+                allyAttackInterval = row.GetFloatOrDefault("allyAttackInterval")
+            };
+
+            string upgradeStr = row.GetOrDefault("upgradeIds", "");
+            if (!string.IsNullOrWhiteSpace(upgradeStr))
+            {
+                var parts = upgradeStr.Split(',');
+                var ids = new List<int>();
+                foreach (var part in parts)
+                {
+                    if (int.TryParse(part.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
+                        ids.Add(id);
+                }
+                config.upgradeIds = ids.ToArray();
+            }
+            else
+            {
+                config.upgradeIds = new int[0];
+            }
+
+            buildings.Add(config);
         }
 
-        return new TFBuildingNodeTable { nodes = nodes.ToArray() };
+        return new TFBuildingTable { buildings = buildings.ToArray() };
     }
 
     // ─── Monster Table ────────────────────────────────────────────────

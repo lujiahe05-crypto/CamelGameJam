@@ -26,11 +26,22 @@ public class ThronefallUI : MonoBehaviour
     Text revivalHintText;
     Text weaponLabelText;
 
+    // Branch upgrade panel
+    GameObject branchOverlay;
+    GameObject branchPanel;
+    Text branchTitleText;
+    Text branchDescText;
+    List<GameObject> branchButtons = new List<GameObject>();
+    List<Image> branchButtonBGs = new List<Image>();
+    List<Text> branchButtonLabels = new List<Text>();
+    TFBuildingConfig[] branchConfigs;
+    int selectedBranchIndex;
+    bool branchPanelOpen;
+
+    public bool IsBranchPanelOpen => branchPanelOpen;
+
     void Start()
     {
-        var canvas = GetComponent<Canvas>();
-
-        // Load and instantiate HUD prefab
         var hudPrefab = Resources.Load<GameObject>("UI/ThronefallHUD");
         if (hudPrefab != null)
         {
@@ -43,7 +54,6 @@ public class ThronefallUI : MonoBehaviour
                 waveWarningContainer = warnContainer.GetComponent<RectTransform>();
         }
 
-        // Load and instantiate BuildPanel prefab
         var buildPrefab = Resources.Load<GameObject>("UI/ThronefallBuildPanel");
         if (buildPrefab != null)
         {
@@ -68,6 +78,7 @@ public class ThronefallUI : MonoBehaviour
 
         CreateRevivalPanel();
         CreateWeaponLabel();
+        CreateBranchPanel();
     }
 
     void CreateRevivalPanel()
@@ -151,6 +162,219 @@ public class ThronefallUI : MonoBehaviour
         outline.effectDistance = new Vector2(1, -1);
     }
 
+    void CreateBranchPanel()
+    {
+        // Full-screen overlay
+        branchOverlay = new GameObject("BranchOverlay");
+        branchOverlay.transform.SetParent(transform, false);
+        var overlayRect = branchOverlay.AddComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        branchOverlay.AddComponent<CanvasRenderer>();
+        var overlayImg = branchOverlay.AddComponent<Image>();
+        overlayImg.color = new Color(0, 0, 0, 0.7f);
+        overlayImg.raycastTarget = false;
+
+        // Center panel
+        branchPanel = new GameObject("BranchPanel");
+        branchPanel.transform.SetParent(branchOverlay.transform, false);
+        var panelRect = branchPanel.AddComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.sizeDelta = new Vector2(600, 350);
+        panelRect.anchoredPosition = Vector2.zero;
+        branchPanel.AddComponent<CanvasRenderer>();
+        var panelImg = branchPanel.AddComponent<Image>();
+        panelImg.color = new Color(0.1f, 0.1f, 0.15f, 0.95f);
+        panelImg.raycastTarget = false;
+
+        // Title
+        var titleGo = new GameObject("BranchTitle");
+        titleGo.transform.SetParent(branchPanel.transform, false);
+        var titleRect = titleGo.AddComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0, 0.7f);
+        titleRect.anchorMax = new Vector2(1, 0.95f);
+        titleRect.offsetMin = new Vector2(20, 0);
+        titleRect.offsetMax = new Vector2(-20, 0);
+        titleGo.AddComponent<CanvasRenderer>();
+        branchTitleText = titleGo.AddComponent<Text>();
+        branchTitleText.font = Font.CreateDynamicFontFromOSFont("Arial", 30);
+        branchTitleText.fontSize = 30;
+        branchTitleText.fontStyle = FontStyle.Bold;
+        branchTitleText.color = Color.white;
+        branchTitleText.alignment = TextAnchor.MiddleCenter;
+        branchTitleText.raycastTarget = false;
+
+        // Description
+        var descGo = new GameObject("BranchDesc");
+        descGo.transform.SetParent(branchPanel.transform, false);
+        var descRect = descGo.AddComponent<RectTransform>();
+        descRect.anchorMin = new Vector2(0, 0.4f);
+        descRect.anchorMax = new Vector2(1, 0.7f);
+        descRect.offsetMin = new Vector2(30, 0);
+        descRect.offsetMax = new Vector2(-30, 0);
+        descGo.AddComponent<CanvasRenderer>();
+        branchDescText = descGo.AddComponent<Text>();
+        branchDescText.font = Font.CreateDynamicFontFromOSFont("Arial", 18);
+        branchDescText.fontSize = 18;
+        branchDescText.color = new Color(0.75f, 0.75f, 0.75f);
+        branchDescText.alignment = TextAnchor.MiddleCenter;
+        branchDescText.raycastTarget = false;
+
+        // Hint text
+        var hintGo = new GameObject("BranchHint");
+        hintGo.transform.SetParent(branchPanel.transform, false);
+        var hintRect = hintGo.AddComponent<RectTransform>();
+        hintRect.anchorMin = new Vector2(0, 0);
+        hintRect.anchorMax = new Vector2(1, 0.1f);
+        hintRect.offsetMin = Vector2.zero;
+        hintRect.offsetMax = Vector2.zero;
+        hintGo.AddComponent<CanvasRenderer>();
+        var hintText = hintGo.AddComponent<Text>();
+        hintText.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
+        hintText.fontSize = 14;
+        hintText.color = new Color(0.5f, 0.5f, 0.5f);
+        hintText.alignment = TextAnchor.MiddleCenter;
+        hintText.text = "Left/Right to select  |  Space to confirm  |  Esc to cancel";
+        hintText.raycastTarget = false;
+
+        branchOverlay.SetActive(false);
+    }
+
+    public void ShowBranchPanel(TFBuildingConfig[] options)
+    {
+        if (options == null || options.Length == 0) return;
+
+        branchConfigs = options;
+        selectedBranchIndex = 0;
+
+        // Clear old buttons
+        foreach (var btn in branchButtons)
+        {
+            if (btn != null) Destroy(btn);
+        }
+        branchButtons.Clear();
+        branchButtonBGs.Clear();
+        branchButtonLabels.Clear();
+
+        // Create button row container
+        float totalWidth = options.Length * 110f;
+        float startX = -totalWidth / 2f + 55f;
+
+        for (int i = 0; i < options.Length; i++)
+        {
+            var btnGo = new GameObject($"BranchBtn_{i}");
+            btnGo.transform.SetParent(branchPanel.transform, false);
+            var btnRect = btnGo.AddComponent<RectTransform>();
+            btnRect.anchorMin = new Vector2(0.5f, 0.15f);
+            btnRect.anchorMax = new Vector2(0.5f, 0.15f);
+            btnRect.sizeDelta = new Vector2(100, 100);
+            btnRect.anchoredPosition = new Vector2(startX + i * 110f, 40f);
+
+            btnGo.AddComponent<CanvasRenderer>();
+            var btnImg = btnGo.AddComponent<Image>();
+            btnImg.color = new Color(0.2f, 0.2f, 0.25f);
+            btnImg.raycastTarget = false;
+
+            // Icon/Name label
+            var labelGo = new GameObject("Label");
+            labelGo.transform.SetParent(btnGo.transform, false);
+            var labelRect = labelGo.AddComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = new Vector2(5, 5);
+            labelRect.offsetMax = new Vector2(-5, -5);
+            labelGo.AddComponent<CanvasRenderer>();
+            var labelText = labelGo.AddComponent<Text>();
+            labelText.font = Font.CreateDynamicFontFromOSFont("Arial", 16);
+            labelText.fontSize = 16;
+            labelText.fontStyle = FontStyle.Bold;
+            labelText.color = Color.white;
+            labelText.alignment = TextAnchor.MiddleCenter;
+            labelText.raycastTarget = false;
+
+            string label = !string.IsNullOrEmpty(options[i].branchIcon)
+                ? options[i].branchIcon
+                : options[i].buildingName;
+            labelText.text = label;
+
+            // Cost label
+            var costGo = new GameObject("Cost");
+            costGo.transform.SetParent(btnGo.transform, false);
+            var costRect = costGo.AddComponent<RectTransform>();
+            costRect.anchorMin = new Vector2(0, 0);
+            costRect.anchorMax = new Vector2(1, 0.25f);
+            costRect.offsetMin = Vector2.zero;
+            costRect.offsetMax = Vector2.zero;
+            costGo.AddComponent<CanvasRenderer>();
+            var costText = costGo.AddComponent<Text>();
+            costText.font = Font.CreateDynamicFontFromOSFont("Arial", 12);
+            costText.fontSize = 12;
+            costText.color = new Color(1f, 0.85f, 0.2f);
+            costText.alignment = TextAnchor.MiddleCenter;
+            costText.text = options[i].coinCost.ToString();
+            costText.raycastTarget = false;
+
+            branchButtons.Add(btnGo);
+            branchButtonBGs.Add(btnImg);
+            branchButtonLabels.Add(labelText);
+        }
+
+        UpdateBranchSelection();
+        branchOverlay.SetActive(true);
+        branchPanelOpen = true;
+        Time.timeScale = 0f;
+    }
+
+    public void HideBranchPanel()
+    {
+        branchOverlay.SetActive(false);
+        branchPanelOpen = false;
+        branchConfigs = null;
+        Time.timeScale = 1f;
+    }
+
+    public void NavigateBranch(int delta)
+    {
+        if (branchConfigs == null || branchConfigs.Length == 0) return;
+        selectedBranchIndex = (selectedBranchIndex + delta + branchConfigs.Length) % branchConfigs.Length;
+        UpdateBranchSelection();
+    }
+
+    void UpdateBranchSelection()
+    {
+        if (branchConfigs == null) return;
+
+        var selected = branchConfigs[selectedBranchIndex];
+        if (branchTitleText != null)
+            branchTitleText.text = selected.buildingName;
+        if (branchDescText != null)
+            branchDescText.text = selected.description ?? "";
+
+        for (int i = 0; i < branchButtonBGs.Count; i++)
+        {
+            if (i == selectedBranchIndex)
+            {
+                branchButtonBGs[i].color = new Color(0.8f, 0.65f, 0.1f);
+                branchButtons[i].transform.localScale = new Vector3(1.15f, 1.15f, 1f);
+            }
+            else
+            {
+                branchButtonBGs[i].color = new Color(0.2f, 0.2f, 0.25f);
+                branchButtons[i].transform.localScale = Vector3.one;
+            }
+        }
+    }
+
+    public int GetSelectedBranchId()
+    {
+        if (branchConfigs == null || selectedBranchIndex < 0 || selectedBranchIndex >= branchConfigs.Length)
+            return -1;
+        return branchConfigs[selectedBranchIndex].buildingId;
+    }
+
     void Update()
     {
         var game = ThronefallGame.Instance;
@@ -158,11 +382,10 @@ public class ThronefallUI : MonoBehaviour
 
         UpdateCoinDisplay(game.Coins);
 
-        // Smooth fade build panel
         if (buildPanelCanvasGroup != null)
         {
             float current = buildPanelCanvasGroup.alpha;
-            float next = Mathf.MoveTowards(current, buildPanelFadeTarget, Time.deltaTime * 6f);
+            float next = Mathf.MoveTowards(current, buildPanelFadeTarget, Time.unscaledDeltaTime * 6f);
             buildPanelCanvasGroup.alpha = next;
 
             if (buildPanelFadeTarget > 0 && !buildPanelRoot.activeSelf)
@@ -198,19 +421,64 @@ public class ThronefallUI : MonoBehaviour
         }
     }
 
-    public void ShowBuildPanel(TFBuildingNodeConfig config)
+    public void ShowBuildPanel(TFBuildingConfig config)
     {
         var game = ThronefallGame.Instance;
         if (game == null || game.CurrentPhase != ThronefallGame.GamePhase.Day)
             return;
         if (config == null) return;
 
-        if (buildTitleText != null) buildTitleText.text = $"Build {config.buildingName}";
-        if (buildDescText != null) buildDescText.text = config.description;
-        if (buildStatIconText != null) buildStatIconText.text = config.statName;
-        if (buildStatBeforeText != null) buildStatBeforeText.text = config.statBefore.ToString();
-        if (buildStatAfterText != null) buildStatAfterText.text = config.statAfter.ToString();
+        if (buildTitleText != null) buildTitleText.text = config.buildingName;
+        if (buildDescText != null) buildDescText.text = config.description ?? "";
+
+        string statName = "";
+        string statBefore = "";
+        string statAfter = "";
+        switch (config.buildingType)
+        {
+            case "tower":
+                statName = "ATK";
+                statAfter = config.atk.ToString();
+                break;
+            case "wall":
+                statName = "DEF";
+                statAfter = config.def.ToString();
+                break;
+            case "economic":
+                statName = "YIELD";
+                statAfter = config.dailyYield.ToString();
+                break;
+            case "barracks":
+                statName = "RECRUIT";
+                statAfter = config.maxRecruits.ToString();
+                break;
+            default:
+                statName = "HP";
+                statAfter = config.maxHP.ToString();
+                break;
+        }
+
+        if (buildStatIconText != null) buildStatIconText.text = statName;
+        if (buildStatBeforeText != null) buildStatBeforeText.text = statBefore;
+        if (buildStatAfterText != null) buildStatAfterText.text = statAfter;
         if (buildCostAmountText != null) buildCostAmountText.text = config.coinCost.ToString();
+
+        buildPanelFadeTarget = 1f;
+    }
+
+    public void ShowBuildPanelForRecruit(TFBuildingConfig config, int currentCount)
+    {
+        var game = ThronefallGame.Instance;
+        if (game == null || game.CurrentPhase != ThronefallGame.GamePhase.Day)
+            return;
+        if (config == null) return;
+
+        if (buildTitleText != null) buildTitleText.text = "Recruit Soldier";
+        if (buildDescText != null) buildDescText.text = $"Soldiers: {currentCount}/{config.maxRecruits}";
+        if (buildStatIconText != null) buildStatIconText.text = "ATK";
+        if (buildStatBeforeText != null) buildStatBeforeText.text = "";
+        if (buildStatAfterText != null) buildStatAfterText.text = config.allyAtk.ToString();
+        if (buildCostAmountText != null) buildCostAmountText.text = config.recruitCost.ToString();
 
         buildPanelFadeTarget = 1f;
     }
@@ -227,6 +495,8 @@ public class ThronefallUI : MonoBehaviour
         if (dayText != null)
             dayText.text = "";
         HideRevivalCountdown();
+        if (branchPanelOpen)
+            HideBranchPanel();
     }
 
     public void ShowRevivalCountdown(float totalTime)
