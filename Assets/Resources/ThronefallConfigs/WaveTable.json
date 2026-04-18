@@ -6,9 +6,17 @@
             "dayNumber": 1,
             "spawnPoints": [
                 {
-                    "position": { "x": 30, "y": 0, "z": 0 },
+                    "position": {
+                        "x": 30.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "actions": [
-                        { "monsterId": 1, "count": 3, "spawnInterval": 1.5 }
+                        {
+                            "monsterId": 1,
+                            "count": 3,
+                            "spawnInterval": 1.5
+                        }
                     ]
                 }
             ]
@@ -17,15 +25,31 @@
             "dayNumber": 2,
             "spawnPoints": [
                 {
-                    "position": { "x": 30, "y": 0, "z": 0 },
+                    "position": {
+                        "x": 30.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "actions": [
-                        { "monsterId": 1, "count": 5, "spawnInterval": 1.2 }
+                        {
+                            "monsterId": 1,
+                            "count": 5,
+                            "spawnInterval": 1.2000000476837159
+                        }
                     ]
                 },
                 {
-                    "position": { "x": -30, "y": 0, "z": 0 },
+                    "position": {
+                        "x": -30.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "actions": [
-                        { "monsterId": 1, "count": 3, "spawnInterval": 1.5 }
+                        {
+                            "monsterId": 1,
+                            "count": 3,
+                            "spawnInterval": 1.5
+                        }
                     ]
                 }
             ]
@@ -34,16 +58,36 @@
             "dayNumber": 3,
             "spawnPoints": [
                 {
-                    "position": { "x": 30, "y": 0, "z": 0 },
+                    "position": {
+                        "x": 30.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "actions": [
-                        { "monsterId": 1, "count": 4, "spawnInterval": 1.0 },
-                        { "monsterId": 2, "count": 2, "spawnInterval": 2.0 }
+                        {
+                            "monsterId": 1,
+                            "count": 4,
+                            "spawnInterval": 1.0
+                        },
+                        {
+                            "monsterId": 2,
+                            "count": 2,
+                            "spawnInterval": 2.0
+                        }
                     ]
                 },
                 {
-                    "position": { "x": 0, "y": 0, "z": 30 },
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 30.0
+                    },
                     "actions": [
-                        { "monsterId": 3, "count": 4, "spawnInterval": 1.2 }
+                        {
+                            "monsterId": 3,
+                            "count": 4,
+                            "spawnInterval": 1.2000000476837159
+                        }
                     ]
                 }
             ]

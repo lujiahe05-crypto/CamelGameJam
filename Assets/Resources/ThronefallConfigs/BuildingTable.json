@@ -17,7 +17,10 @@
             "dailyYield": 0,
             "recruitCost": 0,
             "maxRecruits": 0,
-            "upgradeIds": [10, 11],
+            "upgradeIds": [
+                10,
+                11
+            ],
             "branchIcon": "T",
             "allyUnitType": ""
         },
@@ -38,7 +41,9 @@
             "dailyYield": 0,
             "recruitCost": 0,
             "maxRecruits": 0,
-            "upgradeIds": [20],
+            "upgradeIds": [
+                20
+            ],
             "branchIcon": "",
             "allyUnitType": ""
         },
@@ -80,7 +85,9 @@
             "dailyYield": 15,
             "recruitCost": 0,
             "maxRecruits": 0,
-            "upgradeIds": [40],
+            "upgradeIds": [
+                40
+            ],
             "branchIcon": "",
             "allyUnitType": ""
         },
@@ -131,7 +138,7 @@
             "buildingName": "Knight Barracks",
             "description": "Recruit knights with charge attack",
             "buildingType": "barracks",
-            "coinCost": 80,
+            "coinCost": 20,
             "maxHP": 300,
             "atk": 0,
             "def": 3,

@@ -28,9 +28,9 @@
             "maxHP": 50,
             "atk": 12,
             "def": 2,
-            "moveSpeed": 2.8,
+            "moveSpeed": 2.799999952316284,
             "attackRange": 1.5,
-            "attackInterval": 1.2,
+            "attackInterval": 1.2000000476837159,
             "iconLabel": "S"
         }
     ]
