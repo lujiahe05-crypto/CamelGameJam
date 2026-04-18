@@ -19,12 +19,7 @@
             "maxRecruits": 0,
             "upgradeIds": [10, 11],
             "branchIcon": "T",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         },
         {
             "buildingId": 2,
@@ -45,12 +40,7 @@
             "maxRecruits": 0,
             "upgradeIds": [20],
             "branchIcon": "",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         },
         {
             "buildingId": 3,
@@ -71,12 +61,7 @@
             "maxRecruits": 0,
             "upgradeIds": [],
             "branchIcon": "",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         },
         {
             "buildingId": 4,
@@ -97,17 +82,12 @@
             "maxRecruits": 0,
             "upgradeIds": [40],
             "branchIcon": "",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         },
         {
             "buildingId": 5,
-            "buildingName": "Barracks",
-            "description": "Recruit soldiers to fight for you",
+            "buildingName": "Spearman Barracks",
+            "description": "Recruit spearmen to fight for you",
             "buildingType": "barracks",
             "coinCost": 60,
             "maxHP": 250,
@@ -123,12 +103,49 @@
             "maxRecruits": 3,
             "upgradeIds": [],
             "branchIcon": "",
-            "allyMaxHP": 50,
-            "allyAtk": 10,
-            "allyDef": 2,
-            "allyMoveSpeed": 3.0,
-            "allyAttackRange": 1.8,
-            "allyAttackInterval": 1.0
+            "allyUnitType": "spearman"
+        },
+        {
+            "buildingId": 6,
+            "buildingName": "Archer Barracks",
+            "description": "Recruit archers for ranged support",
+            "buildingType": "barracks",
+            "coinCost": 70,
+            "maxHP": 200,
+            "atk": 0,
+            "def": 2,
+            "attackRange": 0.0,
+            "attackInterval": 0.0,
+            "arrowSpeed": 0.0,
+            "arcHeight": 0.0,
+            "aoeRadius": 0.0,
+            "dailyYield": 0,
+            "recruitCost": 25,
+            "maxRecruits": 2,
+            "upgradeIds": [],
+            "branchIcon": "",
+            "allyUnitType": "archer"
+        },
+        {
+            "buildingId": 7,
+            "buildingName": "Knight Barracks",
+            "description": "Recruit knights with charge attack",
+            "buildingType": "barracks",
+            "coinCost": 80,
+            "maxHP": 300,
+            "atk": 0,
+            "def": 3,
+            "attackRange": 0.0,
+            "attackInterval": 0.0,
+            "arrowSpeed": 0.0,
+            "arcHeight": 0.0,
+            "aoeRadius": 0.0,
+            "dailyYield": 0,
+            "recruitCost": 30,
+            "maxRecruits": 2,
+            "upgradeIds": [],
+            "branchIcon": "",
+            "allyUnitType": "knight"
         },
         {
             "buildingId": 10,
@@ -149,12 +166,7 @@
             "maxRecruits": 0,
             "upgradeIds": [],
             "branchIcon": "LB",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         },
         {
             "buildingId": 11,
@@ -175,12 +187,7 @@
             "maxRecruits": 0,
             "upgradeIds": [],
             "branchIcon": "FO",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         },
         {
             "buildingId": 20,
@@ -201,12 +208,7 @@
             "maxRecruits": 0,
             "upgradeIds": [],
             "branchIcon": "",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         },
         {
             "buildingId": 40,
@@ -227,12 +229,7 @@
             "maxRecruits": 0,
             "upgradeIds": [],
             "branchIcon": "",
-            "allyMaxHP": 0,
-            "allyAtk": 0,
-            "allyDef": 0,
-            "allyMoveSpeed": 0.0,
-            "allyAttackRange": 0.0,
-            "allyAttackInterval": 0.0
+            "allyUnitType": ""
         }
     ]
 }

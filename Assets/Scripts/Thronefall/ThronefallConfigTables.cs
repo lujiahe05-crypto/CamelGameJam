@@ -22,18 +22,40 @@ public class TFBuildingConfig
     public int maxRecruits;
     public int[] upgradeIds;
     public string branchIcon;
-    public int allyMaxHP;
-    public int allyAtk;
-    public int allyDef;
-    public float allyMoveSpeed;
-    public float allyAttackRange;
-    public float allyAttackInterval;
+    public string allyUnitType;
 }
 
 [Serializable]
 public class TFBuildingTable
 {
     public TFBuildingConfig[] buildings;
+}
+
+[Serializable]
+public class TFAllyUnitConfig
+{
+    public string unitType;
+    public string unitName;
+    public int maxHP;
+    public int atk;
+    public int def;
+    public float moveSpeed;
+    public float attackRange;
+    public float attackInterval;
+    public float respawnTime;
+    public float arrowSpeed;
+    public float arcHeight;
+    public float kiteDistance;
+    public float chargeSpeed;
+    public float chargeDuration;
+    public float chargeMultiplier;
+    public float chargeCooldown;
+}
+
+[Serializable]
+public class TFAllyUnitTable
+{
+    public TFAllyUnitConfig[] units;
 }
 
 [Serializable]
@@ -146,17 +168,22 @@ public class TFHeroTable
 public static class ThronefallConfigTables
 {
     const string BuildingTablePath = "ThronefallConfigs/BuildingTable";
+    const string AllyUnitTablePath = "ThronefallConfigs/AllyUnitTable";
     const string MonsterTablePath = "ThronefallConfigs/MonsterTable";
     const string WaveTablePath = "ThronefallConfigs/WaveTable";
     const string HeroTablePath = "ThronefallConfigs/HeroTable";
 
     static TFBuildingTable buildingTable;
+    static TFAllyUnitTable allyUnitTable;
     static TFMonsterTable monsterTable;
     static TFWaveTable waveTable;
     static TFHeroTable heroTable;
 
     public static TFBuildingTable BuildingTableData =>
         buildingTable ?? (buildingTable = LoadTable(BuildingTablePath, CreateDefaultBuildingTable()));
+
+    public static TFAllyUnitTable AllyUnitTableData =>
+        allyUnitTable ?? (allyUnitTable = LoadTable(AllyUnitTablePath, CreateDefaultAllyUnitTable()));
 
     public static TFMonsterTable MonsterTableData =>
         monsterTable ?? (monsterTable = LoadTable(MonsterTablePath, CreateDefaultMonsterTable()));
@@ -172,6 +199,7 @@ public static class ThronefallConfigTables
     public static void Reload()
     {
         buildingTable = null;
+        allyUnitTable = null;
         monsterTable = null;
         waveTable = null;
         heroTable = null;
@@ -184,6 +212,18 @@ public static class ThronefallConfigTables
         {
             if (b != null && b.buildingId == buildingId)
                 return b;
+        }
+        return null;
+    }
+
+    public static TFAllyUnitConfig GetAllyUnitConfig(string unitType)
+    {
+        if (string.IsNullOrEmpty(unitType)) return null;
+        if (AllyUnitTableData.units == null) return null;
+        foreach (var u in AllyUnitTableData.units)
+        {
+            if (u != null && u.unitType == unitType)
+                return u;
         }
         return null;
     }
@@ -257,11 +297,26 @@ public static class ThronefallConfigTables
                 new TFBuildingConfig { buildingId = 2, buildingName = "Wall", description = "Blocks enemy path to the base", buildingType = "wall", coinCost = 30, maxHP = 400, def = 5, upgradeIds = new[] { 20 } },
                 new TFBuildingConfig { buildingId = 3, buildingName = "Castle Center", description = "Your main base - protect it!", buildingType = "base", coinCost = 0, maxHP = 300, def = 3 },
                 new TFBuildingConfig { buildingId = 4, buildingName = "House", description = "Produces gold each morning", buildingType = "economic", coinCost = 40, maxHP = 150, dailyYield = 15, upgradeIds = new[] { 40 } },
-                new TFBuildingConfig { buildingId = 5, buildingName = "Barracks", description = "Recruit soldiers to fight for you", buildingType = "barracks", coinCost = 60, maxHP = 250, recruitCost = 20, maxRecruits = 3, allyMaxHP = 50, allyAtk = 10, allyDef = 2, allyMoveSpeed = 3f, allyAttackRange = 1.8f, allyAttackInterval = 1f },
+                new TFBuildingConfig { buildingId = 5, buildingName = "Spearman Barracks", description = "Recruit spearmen to fight for you", buildingType = "barracks", coinCost = 60, maxHP = 250, recruitCost = 20, maxRecruits = 3, allyUnitType = "spearman" },
+                new TFBuildingConfig { buildingId = 6, buildingName = "Archer Barracks", description = "Recruit archers for ranged support", buildingType = "barracks", coinCost = 70, maxHP = 200, recruitCost = 25, maxRecruits = 2, allyUnitType = "archer" },
+                new TFBuildingConfig { buildingId = 7, buildingName = "Knight Barracks", description = "Recruit knights with charge attack", buildingType = "barracks", coinCost = 80, maxHP = 300, recruitCost = 30, maxRecruits = 2, allyUnitType = "knight" },
                 new TFBuildingConfig { buildingId = 10, buildingName = "Longbow Tower", description = "Extended range, powerful single target", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 20, def = 2, attackRange = 15f, attackInterval = 2f, arrowSpeed = 18f, arcHeight = 5f, branchIcon = "LB" },
                 new TFBuildingConfig { buildingId = 11, buildingName = "Fire Oil Tower", description = "Short range area damage", buildingType = "tower", coinCost = 40, maxHP = 250, atk = 25, def = 2, attackRange = 8f, attackInterval = 2.5f, arrowSpeed = 10f, arcHeight = 6f, aoeRadius = 3f, branchIcon = "FO" },
                 new TFBuildingConfig { buildingId = 20, buildingName = "Fortified Wall", description = "Extremely tough barrier", buildingType = "wall", coinCost = 25, maxHP = 700, def = 8 },
                 new TFBuildingConfig { buildingId = 40, buildingName = "Manor", description = "Produces more gold each morning", buildingType = "economic", coinCost = 30, maxHP = 200, dailyYield = 25 }
+            }
+        };
+    }
+
+    static TFAllyUnitTable CreateDefaultAllyUnitTable()
+    {
+        return new TFAllyUnitTable
+        {
+            units = new[]
+            {
+                new TFAllyUnitConfig { unitType = "spearman", unitName = "Spearman", maxHP = 80, atk = 12, def = 5, moveSpeed = 3f, attackRange = 1.8f, attackInterval = 1f, respawnTime = 15f },
+                new TFAllyUnitConfig { unitType = "archer", unitName = "Archer", maxHP = 40, atk = 15, def = 1, moveSpeed = 3.5f, attackRange = 10f, attackInterval = 1.5f, respawnTime = 18f, arrowSpeed = 15f, arcHeight = 3f, kiteDistance = 7f },
+                new TFAllyUnitConfig { unitType = "knight", unitName = "Knight", maxHP = 60, atk = 18, def = 3, moveSpeed = 4f, attackRange = 2f, attackInterval = 1.2f, respawnTime = 20f, chargeSpeed = 12f, chargeDuration = 0.6f, chargeMultiplier = 2f, chargeCooldown = 8f }
             }
         };
     }

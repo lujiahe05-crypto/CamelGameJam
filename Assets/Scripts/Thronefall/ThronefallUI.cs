@@ -38,6 +38,10 @@ public class ThronefallUI : MonoBehaviour
     int selectedBranchIndex;
     bool branchPanelOpen;
 
+    // Selection rect
+    GameObject selectionRectGo;
+    RectTransform selectionRectRT;
+
     public bool IsBranchPanelOpen => branchPanelOpen;
 
     void Start()
@@ -79,6 +83,7 @@ public class ThronefallUI : MonoBehaviour
         CreateRevivalPanel();
         CreateWeaponLabel();
         CreateBranchPanel();
+        CreateSelectionRect();
     }
 
     void CreateRevivalPanel()
@@ -241,6 +246,36 @@ public class ThronefallUI : MonoBehaviour
         hintText.raycastTarget = false;
 
         branchOverlay.SetActive(false);
+    }
+
+    void CreateSelectionRect()
+    {
+        selectionRectGo = new GameObject("SelectionRect");
+        selectionRectGo.transform.SetParent(transform, false);
+        selectionRectRT = selectionRectGo.AddComponent<RectTransform>();
+        selectionRectRT.anchorMin = Vector2.zero;
+        selectionRectRT.anchorMax = Vector2.zero;
+        selectionRectGo.AddComponent<CanvasRenderer>();
+        var img = selectionRectGo.AddComponent<Image>();
+        img.color = new Color(0.3f, 0.6f, 1f, 0.2f);
+        img.raycastTarget = false;
+        selectionRectGo.SetActive(false);
+    }
+
+    public void ShowSelectionRect(Vector2 start, Vector2 end)
+    {
+        if (selectionRectGo == null) return;
+        selectionRectGo.SetActive(true);
+        Vector2 min = Vector2.Min(start, end);
+        Vector2 max = Vector2.Max(start, end);
+        selectionRectRT.offsetMin = min;
+        selectionRectRT.offsetMax = max;
+    }
+
+    public void HideSelectionRect()
+    {
+        if (selectionRectGo != null)
+            selectionRectGo.SetActive(false);
     }
 
     public void ShowBranchPanel(TFBuildingConfig[] options)
@@ -473,11 +508,15 @@ public class ThronefallUI : MonoBehaviour
             return;
         if (config == null) return;
 
-        if (buildTitleText != null) buildTitleText.text = "Recruit Soldier";
-        if (buildDescText != null) buildDescText.text = $"Soldiers: {currentCount}/{config.maxRecruits}";
+        var unitConfig = ThronefallConfigTables.GetAllyUnitConfig(config.allyUnitType);
+        string unitName = unitConfig != null ? unitConfig.unitName : "Soldier";
+        int unitAtk = unitConfig != null ? unitConfig.atk : 0;
+
+        if (buildTitleText != null) buildTitleText.text = $"Recruit {unitName}";
+        if (buildDescText != null) buildDescText.text = $"Units: {currentCount}/{config.maxRecruits}";
         if (buildStatIconText != null) buildStatIconText.text = "ATK";
         if (buildStatBeforeText != null) buildStatBeforeText.text = "";
-        if (buildStatAfterText != null) buildStatAfterText.text = config.allyAtk.ToString();
+        if (buildStatAfterText != null) buildStatAfterText.text = unitAtk.ToString();
         if (buildCostAmountText != null) buildCostAmountText.text = config.recruitCost.ToString();
 
         buildPanelFadeTarget = 1f;

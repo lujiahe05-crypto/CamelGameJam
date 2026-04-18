@@ -1,0 +1,58 @@
+{
+    "units": [
+        {
+            "unitType": "spearman",
+            "unitName": "Spearman",
+            "maxHP": 80,
+            "atk": 12,
+            "def": 5,
+            "moveSpeed": 3.0,
+            "attackRange": 1.8,
+            "attackInterval": 1.0,
+            "respawnTime": 15.0,
+            "arrowSpeed": 0,
+            "arcHeight": 0,
+            "kiteDistance": 0,
+            "chargeSpeed": 0,
+            "chargeDuration": 0,
+            "chargeMultiplier": 0,
+            "chargeCooldown": 0
+        },
+        {
+            "unitType": "archer",
+            "unitName": "Archer",
+            "maxHP": 40,
+            "atk": 15,
+            "def": 1,
+            "moveSpeed": 3.5,
+            "attackRange": 10.0,
+            "attackInterval": 1.5,
+            "respawnTime": 18.0,
+            "arrowSpeed": 15.0,
+            "arcHeight": 3.0,
+            "kiteDistance": 7.0,
+            "chargeSpeed": 0,
+            "chargeDuration": 0,
+            "chargeMultiplier": 0,
+            "chargeCooldown": 0
+        },
+        {
+            "unitType": "knight",
+            "unitName": "Knight",
+            "maxHP": 60,
+            "atk": 18,
+            "def": 3,
+            "moveSpeed": 4.0,
+            "attackRange": 2.0,
+            "attackInterval": 1.2,
+            "respawnTime": 20.0,
+            "arrowSpeed": 0,
+            "arcHeight": 0,
+            "kiteDistance": 0,
+            "chargeSpeed": 12.0,
+            "chargeDuration": 0.6,
+            "chargeMultiplier": 2.0,
+            "chargeCooldown": 8.0
+        }
+    ]
+}

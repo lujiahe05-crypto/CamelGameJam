@@ -45,6 +45,7 @@ public static class ThronefallConfigExcelImporter
         WriteJson("MonsterTable.json", ImportMonsterTable(workbook.RequireSheet("monster")));
         WriteJson("WaveTable.json", ImportWaveTable(workbook.RequireSheet("wave")));
         WriteJson("HeroTable.json", ImportHeroTable(workbook.RequireSheet("hero")));
+        WriteJson("AllyUnitTable.json", ImportAllyUnitTable(workbook.RequireSheet("allyUnit")));
 
         AssetDatabase.Refresh();
         Debug.Log($"Imported Thronefall config excel: {excelPath}");
@@ -77,12 +78,7 @@ public static class ThronefallConfigExcelImporter
                 recruitCost = row.GetIntOrDefault("recruitCost"),
                 maxRecruits = row.GetIntOrDefault("maxRecruits"),
                 branchIcon = row.GetOrDefault("branchIcon", ""),
-                allyMaxHP = row.GetIntOrDefault("allyMaxHP"),
-                allyAtk = row.GetIntOrDefault("allyAtk"),
-                allyDef = row.GetIntOrDefault("allyDef"),
-                allyMoveSpeed = row.GetFloatOrDefault("allyMoveSpeed"),
-                allyAttackRange = row.GetFloatOrDefault("allyAttackRange"),
-                allyAttackInterval = row.GetFloatOrDefault("allyAttackInterval")
+                allyUnitType = row.GetOrDefault("allyUnitType", "")
             };
 
             string upgradeStr = row.GetOrDefault("upgradeIds", "");
@@ -106,6 +102,38 @@ public static class ThronefallConfigExcelImporter
         }
 
         return new TFBuildingTable { buildings = buildings.ToArray() };
+    }
+
+    // ─── Ally Unit Table ────────────────────────────────────────────
+
+    static TFAllyUnitTable ImportAllyUnitTable(ExcelSheet sheet)
+    {
+        var units = new List<TFAllyUnitConfig>();
+
+        foreach (var row in sheet.Rows)
+        {
+            units.Add(new TFAllyUnitConfig
+            {
+                unitType = row.GetRequired("unitType"),
+                unitName = row.GetOrDefault("unitName", ""),
+                maxHP = row.GetInt("maxHP"),
+                atk = row.GetInt("atk"),
+                def = row.GetIntOrDefault("def"),
+                moveSpeed = row.GetFloat("moveSpeed"),
+                attackRange = row.GetFloat("attackRange"),
+                attackInterval = row.GetFloat("attackInterval"),
+                respawnTime = row.GetFloatOrDefault("respawnTime", 15f),
+                arrowSpeed = row.GetFloatOrDefault("arrowSpeed"),
+                arcHeight = row.GetFloatOrDefault("arcHeight"),
+                kiteDistance = row.GetFloatOrDefault("kiteDistance"),
+                chargeSpeed = row.GetFloatOrDefault("chargeSpeed"),
+                chargeDuration = row.GetFloatOrDefault("chargeDuration"),
+                chargeMultiplier = row.GetFloatOrDefault("chargeMultiplier"),
+                chargeCooldown = row.GetFloatOrDefault("chargeCooldown")
+            });
+        }
+
+        return new TFAllyUnitTable { units = units.ToArray() };
     }
 
     // ─── Monster Table ────────────────────────────────────────────────

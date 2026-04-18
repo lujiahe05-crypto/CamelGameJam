@@ -14,6 +14,10 @@ public class ThronefallBuildSystem : MonoBehaviour
         public ThronefallBuildNodeUI nodeUI;
         public GameObject nodeVisual;
         public List<ThronefallAlly> allies = new List<ThronefallAlly>();
+        public string allyUnitType;
+        public int pendingRespawns;
+        public float respawnTimer;
+        public float respawnTime;
     }
 
     List<BuildNode> allNodes = new List<BuildNode>();
@@ -227,6 +231,9 @@ public class ThronefallBuildSystem : MonoBehaviour
         var config = ThronefallConfigTables.GetBuildingConfig(node.currentBuildingId);
         if (config == null || config.buildingType != "barracks") return false;
 
+        var unitConfig = ThronefallConfigTables.GetAllyUnitConfig(config.allyUnitType);
+        if (unitConfig == null) return false;
+
         var game = ThronefallGame.Instance;
         if (game == null) return false;
 
@@ -238,19 +245,33 @@ public class ThronefallBuildSystem : MonoBehaviour
         if (game.Coins < cost) return false;
 
         game.Coins -= cost;
+        SpawnAlly(node, unitConfig);
+        return true;
+    }
+
+    void SpawnAlly(BuildNode node, TFAllyUnitConfig unitConfig)
+    {
+        var game = ThronefallGame.Instance;
+        if (game == null) return;
 
         Vector3 rallyPoint = node.gameObject.transform.position + new Vector3(0, 0, 2f);
         Vector3 spawnOffset = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f));
 
-        var allyGo = new GameObject($"Ally_{node.allies.Count}");
+        var allyGo = new GameObject($"Ally_{unitConfig.unitType}_{node.allies.Count}");
         allyGo.transform.SetParent(game.RootContainer);
         allyGo.transform.position = rallyPoint + spawnOffset;
 
         var ally = allyGo.AddComponent<ThronefallAlly>();
-        ally.Init(config, rallyPoint);
+        ally.Init(unitConfig, rallyPoint, () => OnAllyDied(node));
         node.allies.Add(ally);
 
-        return true;
+        if (game.CmdSys != null)
+            game.CmdSys.RegisterAlly(ally);
+    }
+
+    void OnAllyDied(BuildNode node)
+    {
+        node.pendingRespawns++;
     }
 
     void SpawnBuilding(BuildNode node, TFBuildingConfig config)
@@ -269,6 +290,13 @@ public class ThronefallBuildSystem : MonoBehaviour
 
         node.currentBuildingId = config.buildingId;
         node.building = building;
+
+        if (config.buildingType == "barracks")
+        {
+            node.allyUnitType = config.allyUnitType;
+            var unitConfig = ThronefallConfigTables.GetAllyUnitConfig(config.allyUnitType);
+            node.respawnTime = unitConfig != null ? unitConfig.respawnTime : 15f;
+        }
     }
 
     void ReplaceBuilding(BuildNode node, TFBuildingConfig newConfig)
@@ -294,6 +322,13 @@ public class ThronefallBuildSystem : MonoBehaviour
 
         node.currentBuildingId = newConfig.buildingId;
         node.building = building;
+
+        if (newConfig.buildingType == "barracks")
+        {
+            node.allyUnitType = newConfig.allyUnitType;
+            var unitConfig = ThronefallConfigTables.GetAllyUnitConfig(newConfig.allyUnitType);
+            node.respawnTime = unitConfig != null ? unitConfig.respawnTime : 15f;
+        }
     }
 
     public void DawnRecover()
@@ -410,6 +445,41 @@ public class ThronefallBuildSystem : MonoBehaviour
 
         foreach (var node in allNodes)
             CleanDeadAllies(node);
+
+        UpdateRespawns();
+    }
+
+    void UpdateRespawns()
+    {
+        var game = ThronefallGame.Instance;
+        if (game == null) return;
+
+        foreach (var node in allNodes)
+        {
+            if (node.building == null || node.building.IsRuined) continue;
+            if (node.currentBuildingId == 0) continue;
+
+            var config = ThronefallConfigTables.GetBuildingConfig(node.currentBuildingId);
+            if (config == null || config.buildingType != "barracks") continue;
+
+            CleanDeadAllies(node);
+            int maxRecruits = config.maxRecruits > 0 ? config.maxRecruits : 3;
+
+            if (node.pendingRespawns > 0 && node.allies.Count < maxRecruits)
+            {
+                node.respawnTimer -= Time.deltaTime;
+                if (node.respawnTimer <= 0)
+                {
+                    var unitConfig = ThronefallConfigTables.GetAllyUnitConfig(node.allyUnitType);
+                    if (unitConfig != null)
+                    {
+                        SpawnAlly(node, unitConfig);
+                        node.pendingRespawns--;
+                        node.respawnTimer = node.respawnTime;
+                    }
+                }
+            }
+        }
     }
 
     void CleanDeadAllies(BuildNode node)

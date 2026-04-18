@@ -97,6 +97,28 @@ public class ThronefallCombatSystem : MonoBehaviour
         return nearest;
     }
 
+    public ThronefallAlly FindNearestAlly(Vector3 position, float maxRange)
+    {
+        ThronefallAlly nearest = null;
+        float nearestDist = maxRange * maxRange;
+
+        for (int i = allEntities.Count - 1; i >= 0; i--)
+        {
+            var entity = allEntities[i];
+            if (entity is ThronefallAlly ally && ally.IsAlive)
+            {
+                float dist = (ally.Position - position).sqrMagnitude;
+                if (dist < nearestDist)
+                {
+                    nearestDist = dist;
+                    nearest = ally;
+                }
+            }
+        }
+
+        return nearest;
+    }
+
     void LateUpdate()
     {
         // Clean up destroyed entities

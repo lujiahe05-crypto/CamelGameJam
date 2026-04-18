@@ -1,11 +1,12 @@
 # Thronefall Config Excel 说明
 
-Excel 需要 4 张工作表：
+Excel 需要 5 张工作表：
 
 - `building`
 - `monster`
 - `wave`
 - `hero`
+- `allyUnit`
 
 ## 读取规则
 
@@ -45,12 +46,7 @@ Excel 需要 4 张工作表：
 | `maxRecruits` | int | 最大招募人数（兵营填值，其他填 0） |
 | `upgradeIds` | string | 升级指向的建筑 ID 列表，逗号分隔（如 `10,11`）。单线升级填 1 个，分支填多个，终极不填 |
 | `branchIcon` | string | 分支选择面板的图标文字（如 `LB`、`FO`） |
-| `allyMaxHP` | int | 友军最大生命值（兵营填值，其他填 0） |
-| `allyAtk` | int | 友军攻击力（兵营填值，其他填 0） |
-| `allyDef` | int | 友军防御力（兵营填值，其他填 0） |
-| `allyMoveSpeed` | float | 友军移动速度（兵营填值，其他填 0） |
-| `allyAttackRange` | float | 友军攻击距离（兵营填值，其他填 0） |
-| `allyAttackInterval` | float | 友军攻击间隔（兵营填值，其他填 0） |
+| `allyUnitType` | string | 兵营兵种类型引用（如 `spearman`、`archer`、`knight`），非兵营留空 |
 
 当前建筑 ID：
 
@@ -58,7 +54,9 @@ Excel 需要 4 张工作表：
 - `2` = Wall（城墙，可升级为 20）
 - `3` = Castle Center（城堡中心 / 主基地）
 - `4` = House（房屋，可升级为 40）
-- `5` = Barracks（兵营）
+- `5` = Spearman Barracks（长矛兵兵营）
+- `6` = Archer Barracks（弓箭手兵营）
+- `7` = Knight Barracks（骑士兵营）
 - `10` = Longbow Tower（长弓塔，箭塔分支升级）
 - `11` = Fire Oil Tower（火油塔，箭塔分支升级）
 - `20` = Fortified Wall（强化城墙，城墙升级）
@@ -140,6 +138,39 @@ Excel 需要 4 张工作表：
 | spawn | | | 3 | 30 | 0 | 0 | 1 | 4 | 1.0 |
 | spawn | | | 3 | 30 | 0 | 0 | 2 | 2 | 2.0 |
 | spawn | | | 3 | 0 | 0 | 30 | 3 | 4 | 1.2 |
+
+---
+
+## allyUnit 表（友军兵种配置）
+
+一行表示一个兵种。
+
+字段：
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `unitType` | string | 兵种唯一标识（如 `spearman`、`archer`、`knight`） |
+| `unitName` | string | 兵种显示名称 |
+| `maxHP` | int | 最大生命值 |
+| `atk` | int | 攻击力 |
+| `def` | int | 防御力 |
+| `moveSpeed` | float | 移动速度 |
+| `attackRange` | float | 攻击距离 |
+| `attackInterval` | float | 攻击间隔（秒） |
+| `respawnTime` | float | 死亡后重生时间（秒） |
+| `arrowSpeed` | float | 箭矢飞行速度（弓箭手填值，其他填 0） |
+| `arcHeight` | float | 抛物线高度（弓箭手填值，其他填 0） |
+| `kiteDistance` | float | 风筝保持距离（弓箭手填值，其他填 0） |
+| `chargeSpeed` | float | 冲锋速度（骑士填值，其他填 0） |
+| `chargeDuration` | float | 冲锋时长（骑士填值，其他填 0） |
+| `chargeMultiplier` | float | 冲锋伤害倍率（骑士填值，其他填 0） |
+| `chargeCooldown` | float | 冲锋冷却时间（骑士填值，其他填 0） |
+
+当前兵种：
+
+- `spearman` = Spearman（长矛兵，近战肉盾）
+- `archer` = Archer（弓箭手，远程风筝）
+- `knight` = Knight（骑士，冲锋突击）
 
 ---
 

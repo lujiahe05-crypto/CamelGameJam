@@ -18,6 +18,7 @@ public class ThronefallGame : MonoBehaviour
     public ThronefallBuildSystem BuildSys { get; private set; }
     public ThronefallCombatSystem CombatSys { get; private set; }
     public ThronefallWaveSystem WaveSys { get; private set; }
+    public ThronefallCommandSystem CmdSys { get; private set; }
     public ThronefallUI UI { get; private set; }
 
     public Mesh CubeMesh { get; private set; }
@@ -39,6 +40,9 @@ public class ThronefallGame : MonoBehaviour
     public Material HouseMat { get; private set; }
     public Material BarracksMat { get; private set; }
     public Material AllyMat { get; private set; }
+    public Material ArcherAllyMat { get; private set; }
+    public Material KnightAllyMat { get; private set; }
+    public Material SelectionRingMat { get; private set; }
 
     void Awake()
     {
@@ -84,6 +88,9 @@ public class ThronefallGame : MonoBehaviour
         HouseMat = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.45f, 0.25f));
         BarracksMat = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.2f, 0.15f));
         AllyMat = ProceduralMeshUtil.CreateMaterial(new Color(0.2f, 0.7f, 0.6f));
+        ArcherAllyMat = ProceduralMeshUtil.CreateMaterial(new Color(0.3f, 0.8f, 0.3f));
+        KnightAllyMat = ProceduralMeshUtil.CreateMaterial(new Color(0.4f, 0.3f, 0.8f));
+        SelectionRingMat = ProceduralMeshUtil.CreateMaterial(new Color(1f, 0.9f, 0.2f, 0.5f), true);
     }
 
     void SetupCamera()
@@ -147,6 +154,10 @@ public class ThronefallGame : MonoBehaviour
         var waveGo = new GameObject("WaveSystem");
         waveGo.transform.SetParent(rootContainer.transform);
         WaveSys = waveGo.AddComponent<ThronefallWaveSystem>();
+
+        var cmdGo = new GameObject("CommandSystem");
+        cmdGo.transform.SetParent(rootContainer.transform);
+        CmdSys = cmdGo.AddComponent<ThronefallCommandSystem>();
     }
 
     void CreateUI()
@@ -190,8 +201,10 @@ public class ThronefallGame : MonoBehaviour
         BuildSys.CreateBuildNode(new Vector3(-5, 0, -4), 4, rootContainer.transform);
         BuildSys.CreateBuildNode(new Vector3(5, 0, -4), 4, rootContainer.transform);
 
-        // Barracks node
+        // Barracks nodes
         BuildSys.CreateBuildNode(new Vector3(0, 0, -8), 5, rootContainer.transform);
+        BuildSys.CreateBuildNode(new Vector3(-8, 0, -6), 6, rootContainer.transform);
+        BuildSys.CreateBuildNode(new Vector3(8, 0, -6), 7, rootContainer.transform);
     }
 
     public void StartDay(int day)

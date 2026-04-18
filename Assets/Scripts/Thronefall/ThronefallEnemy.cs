@@ -144,6 +144,7 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
         var game = ThronefallGame.Instance;
         if (game == null) return;
 
+        // 1. Hero in aggro range
         var player = game.Player;
         if (player != null && player.IsAlive)
         {
@@ -156,6 +157,15 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
             }
         }
 
+        // 2. Nearest ally in aggro range
+        var nearAlly = game.CombatSys.FindNearestAlly(Position, attackRange * 1.5f);
+        if (nearAlly != null)
+        {
+            currentTarget = nearAlly;
+            return;
+        }
+
+        // 3. Raycast toward base to detect walls
         var mainBase = game.CombatSys.GetMainBase();
         if (mainBase == null || !mainBase.IsAlive)
         {
@@ -163,7 +173,6 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
             return;
         }
 
-        // Raycast toward base to detect walls
         Vector3 dirToBase = (mainBase.Position - Position).normalized;
         if (Physics.Raycast(Position + Vector3.up * 0.5f, dirToBase, out RaycastHit hit, 4f))
         {
@@ -175,6 +184,7 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
             }
         }
 
+        // 4. Base
         currentTarget = mainBase;
     }
 
