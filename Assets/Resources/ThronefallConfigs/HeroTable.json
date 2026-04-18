@@ -1,0 +1,53 @@
+{
+    "hero": {
+        "maxHP": 100,
+        "moveSpeed": 8.0,
+        "reviveTime": 10.0,
+        "weapons": [
+            {
+                "weaponId": "spear",
+                "weaponName": "Spear",
+                "atk": 20,
+                "def": 3,
+                "attackRange": 2.5,
+                "attackInterval": 0.8,
+                "arrowSpeed": 0,
+                "arcHeight": 0,
+                "skill": {
+                    "skillId": "thrust",
+                    "cooldown": 8.0,
+                    "damageMultiplier": 1.5,
+                    "accelTime": 0.5,
+                    "decelTime": 0.5,
+                    "maxSpeed": 20.0,
+                    "arrowCount": 0,
+                    "spreadAngle": 0,
+                    "arrowSpeed": 0,
+                    "arcHeight": 0
+                }
+            },
+            {
+                "weaponId": "bow",
+                "weaponName": "Bow",
+                "atk": 12,
+                "def": 1,
+                "attackRange": 12.0,
+                "attackInterval": 1.2,
+                "arrowSpeed": 15.0,
+                "arcHeight": 4.0,
+                "skill": {
+                    "skillId": "volley",
+                    "cooldown": 12.0,
+                    "damageMultiplier": 0.8,
+                    "accelTime": 0,
+                    "decelTime": 0,
+                    "maxSpeed": 0,
+                    "arrowCount": 5,
+                    "spreadAngle": 60.0,
+                    "arrowSpeed": 15.0,
+                    "arcHeight": 5.0
+                }
+            }
+        ]
+    }
+}

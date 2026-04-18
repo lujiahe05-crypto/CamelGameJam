@@ -87,15 +87,61 @@ public class TFWaveTable
     public TFWaveConfig[] waves;
 }
 
+[Serializable]
+public class TFSkillConfig
+{
+    public string skillId;
+    public float cooldown;
+    public float damageMultiplier;
+    public float accelTime;
+    public float decelTime;
+    public float maxSpeed;
+    public int arrowCount;
+    public float spreadAngle;
+    public float arrowSpeed;
+    public float arcHeight;
+}
+
+[Serializable]
+public class TFWeaponConfig
+{
+    public string weaponId;
+    public string weaponName;
+    public int atk;
+    public int def;
+    public float attackRange;
+    public float attackInterval;
+    public float arrowSpeed;
+    public float arcHeight;
+    public TFSkillConfig skill;
+}
+
+[Serializable]
+public class TFHeroConfig
+{
+    public int maxHP;
+    public float moveSpeed;
+    public float reviveTime;
+    public TFWeaponConfig[] weapons;
+}
+
+[Serializable]
+public class TFHeroTable
+{
+    public TFHeroConfig hero;
+}
+
 public static class ThronefallConfigTables
 {
     const string BuildingNodeTablePath = "ThronefallConfigs/BuildingNodeTable";
     const string MonsterTablePath = "ThronefallConfigs/MonsterTable";
     const string WaveTablePath = "ThronefallConfigs/WaveTable";
+    const string HeroTablePath = "ThronefallConfigs/HeroTable";
 
     static TFBuildingNodeTable buildingNodeTable;
     static TFMonsterTable monsterTable;
     static TFWaveTable waveTable;
+    static TFHeroTable heroTable;
 
     public static TFBuildingNodeTable BuildingNodeTableData =>
         buildingNodeTable ?? (buildingNodeTable = LoadTable(BuildingNodeTablePath, CreateDefaultBuildingNodeTable()));
@@ -106,11 +152,17 @@ public static class ThronefallConfigTables
     public static TFWaveTable WaveTableData =>
         waveTable ?? (waveTable = LoadTable(WaveTablePath, CreateDefaultWaveTable()));
 
+    public static TFHeroTable HeroTableData =>
+        heroTable ?? (heroTable = LoadTable(HeroTablePath, CreateDefaultHeroTable()));
+
+    public static TFHeroConfig GetHeroConfig() => HeroTableData?.hero;
+
     public static void Reload()
     {
         buildingNodeTable = null;
         monsterTable = null;
         waveTable = null;
+        heroTable = null;
     }
 
     public static TFBuildingNodeConfig GetBuildingNodeConfig(int nodeId)
@@ -264,6 +316,43 @@ public static class ThronefallConfigTables
                         {
                             position = new TFSerializedVector3 { x = 0, y = 0, z = 30 },
                             actions = new[] { new TFSpawnAction { monsterId = 3, count = 4, spawnInterval = 1.2f } }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    static TFHeroTable CreateDefaultHeroTable()
+    {
+        return new TFHeroTable
+        {
+            hero = new TFHeroConfig
+            {
+                maxHP = 100,
+                moveSpeed = 8f,
+                reviveTime = 10f,
+                weapons = new[]
+                {
+                    new TFWeaponConfig
+                    {
+                        weaponId = "spear", weaponName = "Spear",
+                        atk = 20, def = 3, attackRange = 2.5f, attackInterval = 0.8f,
+                        skill = new TFSkillConfig
+                        {
+                            skillId = "thrust", cooldown = 8f, damageMultiplier = 1.5f,
+                            accelTime = 0.5f, decelTime = 0.5f, maxSpeed = 20f
+                        }
+                    },
+                    new TFWeaponConfig
+                    {
+                        weaponId = "bow", weaponName = "Bow",
+                        atk = 12, def = 1, attackRange = 12f, attackInterval = 1.2f,
+                        arrowSpeed = 15f, arcHeight = 4f,
+                        skill = new TFSkillConfig
+                        {
+                            skillId = "volley", cooldown = 12f, damageMultiplier = 0.8f,
+                            arrowCount = 5, spreadAngle = 60f, arrowSpeed = 15f, arcHeight = 5f
                         }
                     }
                 }

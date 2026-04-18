@@ -32,6 +32,10 @@ public class ThronefallGame : MonoBehaviour
     public Material BaseMat { get; private set; }
     public Material TowerMat { get; private set; }
     public Material ProjectileMat { get; private set; }
+    public Material SoulMat { get; private set; }
+    public Material SpearMat { get; private set; }
+    public Material BowMat { get; private set; }
+    public Material ThrustTrailMat { get; private set; }
 
     void Awake()
     {
@@ -70,6 +74,10 @@ public class ThronefallGame : MonoBehaviour
         BaseMat = ProceduralMeshUtil.CreateMaterial(new Color(0.9f, 0.75f, 0.3f));
         TowerMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.35f, 0.2f));
         ProjectileMat = ProceduralMeshUtil.CreateMaterial(new Color(1f, 0.9f, 0.2f));
+        SoulMat = ProceduralMeshUtil.CreateMaterial(new Color(1f, 1f, 1f, 0.4f), true);
+        SpearMat = ProceduralMeshUtil.CreateMaterial(new Color(0.35f, 0.35f, 0.4f));
+        BowMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.3f, 0.15f));
+        ThrustTrailMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.7f, 1f, 0.5f), true);
     }
 
     void SetupCamera()

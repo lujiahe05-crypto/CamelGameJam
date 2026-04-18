@@ -144,6 +144,18 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
         var game = ThronefallGame.Instance;
         if (game == null) return;
 
+        var player = game.Player;
+        if (player != null && player.IsAlive)
+        {
+            float heroDistSq = (player.Position - Position).sqrMagnitude;
+            float aggroRange = attackRange * 1.5f;
+            if (heroDistSq <= aggroRange * aggroRange)
+            {
+                currentTarget = player;
+                return;
+            }
+        }
+
         var mainBase = game.CombatSys.GetMainBase();
         if (mainBase == null || !mainBase.IsAlive)
         {

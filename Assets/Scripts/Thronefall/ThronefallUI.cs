@@ -21,6 +21,11 @@ public class ThronefallUI : MonoBehaviour
     float buildPanelFadeTarget;
     List<ThronefallWaveWarning> activeWarnings = new List<ThronefallWaveWarning>();
 
+    GameObject revivalPanel;
+    Text revivalCountdownText;
+    Text revivalHintText;
+    Text weaponLabelText;
+
     void Start()
     {
         var canvas = GetComponent<Canvas>();
@@ -60,6 +65,90 @@ public class ThronefallUI : MonoBehaviour
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+        CreateRevivalPanel();
+        CreateWeaponLabel();
+    }
+
+    void CreateRevivalPanel()
+    {
+        revivalPanel = new GameObject("RevivalPanel");
+        revivalPanel.transform.SetParent(transform, false);
+        var rect = revivalPanel.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.sizeDelta = new Vector2(300, 140);
+        rect.anchoredPosition = Vector2.zero;
+
+        var bgGo = new GameObject("BG");
+        bgGo.transform.SetParent(revivalPanel.transform, false);
+        var bgRect = bgGo.AddComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.offsetMin = Vector2.zero;
+        bgRect.offsetMax = Vector2.zero;
+        bgGo.AddComponent<CanvasRenderer>();
+        var bgImg = bgGo.AddComponent<Image>();
+        bgImg.color = new Color(0, 0, 0, 0.7f);
+        bgImg.raycastTarget = false;
+
+        var countGo = new GameObject("Countdown");
+        countGo.transform.SetParent(revivalPanel.transform, false);
+        var countRect = countGo.AddComponent<RectTransform>();
+        countRect.anchorMin = new Vector2(0, 0.35f);
+        countRect.anchorMax = new Vector2(1, 1);
+        countRect.offsetMin = Vector2.zero;
+        countRect.offsetMax = Vector2.zero;
+        countGo.AddComponent<CanvasRenderer>();
+        revivalCountdownText = countGo.AddComponent<Text>();
+        revivalCountdownText.font = Font.CreateDynamicFontFromOSFont("Arial", 48);
+        revivalCountdownText.fontSize = 48;
+        revivalCountdownText.fontStyle = FontStyle.Bold;
+        revivalCountdownText.color = Color.white;
+        revivalCountdownText.alignment = TextAnchor.MiddleCenter;
+        revivalCountdownText.raycastTarget = false;
+        revivalCountdownText.text = "10";
+
+        var hintGo = new GameObject("Hint");
+        hintGo.transform.SetParent(revivalPanel.transform, false);
+        var hintRect = hintGo.AddComponent<RectTransform>();
+        hintRect.anchorMin = new Vector2(0, 0);
+        hintRect.anchorMax = new Vector2(1, 0.4f);
+        hintRect.offsetMin = Vector2.zero;
+        hintRect.offsetMax = Vector2.zero;
+        hintGo.AddComponent<CanvasRenderer>();
+        revivalHintText = hintGo.AddComponent<Text>();
+        revivalHintText.font = Font.CreateDynamicFontFromOSFont("Arial", 20);
+        revivalHintText.fontSize = 20;
+        revivalHintText.color = new Color(0.7f, 0.7f, 0.7f);
+        revivalHintText.alignment = TextAnchor.MiddleCenter;
+        revivalHintText.raycastTarget = false;
+        revivalHintText.text = "Waiting for Revival...";
+
+        revivalPanel.SetActive(false);
+    }
+
+    void CreateWeaponLabel()
+    {
+        var go = new GameObject("WeaponLabel");
+        go.transform.SetParent(transform, false);
+        var rect = go.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0, 0);
+        rect.anchorMax = new Vector2(0, 0);
+        rect.pivot = new Vector2(0, 0);
+        rect.anchoredPosition = new Vector2(30, 30);
+        rect.sizeDelta = new Vector2(200, 40);
+        go.AddComponent<CanvasRenderer>();
+        weaponLabelText = go.AddComponent<Text>();
+        weaponLabelText.font = Font.CreateDynamicFontFromOSFont("Arial", 22);
+        weaponLabelText.fontSize = 22;
+        weaponLabelText.fontStyle = FontStyle.Bold;
+        weaponLabelText.color = Color.white;
+        weaponLabelText.alignment = TextAnchor.MiddleLeft;
+        weaponLabelText.raycastTarget = false;
+        var outline = go.AddComponent<Outline>();
+        outline.effectColor = new Color(0, 0, 0, 0.6f);
+        outline.effectDistance = new Vector2(1, -1);
     }
 
     void Update()
@@ -137,6 +226,32 @@ public class ThronefallUI : MonoBehaviour
             gameOverPanel.SetActive(true);
         if (dayText != null)
             dayText.text = "";
+        HideRevivalCountdown();
+    }
+
+    public void ShowRevivalCountdown(float totalTime)
+    {
+        if (revivalPanel != null)
+            revivalPanel.SetActive(true);
+        UpdateRevivalCountdown(totalTime);
+    }
+
+    public void UpdateRevivalCountdown(float timeRemaining)
+    {
+        if (revivalCountdownText != null)
+            revivalCountdownText.text = Mathf.CeilToInt(Mathf.Max(0, timeRemaining)).ToString();
+    }
+
+    public void HideRevivalCountdown()
+    {
+        if (revivalPanel != null)
+            revivalPanel.SetActive(false);
+    }
+
+    public void UpdateWeaponLabel(string weaponName)
+    {
+        if (weaponLabelText != null)
+            weaponLabelText.text = weaponName;
     }
 
     public void CreateWaveWarnings(TFWaveConfig waveConfig)
