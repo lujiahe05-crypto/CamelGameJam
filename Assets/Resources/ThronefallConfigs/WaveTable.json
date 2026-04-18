@@ -1,0 +1,52 @@
+{
+    "dailyBaseCoins": 40,
+    "startingCoins": 100,
+    "waves": [
+        {
+            "dayNumber": 1,
+            "spawnPoints": [
+                {
+                    "position": { "x": 30, "y": 0, "z": 0 },
+                    "actions": [
+                        { "monsterId": 1, "count": 3, "spawnInterval": 1.5 }
+                    ]
+                }
+            ]
+        },
+        {
+            "dayNumber": 2,
+            "spawnPoints": [
+                {
+                    "position": { "x": 30, "y": 0, "z": 0 },
+                    "actions": [
+                        { "monsterId": 1, "count": 5, "spawnInterval": 1.2 }
+                    ]
+                },
+                {
+                    "position": { "x": -30, "y": 0, "z": 0 },
+                    "actions": [
+                        { "monsterId": 1, "count": 3, "spawnInterval": 1.5 }
+                    ]
+                }
+            ]
+        },
+        {
+            "dayNumber": 3,
+            "spawnPoints": [
+                {
+                    "position": { "x": 30, "y": 0, "z": 0 },
+                    "actions": [
+                        { "monsterId": 1, "count": 4, "spawnInterval": 1.0 },
+                        { "monsterId": 2, "count": 2, "spawnInterval": 2.0 }
+                    ]
+                },
+                {
+                    "position": { "x": 0, "y": 0, "z": 30 },
+                    "actions": [
+                        { "monsterId": 3, "count": 4, "spawnInterval": 1.2 }
+                    ]
+                }
+            ]
+        }
+    ]
+}

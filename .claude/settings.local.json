@@ -78,7 +78,9 @@
       "Bash(sed -i 's/m_NormalColor: {r: 0.31, g: 0.31, b: 0.38, a: 1}/m_NormalColor: {r: 0.42, g: 0.42, b: 0.5, a: 1}/g' LobbyPanel.prefab)",
       "Bash(sed -i 's/m_HighlightedColor: {r: 0.4, g: 0.4, b: 0.48, a: 1}/m_HighlightedColor: {r: 0.52, g: 0.52, b: 0.6, a: 1}/g' LobbyPanel.prefab)",
       "Bash(sed -i 's/m_PressedColor: {r: 0.45, g: 0.45, b: 0.55, a: 1}/m_PressedColor: {r: 0.58, g: 0.58, b: 0.66, a: 1}/g' LobbyPanel.prefab)",
-      "Bash(sed -i 's/m_SelectedColor: {r: 0.31, g: 0.31, b: 0.38, a: 1}/m_SelectedColor: {r: 0.42, g: 0.42, b: 0.5, a: 1}/g' LobbyPanel.prefab)"
+      "Bash(sed -i 's/m_SelectedColor: {r: 0.31, g: 0.31, b: 0.38, a: 1}/m_SelectedColor: {r: 0.42, g: 0.42, b: 0.5, a: 1}/g' LobbyPanel.prefab)",
+      "WebFetch(domain:store.steampowered.com)",
+      "WebFetch(domain:en.wikipedia.org)"
     ]
   }
 }

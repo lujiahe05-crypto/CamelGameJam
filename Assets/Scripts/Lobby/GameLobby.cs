@@ -100,6 +100,8 @@ public class GameLobby : MonoBehaviour
             .onClick.AddListener(() => LaunchGame<TetrisGame>());
         panel.transform.Find("RaftButton").GetComponent<Button>()
             .onClick.AddListener(() => LaunchGame<RaftGame>());
+        panel.transform.Find("ThronefallButton").GetComponent<Button>()
+            .onClick.AddListener(() => LaunchGame<ThronefallGame>());
     }
 
     void LaunchGame<T>() where T : MonoBehaviour
@@ -116,6 +118,8 @@ public class GameLobby : MonoBehaviour
             tetrisGame.OnReturnToLobby = () => ReturnToLobby();
         else if (game is RaftGame raftGame)
             raftGame.OnReturnToLobby = () => ReturnToLobby();
+        else if (game is ThronefallGame thronefallGame)
+            thronefallGame.OnReturnToLobby = () => ReturnToLobby();
     }
 
     void ReturnToLobby()

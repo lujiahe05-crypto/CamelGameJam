@@ -1,0 +1,37 @@
+{
+    "monsters": [
+        {
+            "monsterId": 1,
+            "monsterName": "Goblin",
+            "maxHP": 30,
+            "atk": 8,
+            "def": 1,
+            "moveSpeed": 3.5,
+            "attackRange": 1.5,
+            "attackInterval": 1.0,
+            "iconLabel": "G"
+        },
+        {
+            "monsterId": 2,
+            "monsterName": "Orc",
+            "maxHP": 80,
+            "atk": 15,
+            "def": 4,
+            "moveSpeed": 2.0,
+            "attackRange": 2.0,
+            "attackInterval": 1.5,
+            "iconLabel": "O"
+        },
+        {
+            "monsterId": 3,
+            "monsterName": "Skeleton",
+            "maxHP": 50,
+            "atk": 12,
+            "def": 2,
+            "moveSpeed": 2.8,
+            "attackRange": 1.5,
+            "attackInterval": 1.2,
+            "iconLabel": "S"
+        }
+    ]
+}

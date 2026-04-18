@@ -1,0 +1,46 @@
+{
+    "nodes": [
+        {
+            "nodeId": 1,
+            "buildingName": "Arrow Tower",
+            "description": "Shoots arrows at nearby enemies",
+            "statName": "ATK",
+            "statBefore": 0,
+            "statAfter": 15,
+            "coinCost": 50,
+            "maxHP": 200,
+            "atk": 15,
+            "def": 2,
+            "attackRange": 10.0,
+            "attackInterval": 1.5
+        },
+        {
+            "nodeId": 2,
+            "buildingName": "Wall",
+            "description": "Blocks enemy path to the base",
+            "statName": "HP",
+            "statBefore": 0,
+            "statAfter": 400,
+            "coinCost": 30,
+            "maxHP": 400,
+            "atk": 0,
+            "def": 5,
+            "attackRange": 0,
+            "attackInterval": 0
+        },
+        {
+            "nodeId": 3,
+            "buildingName": "Castle Center",
+            "description": "Your main base - protect it!",
+            "statName": "HP",
+            "statBefore": 100,
+            "statAfter": 300,
+            "coinCost": 0,
+            "maxHP": 300,
+            "atk": 0,
+            "def": 3,
+            "attackRange": 0,
+            "attackInterval": 0
+        }
+    ]
+}
