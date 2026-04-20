@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ThronefallGame : MonoBehaviour
 {
@@ -12,6 +14,8 @@ public class ThronefallGame : MonoBehaviour
 
     GameObject rootContainer;
     GameObject canvasGo;
+    NavMeshData navMeshData;
+    NavMeshDataInstance navMeshInstance;
 
     public ThronefallPlayer Player { get; private set; }
     public ThronefallCamera Cam { get; private set; }
@@ -57,6 +61,7 @@ public class ThronefallGame : MonoBehaviour
         SetupCamera();
         SetupLighting();
         CreateGround();
+        BuildRuntimeNavMesh();
         CreatePlayer();
         CreateSystems();
         CreateUI();
@@ -131,6 +136,22 @@ public class ThronefallGame : MonoBehaviour
         var col = ground.AddComponent<BoxCollider>();
         col.size = new Vector3(80, 0.1f, 80);
         col.center = Vector3.zero;
+    }
+
+    void BuildRuntimeNavMesh()
+    {
+        var sources = new List<NavMeshBuildSource>();
+        var src = new NavMeshBuildSource();
+        src.shape = NavMeshBuildSourceShape.Box;
+        src.size = new Vector3(80, 0.1f, 80);
+        src.transform = Matrix4x4.TRS(new Vector3(0, -0.05f, 0), Quaternion.identity, Vector3.one);
+        src.area = 0;
+        sources.Add(src);
+
+        var settings = NavMesh.GetSettingsByID(0);
+        var bounds = new Bounds(Vector3.zero, new Vector3(100, 10, 100));
+        navMeshData = NavMeshBuilder.BuildNavMeshData(settings, sources, bounds, Vector3.zero, Quaternion.identity);
+        navMeshInstance = NavMesh.AddNavMeshData(navMeshData);
     }
 
     void CreatePlayer()
@@ -302,6 +323,8 @@ public class ThronefallGame : MonoBehaviour
     {
         if (UI != null && UI.IsBranchPanelOpen)
             UI.HideBranchPanel();
+
+        NavMesh.RemoveNavMeshData(navMeshInstance);
 
         Instance = null;
         if (Cam != null) Destroy(Cam);

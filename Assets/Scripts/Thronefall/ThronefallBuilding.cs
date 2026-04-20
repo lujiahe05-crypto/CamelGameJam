@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ThronefallBuilding : MonoBehaviour, ICombatEntity
 {
@@ -28,6 +29,8 @@ public class ThronefallBuilding : MonoBehaviour, ICombatEntity
     Vector3 originalVisualScale;
     Vector3 originalVisualLocalPos;
     BoxCollider buildingCollider;
+    NavMeshObstacle navObstacle;
+    ThronefallEntityHPBar hpBar;
 
     public int MaxHP => maxHP;
     public int CurrentHP => currentHP;
@@ -79,6 +82,19 @@ public class ThronefallBuilding : MonoBehaviour, ICombatEntity
         game.CombatSys.RegisterEntity(this);
         if (isBase)
             game.CombatSys.SetMainBase(this);
+
+        navObstacle = gameObject.AddComponent<NavMeshObstacle>();
+        navObstacle.carving = true;
+        navObstacle.carvingMoveThreshold = 0.1f;
+        navObstacle.shape = NavMeshObstacleShape.Box;
+        navObstacle.center = buildingCollider.center;
+        navObstacle.size = buildingCollider.size;
+
+        if (isBase)
+        {
+            hpBar = gameObject.AddComponent<ThronefallEntityHPBar>();
+            hpBar.Init(transform, visual.transform.localPosition.y + visual.transform.localScale.y * 0.5f + 0.5f, 150f, true);
+        }
     }
 
     void CreateVisual(ThronefallGame game, TFBuildingConfig config)
@@ -205,6 +221,9 @@ public class ThronefallBuilding : MonoBehaviour, ICombatEntity
         if (buildingCollider != null)
             buildingCollider.enabled = false;
 
+        if (navObstacle != null)
+            navObstacle.enabled = false;
+
         var game = ThronefallGame.Instance;
         if (game != null)
             game.CombatSys.UnregisterEntity(this);
@@ -232,6 +251,13 @@ public class ThronefallBuilding : MonoBehaviour, ICombatEntity
             buildingCollider.size = originalVisualScale;
         }
 
+        if (navObstacle != null)
+        {
+            navObstacle.enabled = true;
+            navObstacle.center = buildingCollider != null ? buildingCollider.center : originalVisualLocalPos;
+            navObstacle.size = buildingCollider != null ? buildingCollider.size : originalVisualScale;
+        }
+
         var game = ThronefallGame.Instance;
         if (game != null)
             game.CombatSys.RegisterEntity(this);
@@ -248,6 +274,9 @@ public class ThronefallBuilding : MonoBehaviour, ICombatEntity
             float ratio = (float)currentHP / maxHP;
             visualMat.color = Color.Lerp(Color.red, originalColor, ratio);
         }
+
+        if (hpBar != null)
+            hpBar.UpdateHP((float)currentHP / maxHP);
 
         if (currentHP <= 0)
         {

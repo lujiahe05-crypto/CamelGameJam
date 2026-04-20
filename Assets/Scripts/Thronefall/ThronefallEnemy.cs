@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ThronefallEnemy : MonoBehaviour, ICombatEntity
 {
@@ -22,8 +23,10 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
     GameObject visual;
     Material visualMat;
     Color originalColor;
+    ThronefallEntityHPBar hpBar;
 
     ThronefallWaveSystem waveSystem;
+    NavMeshAgent agent;
 
     // ICombatEntity
     public int MaxHP => maxHP;
@@ -78,6 +81,19 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
         col.size = new Vector3(scale, scale, scale);
 
         game.CombatSys.RegisterEntity(this);
+
+        agent = gameObject.AddComponent<NavMeshAgent>();
+        agent.speed = moveSpeed;
+        agent.angularSpeed = 0;
+        agent.acceleration = 50f;
+        agent.stoppingDistance = 0.5f;
+        agent.radius = 0.4f;
+        agent.height = 1f;
+        agent.updateRotation = false;
+        agent.autoRepath = true;
+
+        hpBar = gameObject.AddComponent<ThronefallEntityHPBar>();
+        hpBar.Init(transform, scale + 0.3f, 80f);
     }
 
     void Update()
@@ -108,10 +124,19 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
                 {
                     state = State.Attacking;
                     attackTimer = 0;
+                    if (agent != null && agent.isOnNavMesh) agent.ResetPath();
                 }
                 else
                 {
                     MoveToward(currentTarget.Position);
+                    if (agent != null && agent.isOnNavMesh && !agent.pathPending
+                        && agent.hasPath && agent.remainingDistance < 0.5f
+                        && agent.velocity.sqrMagnitude < 0.01f)
+                    {
+                        state = State.Attacking;
+                        attackTimer = 0;
+                        agent.ResetPath();
+                    }
                 }
                 break;
 
@@ -123,7 +148,7 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
                     break;
                 }
 
-                if (dist > attackRange * 1.5f)
+                if (dist > attackRange * 2f)
                 {
                     state = State.Moving;
                     break;
@@ -190,17 +215,22 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
 
     void MoveToward(Vector3 target)
     {
-        Vector3 dir = target - Position;
-        dir.y = 0;
-        if (dir.sqrMagnitude < 0.01f) return;
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+            agent.SetDestination(target);
+        UpdateRotation();
+    }
 
-        dir.Normalize();
-        transform.position += dir * moveSpeed * Time.deltaTime;
-
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
-            Quaternion.LookRotation(dir),
-            8f * Time.deltaTime);
+    void UpdateRotation()
+    {
+        Vector3 vel = (agent != null && agent.enabled) ? agent.velocity : Vector3.zero;
+        vel.y = 0;
+        if (vel.sqrMagnitude > 0.01f)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                Quaternion.LookRotation(vel),
+                8f * Time.deltaTime);
+        }
     }
 
     public void TakeDamage(int damage)
@@ -209,12 +239,14 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
         currentHP -= damage;
         if (currentHP < 0) currentHP = 0;
 
-        // Flash
         if (visualMat != null)
         {
             float ratio = (float)currentHP / maxHP;
             visualMat.color = Color.Lerp(new Color(1f, 1f, 1f), originalColor, ratio);
         }
+
+        if (hpBar != null)
+            hpBar.UpdateHP((float)currentHP / maxHP);
 
         if (currentHP <= 0)
             Die();
@@ -224,6 +256,8 @@ public class ThronefallEnemy : MonoBehaviour, ICombatEntity
     {
         if (state == State.Dead) return;
         state = State.Dead;
+
+        if (agent != null) agent.enabled = false;
 
         var game = ThronefallGame.Instance;
         if (game != null)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ThronefallAlly : MonoBehaviour, ICombatEntity
 {
@@ -42,11 +43,13 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
     HashSet<ICombatEntity> chargeHitTargets = new HashSet<ICombatEntity>();
 
     System.Action onDeath;
+    NavMeshAgent agent;
 
     GameObject visual;
     Material visualMat;
     Color originalColor;
     GameObject selectionIndicator;
+    ThronefallEntityHPBar hpBar;
 
     public int MaxHP => maxHP;
     public int CurrentHP => currentHP;
@@ -113,6 +116,19 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
         CreateSelectionIndicator(scale);
 
         game.CombatSys.RegisterEntity(this);
+
+        agent = gameObject.AddComponent<NavMeshAgent>();
+        agent.speed = moveSpeed;
+        agent.angularSpeed = 0;
+        agent.acceleration = 50f;
+        agent.stoppingDistance = 0.5f;
+        agent.radius = 0.4f;
+        agent.height = 1f;
+        agent.updateRotation = false;
+        agent.autoRepath = true;
+
+        hpBar = gameObject.AddComponent<ThronefallEntityHPBar>();
+        hpBar.Init(transform, scale + 0.3f, 80f);
     }
 
     void CreateSelectionIndicator(float unitScale)
@@ -230,6 +246,7 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
                 {
                     combatState = CombatState.Attacking;
                     attackTimer = 0;
+                    if (agent != null && agent.isOnNavMesh) agent.ResetPath();
 
                     if (unitType == "knight" && chargeCooldownTimer <= 0 && distToTarget > 1f)
                     {
@@ -337,6 +354,7 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
 
     void StartCharge(Vector3 dir)
     {
+        if (agent != null) agent.enabled = false;
         isCharging = true;
         chargeTimer = 0;
         chargeDirection = dir.sqrMagnitude > 0.01f ? dir.normalized : transform.forward;
@@ -350,6 +368,11 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
         if (chargeTimer >= chargeDuration)
         {
             isCharging = false;
+            if (agent != null)
+            {
+                agent.enabled = true;
+                agent.Warp(transform.position);
+            }
             return;
         }
 
@@ -387,16 +410,22 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
 
     void MoveToward(Vector3 target)
     {
-        Vector3 dir = target - Position;
-        dir.y = 0;
-        if (dir.sqrMagnitude < 0.01f) return;
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+            agent.SetDestination(target);
+        UpdateRotation();
+    }
 
-        dir.Normalize();
-        transform.position += dir * moveSpeed * Time.deltaTime;
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
-            Quaternion.LookRotation(dir),
-            8f * Time.deltaTime);
+    void UpdateRotation()
+    {
+        Vector3 vel = (agent != null && agent.enabled) ? agent.velocity : Vector3.zero;
+        vel.y = 0;
+        if (vel.sqrMagnitude > 0.01f)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                Quaternion.LookRotation(vel),
+                8f * Time.deltaTime);
+        }
     }
 
     public void SetSelected(bool sel)
@@ -436,6 +465,9 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
             visualMat.color = Color.Lerp(Color.white, originalColor, ratio);
         }
 
+        if (hpBar != null)
+            hpBar.UpdateHP((float)currentHP / maxHP);
+
         if (currentHP <= 0)
             Die();
     }
@@ -444,6 +476,8 @@ public class ThronefallAlly : MonoBehaviour, ICombatEntity
     {
         if (lifeState == LifeState.Dead) return;
         lifeState = LifeState.Dead;
+
+        if (agent != null) agent.enabled = false;
 
         var game = ThronefallGame.Instance;
         if (game != null)
