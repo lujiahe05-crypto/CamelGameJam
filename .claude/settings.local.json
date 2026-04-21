@@ -81,7 +81,14 @@
       "Bash(sed -i 's/m_SelectedColor: {r: 0.31, g: 0.31, b: 0.38, a: 1}/m_SelectedColor: {r: 0.42, g: 0.42, b: 0.5, a: 1}/g' LobbyPanel.prefab)",
       "WebFetch(domain:store.steampowered.com)",
       "WebFetch(domain:en.wikipedia.org)",
-      "Bash(grep -v \"^\\\\s*//\")"
+      "Bash(grep -v \"^\\\\s*//\")",
+      "Bash(git mv *)",
+      "Bash(ls Assets/Scripts/Raft/)",
+      "Bash(ls Assets/Scripts/Thronefall/)",
+      "Bash(git rm *)",
+      "Bash(ls Assets/Scripts)",
+      "Bash(echo \"Scripts dir exists: $?\")",
+      "Bash(ls Assets/Resources.meta)"
     ]
   }
 }
