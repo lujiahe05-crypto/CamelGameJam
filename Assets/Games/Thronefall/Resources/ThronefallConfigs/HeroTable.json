@@ -6,7 +6,7 @@
         "weapons": [
             {
                 "weaponId": "spear",
-                "weaponName": "长矛",
+                "weaponName": "Spear",
                 "atk": 20,
                 "def": 3,
                 "attackRange": 2.5,
@@ -28,7 +28,7 @@
             },
             {
                 "weaponId": "bow",
-                "weaponName": "弓",
+                "weaponName": "Bow",
                 "atk": 12,
                 "def": 1,
                 "attackRange": 12.0,

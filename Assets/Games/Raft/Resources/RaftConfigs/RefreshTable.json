@@ -1,29 +1,29 @@
-﻿{
-  "maxResources": 20,
-  "spawnInterval": 2.5,
-  "minSpawnDistance": 15.0,
-  "maxSpawnDistance": 40.0,
-  "despawnDistance": 60.0,
-  "resources": [
-    {
-      "itemTypeId": 3,
-      "weight": 30.0
-    },
-    {
-      "itemTypeId": 4,
-      "weight": 25.0
-    },
-    {
-      "itemTypeId": 5,
-      "weight": 15.0
-    },
-    {
-      "itemTypeId": 6,
-      "weight": 15.0
-    },
-    {
-      "itemTypeId": 7,
-      "weight": 15.0
-    }
-  ]
+{
+    "maxResources": 20,
+    "spawnInterval": 2.5,
+    "minSpawnDistance": 15.0,
+    "maxSpawnDistance": 40.0,
+    "despawnDistance": 60.0,
+    "resources": [
+        {
+            "itemTypeId": 3,
+            "weight": 30.0
+        },
+        {
+            "itemTypeId": 4,
+            "weight": 25.0
+        },
+        {
+            "itemTypeId": 5,
+            "weight": 15.0
+        },
+        {
+            "itemTypeId": 6,
+            "weight": 15.0
+        },
+        {
+            "itemTypeId": 7,
+            "weight": 15.0
+        }
+    ]
 }

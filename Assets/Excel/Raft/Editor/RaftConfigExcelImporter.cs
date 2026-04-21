@@ -16,7 +16,8 @@ public static class RaftConfigExcelImporter
     [MenuItem("Tools/Raft/Import Config Excel...")]
     public static void ImportFromDialog()
     {
-        string excelPath = EditorUtility.OpenFilePanel("Select Raft Config Excel", Application.dataPath, "xlsx");
+        string defaultDir = Path.Combine(Application.dataPath, "Excel", "Raft").Replace('/', '\\');
+        string excelPath = EditorUtility.OpenFilePanel("Select Raft Config Excel", defaultDir, "xlsx");
         if (string.IsNullOrEmpty(excelPath))
             return;
 

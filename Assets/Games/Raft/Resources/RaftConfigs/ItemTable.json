@@ -1,17 +1,70 @@
 {
-  "items": [
-    { "itemTypeId": 1, "displayName": "钩子", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 2, "displayName": "建造锤", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 3, "displayName": "木材", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 4, "displayName": "塑料", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 5, "displayName": "椰子", "hungerRestore": 15.0, "thirstRestore": 20.0 },
-    { "itemTypeId": 6, "displayName": "甜菜", "hungerRestore": 35.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 7, "displayName": "矿泉水", "hungerRestore": 0.0, "thirstRestore": 40.0 },
-    { "itemTypeId": 8, "displayName": "种植盆", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 9, "displayName": "晾水器", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 10, "displayName": "储物箱", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 11, "displayName": "空杯子", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 12, "displayName": "海水杯", "hungerRestore": 0.0, "thirstRestore": 0.0 },
-    { "itemTypeId": 13, "displayName": "淡水杯", "hungerRestore": 0.0, "thirstRestore": 30.0 }
-  ]
+    "items": [
+        {
+            "itemTypeId": 1,
+            "displayName": "钩子",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 2,
+            "displayName": "建造锤",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 3,
+            "displayName": "木材",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 4,
+            "displayName": "塑料",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 5,
+            "displayName": "椰子",
+            "hungerRestore": 15.0,
+            "thirstRestore": 20.0
+        },
+        {
+            "itemTypeId": 6,
+            "displayName": "甜菜",
+            "hungerRestore": 35.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 7,
+            "displayName": "矿泉水",
+            "hungerRestore": 0.0,
+            "thirstRestore": 40.0
+        },
+        {
+            "itemTypeId": 8,
+            "displayName": "种植盆",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 9,
+            "displayName": "晾水器",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 10,
+            "displayName": "储物箱",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        },
+        {
+            "itemTypeId": 11,
+            "displayName": "水杯",
+            "hungerRestore": 0.0,
+            "thirstRestore": 0.0
+        }
+    ]
 }

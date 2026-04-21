@@ -16,7 +16,8 @@ public static class ThronefallConfigExcelImporter
     [MenuItem("Tools/Thronefall/Import Config Excel...")]
     public static void ImportFromDialog()
     {
-        string excelPath = EditorUtility.OpenFilePanel("Select Thronefall Config Excel", Application.dataPath, "xlsx");
+        string defaultDir = Path.Combine(Application.dataPath, "Excel", "Thronefall").Replace('/', '\\');
+        string excelPath = EditorUtility.OpenFilePanel("Select Thronefall Config Excel", defaultDir, "xlsx");
         if (string.IsNullOrEmpty(excelPath))
             return;
 

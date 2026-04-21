@@ -1,15 +1,15 @@
-﻿{
-  "maxHealth": 100.0,
-  "maxHunger": 100.0,
-  "maxThirst": 100.0,
-  "initialHealth": 100.0,
-  "initialHunger": 100.0,
-  "initialThirst": 100.0,
-  "hungerRate": 0.5555556,
-  "thirstRate": 0.8333333,
-  "starveDamage": 5.0,
-  "respawnDelay": 3.0,
-  "respawnHealth": 100.0,
-  "respawnHunger": 80.0,
-  "respawnThirst": 80.0
+{
+    "maxHealth": 100.0,
+    "maxHunger": 100.0,
+    "maxThirst": 100.0,
+    "initialHealth": 100.0,
+    "initialHunger": 100.0,
+    "initialThirst": 100.0,
+    "hungerRate": 0.5555555820465088,
+    "thirstRate": 0.8333333134651184,
+    "starveDamage": 5.0,
+    "respawnDelay": 3.0,
+    "respawnHealth": 100.0,
+    "respawnHunger": 80.0,
+    "respawnThirst": 80.0
 }
