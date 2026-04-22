@@ -1,0 +1,276 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class GameJamBuildingDef
+{
+    public string itemId;
+    public int gridW;
+    public int gridH;
+    public float height;
+}
+
+public static class GameJamBuildingDB
+{
+    static Dictionary<string, GameJamBuildingDef> defs;
+
+    static void Init()
+    {
+        if (defs != null) return;
+        defs = new Dictionary<string, GameJamBuildingDef>();
+
+        Reg(new GameJamBuildingDef { itemId = "工作台", gridW = 3, gridH = 2, height = 1.5f });
+        Reg(new GameJamBuildingDef { itemId = "民用熔炉", gridW = 2, gridH = 2, height = 1.8f });
+        Reg(new GameJamBuildingDef { itemId = "切割机", gridW = 3, gridH = 2, height = 1.4f });
+        Reg(new GameJamBuildingDef { itemId = "储物箱", gridW = 1, gridH = 1, height = 0.8f });
+    }
+
+    static void Reg(GameJamBuildingDef def) => defs[def.itemId] = def;
+
+    public static GameJamBuildingDef Get(string itemId)
+    {
+        Init();
+        return defs.TryGetValue(itemId, out var def) ? def : null;
+    }
+
+    public static bool IsBuilding(string itemId)
+    {
+        Init();
+        return defs.ContainsKey(itemId);
+    }
+
+    public static GameObject CreateBuildingMesh(string itemId)
+    {
+        switch (itemId)
+        {
+            case "工作台": return CreateWorkbench();
+            case "民用熔炉": return CreateFurnace();
+            case "切割机": return CreateCutter();
+            case "储物箱": return CreateStorageBox();
+            default: return CreateFallbackBox(itemId);
+        }
+    }
+
+    static GameObject CreateWorkbench()
+    {
+        var root = new GameObject("工作台");
+        var mainColor = new Color(0.45f, 0.35f, 0.2f);
+        var topColor = new Color(0.5f, 0.4f, 0.25f);
+
+        var top = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        top.name = "Top";
+        top.transform.SetParent(root.transform);
+        top.transform.localPosition = new Vector3(0, 0.85f, 0);
+        top.transform.localScale = new Vector3(2.8f, 0.15f, 1.6f);
+        top.GetComponent<Renderer>().material = CreateMat(topColor);
+
+        float legInsetX = 1.2f, legInsetZ = 0.6f;
+        for (int xi = -1; xi <= 1; xi += 2)
+        for (int zi = -1; zi <= 1; zi += 2)
+        {
+            var leg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            leg.name = "Leg";
+            leg.transform.SetParent(root.transform);
+            leg.transform.localPosition = new Vector3(xi * legInsetX, 0.4f, zi * legInsetZ);
+            leg.transform.localScale = new Vector3(0.12f, 0.8f, 0.12f);
+            leg.GetComponent<Renderer>().material = CreateMat(mainColor);
+        }
+
+        var back = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        back.name = "BackPanel";
+        back.transform.SetParent(root.transform);
+        back.transform.localPosition = new Vector3(0, 1.2f, -0.7f);
+        back.transform.localScale = new Vector3(2.8f, 0.6f, 0.08f);
+        back.GetComponent<Renderer>().material = CreateMat(mainColor);
+
+        var anvil = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        anvil.name = "Vice";
+        anvil.transform.SetParent(root.transform);
+        anvil.transform.localPosition = new Vector3(0.8f, 1.1f, 0);
+        anvil.transform.localScale = new Vector3(0.4f, 0.35f, 0.3f);
+        anvil.GetComponent<Renderer>().material = CreateMat(new Color(0.5f, 0.5f, 0.55f));
+
+        RemoveAllColliders(root);
+        return root;
+    }
+
+    static GameObject CreateFurnace()
+    {
+        var root = new GameObject("民用熔炉");
+        var bodyColor = new Color(0.5f, 0.3f, 0.2f);
+        var stoneColor = new Color(0.55f, 0.5f, 0.45f);
+
+        var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        body.name = "Body";
+        body.transform.SetParent(root.transform);
+        body.transform.localPosition = new Vector3(0, 0.55f, 0);
+        body.transform.localScale = new Vector3(1.6f, 1.1f, 1.6f);
+        body.GetComponent<Renderer>().material = CreateMat(stoneColor);
+
+        var chimney = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        chimney.name = "Chimney";
+        chimney.transform.SetParent(root.transform);
+        chimney.transform.localPosition = new Vector3(-0.4f, 1.4f, -0.4f);
+        chimney.transform.localScale = new Vector3(0.45f, 0.7f, 0.45f);
+        chimney.GetComponent<Renderer>().material = CreateMat(stoneColor * 0.8f);
+
+        var mouth = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        mouth.name = "Mouth";
+        mouth.transform.SetParent(root.transform);
+        mouth.transform.localPosition = new Vector3(0, 0.4f, 0.78f);
+        mouth.transform.localScale = new Vector3(0.7f, 0.5f, 0.1f);
+        mouth.GetComponent<Renderer>().material = CreateMat(new Color(0.15f, 0.08f, 0.05f));
+
+        var glow = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        glow.name = "Glow";
+        glow.transform.SetParent(root.transform);
+        glow.transform.localPosition = new Vector3(0, 0.35f, 0.72f);
+        glow.transform.localScale = new Vector3(0.5f, 0.3f, 0.05f);
+        glow.GetComponent<Renderer>().material = CreateMat(new Color(0.9f, 0.4f, 0.1f));
+
+        RemoveAllColliders(root);
+        return root;
+    }
+
+    static GameObject CreateStorageBox()
+    {
+        var root = new GameObject("储物箱");
+        var boxColor = new Color(0.5f, 0.38f, 0.2f);
+
+        var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        body.name = "Body";
+        body.transform.SetParent(root.transform);
+        body.transform.localPosition = new Vector3(0, 0.3f, 0);
+        body.transform.localScale = new Vector3(0.85f, 0.6f, 0.65f);
+        body.GetComponent<Renderer>().material = CreateMat(boxColor);
+
+        var lid = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        lid.name = "Lid";
+        lid.transform.SetParent(root.transform);
+        lid.transform.localPosition = new Vector3(0, 0.65f, 0);
+        lid.transform.localScale = new Vector3(0.9f, 0.1f, 0.7f);
+        lid.GetComponent<Renderer>().material = CreateMat(boxColor * 1.1f);
+
+        var buckle = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        buckle.name = "Buckle";
+        buckle.transform.SetParent(root.transform);
+        buckle.transform.localPosition = new Vector3(0, 0.5f, 0.33f);
+        buckle.transform.localScale = new Vector3(0.15f, 0.12f, 0.04f);
+        buckle.GetComponent<Renderer>().material = CreateMat(new Color(0.7f, 0.6f, 0.3f));
+
+        RemoveAllColliders(root);
+        return root;
+    }
+
+    static GameObject CreateFallbackBox(string name)
+    {
+        var root = new GameObject(name);
+        var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        body.transform.SetParent(root.transform);
+        body.transform.localPosition = new Vector3(0, 0.5f, 0);
+        body.GetComponent<Renderer>().material = CreateMat(Color.gray);
+        RemoveAllColliders(root);
+        return root;
+    }
+
+    static GameObject CreateCutter()
+    {
+        var root = new GameObject("切割机");
+        var metalColor = new Color(0.5f, 0.5f, 0.55f);
+        var woodColor = new Color(0.45f, 0.35f, 0.2f);
+
+        var table = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        table.name = "Table";
+        table.transform.SetParent(root.transform);
+        table.transform.localPosition = new Vector3(0, 0.45f, 0);
+        table.transform.localScale = new Vector3(2.6f, 0.1f, 1.6f);
+        table.GetComponent<Renderer>().material = CreateMat(woodColor);
+
+        for (int xi = -1; xi <= 1; xi += 2)
+        for (int zi = -1; zi <= 1; zi += 2)
+        {
+            var leg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            leg.name = "Leg";
+            leg.transform.SetParent(root.transform);
+            leg.transform.localPosition = new Vector3(xi * 1.1f, 0.2f, zi * 0.65f);
+            leg.transform.localScale = new Vector3(0.1f, 0.4f, 0.1f);
+            leg.GetComponent<Renderer>().material = CreateMat(metalColor);
+        }
+
+        var blade = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        blade.name = "Blade";
+        blade.transform.SetParent(root.transform);
+        blade.transform.localPosition = new Vector3(0, 0.75f, 0);
+        blade.transform.localRotation = Quaternion.Euler(90, 0, 0);
+        blade.transform.localScale = new Vector3(0.8f, 0.02f, 0.8f);
+        blade.GetComponent<Renderer>().material = CreateMat(new Color(0.6f, 0.6f, 0.65f));
+
+        var guard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        guard.name = "Guard";
+        guard.transform.SetParent(root.transform);
+        guard.transform.localPosition = new Vector3(0, 0.9f, -0.6f);
+        guard.transform.localScale = new Vector3(0.8f, 0.6f, 0.06f);
+        guard.GetComponent<Renderer>().material = CreateMat(metalColor);
+
+        var motor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        motor.name = "Motor";
+        motor.transform.SetParent(root.transform);
+        motor.transform.localPosition = new Vector3(-1.0f, 0.65f, 0);
+        motor.transform.localScale = new Vector3(0.5f, 0.3f, 0.4f);
+        motor.GetComponent<Renderer>().material = CreateMat(new Color(0.35f, 0.35f, 0.38f));
+
+        RemoveAllColliders(root);
+        return root;
+    }
+
+    static Material CreateMat(Color color)
+    {
+        var mat = new Material(Shader.Find("Standard"));
+        mat.color = color;
+        return mat;
+    }
+
+    static void RemoveAllColliders(GameObject root)
+    {
+        foreach (var col in root.GetComponentsInChildren<Collider>())
+            Object.Destroy(col);
+    }
+
+    public static Material CreateTransparentMat(Color color)
+    {
+        var mat = new Material(Shader.Find("Standard"));
+        mat.SetFloat("_Mode", 3);
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        mat.SetInt("_ZWrite", 0);
+        mat.DisableKeyword("_ALPHATEST_ON");
+        mat.EnableKeyword("_ALPHABLEND_ON");
+        mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        mat.renderQueue = 3000;
+        mat.color = color;
+        return mat;
+    }
+
+    public static Mesh CreateChevronMesh()
+    {
+        var mesh = new Mesh();
+        mesh.vertices = new Vector3[]
+        {
+            new Vector3(-0.04f, 0, 0.1f),
+            new Vector3(0.14f, 0, 0),
+            new Vector3(-0.04f, 0, -0.1f),
+            new Vector3(0.04f, 0, 0.06f),
+            new Vector3(0.04f, 0, -0.06f)
+        };
+        mesh.triangles = new int[]
+        {
+            0, 1, 3,
+            4, 1, 2
+        };
+        mesh.normals = new Vector3[]
+        {
+            Vector3.up, Vector3.up, Vector3.up, Vector3.up, Vector3.up
+        };
+        mesh.RecalculateBounds();
+        return mesh;
+    }
+}

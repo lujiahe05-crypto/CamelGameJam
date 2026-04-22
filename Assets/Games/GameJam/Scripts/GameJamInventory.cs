@@ -8,6 +8,7 @@ public class GameJamInventory : MonoBehaviour
     GameJamHotbarHUD hotbarHUD;
     GameJamInventoryPanel inventoryPanel;
     GameJamPlayerController playerController;
+    GameJamBuildingPlacer buildingPlacer;
     bool panelOpen;
 
     void Awake()
@@ -25,6 +26,12 @@ public class GameJamInventory : MonoBehaviour
         inventoryPanel = gameObject.AddComponent<GameJamInventoryPanel>();
         inventoryPanel.Init(Model);
         inventoryPanel.Hide();
+
+        buildingPlacer = GetComponent<GameJamBuildingPlacer>();
+
+        Model.OnSelectedHotbarChanged += OnHotbarSelectionChanged;
+        if (buildingPlacer != null)
+            buildingPlacer.OnPlacementEnd += OnPlacementEnd;
     }
 
     public void Add(string name, int amount)
@@ -59,7 +66,12 @@ public class GameJamInventory : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (buildingPlacer != null && buildingPlacer.IsPlacing)
+                buildingPlacer.ExitPlaceMode(false);
             TogglePanel();
+            return;
+        }
 
         if (panelOpen && Input.GetKeyDown(KeyCode.Escape))
         {
@@ -67,7 +79,7 @@ public class GameJamInventory : MonoBehaviour
             return;
         }
 
-        if (!panelOpen)
+        if (!panelOpen && !(buildingPlacer != null && buildingPlacer.IsPlacing))
         {
             for (int i = 0; i < 8; i++)
             {
@@ -78,6 +90,28 @@ public class GameJamInventory : MonoBehaviour
                 }
             }
         }
+    }
+
+    void OnHotbarSelectionChanged(int index)
+    {
+        if (panelOpen) return;
+        if (buildingPlacer == null) return;
+
+        var slot = Model.hotbarSlots[index];
+        if (!slot.IsEmpty && GameJamBuildingDB.IsBuilding(slot.itemId))
+        {
+            buildingPlacer.EnterPlaceMode(slot.itemId);
+        }
+        else
+        {
+            if (buildingPlacer.IsPlacing)
+                buildingPlacer.ExitPlaceMode(false);
+        }
+    }
+
+    void OnPlacementEnd()
+    {
+        UpdateCursorState();
     }
 
     void TogglePanel()
@@ -91,8 +125,7 @@ public class GameJamInventory : MonoBehaviour
         panelOpen = true;
         inventoryPanel.Show();
         if (playerController != null) playerController.enabled = false;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        UpdateCursorState();
     }
 
     void ClosePanel()
@@ -100,8 +133,14 @@ public class GameJamInventory : MonoBehaviour
         panelOpen = false;
         inventoryPanel.Hide();
         if (playerController != null) playerController.enabled = true;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        UpdateCursorState();
+    }
+
+    void UpdateCursorState()
+    {
+        bool needCursor = panelOpen || (buildingPlacer != null && buildingPlacer.IsPlacing);
+        Cursor.lockState = needCursor ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = needCursor;
     }
 
     public bool IsPanelOpen => panelOpen;
@@ -110,5 +149,6 @@ public class GameJamInventory : MonoBehaviour
     {
         if (hotbarHUD != null) hotbarHUD.Cleanup();
         if (inventoryPanel != null) inventoryPanel.Cleanup();
+        if (buildingPlacer != null) buildingPlacer.Cleanup();
     }
 }

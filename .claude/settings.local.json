@@ -88,7 +88,10 @@
       "Bash(git rm *)",
       "Bash(ls Assets/Scripts)",
       "Bash(echo \"Scripts dir exists: $?\")",
-      "Bash(ls Assets/Resources.meta)"
+      "Bash(ls Assets/Resources.meta)",
+      "Bash(gh auth *)",
+      "Bash(git remote *)",
+      "Bash(git push *)"
     ]
   }
 }

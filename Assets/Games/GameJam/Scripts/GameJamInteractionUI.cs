@@ -45,9 +45,9 @@ public class GameJamInteractionUI : MonoBehaviour
         promptGo.SetActive(false);
     }
 
-    public void Show(string resourceName)
+    public void Show(string message, bool raw = false)
     {
-        promptText.text = $"[E] 采集 {resourceName}";
+        promptText.text = raw ? message : $"[E] 采集 {message}";
         promptGo.SetActive(true);
     }
 
