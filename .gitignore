@@ -11,6 +11,18 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 *.log
+Assets/Games/GameJam/_TerrainAutoUpgrade
+Assets/Games/GameJam/AnimationClip
+Assets/Games/GameJam/Avatar
+Assets/Games/GameJam/gamemodules
+Assets/Games/GameJam/GameScene
+Assets/Games/GameJam/Material
+Assets/Games/GameJam/Mesh
+Assets/Games/GameJam/Model
+Assets/Games/GameJam/Shader
+Assets/Games/GameJam/Texture2D
+Assets/Games/GameJam/texture3d
+Assets/Games/GameJam/UI
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
