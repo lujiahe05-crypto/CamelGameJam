@@ -91,7 +91,8 @@
       "Bash(ls Assets/Resources.meta)",
       "Bash(gh auth *)",
       "Bash(git remote *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(grep -E \"\\\\.cs$\")"
     ]
   }
 }

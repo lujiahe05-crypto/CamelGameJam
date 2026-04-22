@@ -292,6 +292,25 @@ public class GameJamInventoryModel
         return total;
     }
 
+    public bool CanAddItem(string itemId, int amount)
+    {
+        var def = GameJamItemDB.Get(itemId);
+        if (def == null) return false;
+
+        int space = 0;
+        foreach (var s in hotbarSlots)
+        {
+            if (s.itemId == itemId) space += def.maxStack - s.count;
+            else if (s.IsEmpty) space += def.maxStack;
+        }
+        foreach (var s in mainSlots)
+        {
+            if (s.itemId == itemId) space += def.maxStack - s.count;
+            else if (s.IsEmpty) space += def.maxStack;
+        }
+        return space >= amount;
+    }
+
     public void SelectHotbar(int index)
     {
         if (index < 0 || index >= HotbarSlotCount) return;

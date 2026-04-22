@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
+using Random = UnityEngine.Random;
+using Object = UnityEngine.Object;
 
 public class GameJamGame : MonoBehaviour
 {
@@ -45,6 +47,7 @@ public class GameJamGame : MonoBehaviour
         CreateBoundaryWalls();
         CreateObstacles();
         CreateResources();
+        CreateGroundPickups();
     }
 
     void CreateGround()
@@ -267,6 +270,7 @@ public class GameJamGame : MonoBehaviour
         player.AddComponent<GameJamPlayerController>();
         player.AddComponent<GameJamInventory>();
         player.AddComponent<GameJamInteractionUI>();
+        player.AddComponent<GameJamPickupUI>();
         player.AddComponent<GameJamInteraction>();
 
         var placer = player.AddComponent<GameJamBuildingPlacer>();
@@ -351,5 +355,136 @@ public class GameJamGame : MonoBehaviour
             eventSystemGo.AddComponent<EventSystem>();
             eventSystemGo.AddComponent<StandaloneInputModule>();
         }
+    }
+
+    void CreateGroundPickups()
+    {
+        var woodMat = new Material(Shader.Find("Standard"));
+        woodMat.color = new Color(0.5f, 0.33f, 0.15f);
+        var stoneMat = new Material(Shader.Find("Standard"));
+        stoneMat.color = new Color(0.65f, 0.63f, 0.58f);
+        var ironMat = new Material(Shader.Find("Standard"));
+        ironMat.color = new Color(0.45f, 0.42f, 0.48f);
+
+        CreateWoodPickup(new Vector3(4, 0, 12), woodMat);
+        CreateWoodPickup(new Vector3(-8, 0, 4), woodMat);
+        CreateWoodPickup(new Vector3(12, 0, -10), woodMat);
+        CreateWoodPickup(new Vector3(-15, 0, 14), woodMat);
+
+        CreateStonePickup(new Vector3(9, 0, -6), stoneMat);
+        CreateStonePickup(new Vector3(-11, 0, 11), stoneMat);
+        CreateStonePickup(new Vector3(18, 0, 8), stoneMat);
+
+        CreateIronPickup(new Vector3(-6, 0, -14), ironMat);
+        CreateIronPickup(new Vector3(13, 0, 14), ironMat);
+        CreateIronPickup(new Vector3(-18, 0, -6), ironMat);
+    }
+
+    void CreateWoodPickup(Vector3 pos, Material mat)
+    {
+        var root = new GameObject("GroundPickup_木材");
+        root.transform.SetParent(sceneRoot.transform);
+        root.transform.position = pos;
+
+        for (int i = 0; i < 3; i++)
+        {
+            var log = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            log.name = "Log";
+            log.transform.SetParent(root.transform);
+            float offsetX = (i - 1) * 0.25f + Random.Range(-0.05f, 0.05f);
+            float offsetZ = Random.Range(-0.15f, 0.15f);
+            log.transform.localPosition = new Vector3(offsetX, 0.06f, offsetZ);
+            log.transform.localScale = new Vector3(0.1f, 0.35f, 0.1f);
+            log.transform.localRotation = Quaternion.Euler(90, Random.Range(0f, 60f) - 30f, 0);
+            log.GetComponent<Renderer>().material = mat;
+            Destroy(log.GetComponent<Collider>());
+        }
+
+        var bc = root.AddComponent<BoxCollider>();
+        bc.center = new Vector3(0, 0.1f, 0);
+        bc.size = new Vector3(1f, 0.25f, 0.6f);
+
+        var pickup = root.AddComponent<GameJamGroundPickup>();
+        pickup.itemId = "木材";
+        pickup.itemName = "木材";
+        pickup.pickupAmount = 3;
+        pickup.interactRange = 2.5f;
+        pickup.respawnTime = 60f;
+
+        root.AddComponent<GameJamPickupFX>();
+    }
+
+    void CreateStonePickup(Vector3 pos, Material mat)
+    {
+        var root = new GameObject("GroundPickup_石块");
+        root.transform.SetParent(sceneRoot.transform);
+        root.transform.position = pos;
+
+        var stone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        stone.name = "StoneModel";
+        stone.transform.SetParent(root.transform);
+        stone.transform.localPosition = new Vector3(0, 0.2f, 0);
+        stone.transform.localScale = new Vector3(0.6f, 0.4f, 0.55f);
+        stone.GetComponent<Renderer>().material = mat;
+        Destroy(stone.GetComponent<Collider>());
+
+        var chip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        chip.name = "Chip";
+        chip.transform.SetParent(root.transform);
+        chip.transform.localPosition = new Vector3(0.3f, 0.1f, 0.15f);
+        chip.transform.localScale = new Vector3(0.25f, 0.2f, 0.25f);
+        chip.GetComponent<Renderer>().material = mat;
+        Destroy(chip.GetComponent<Collider>());
+
+        var bc = root.AddComponent<BoxCollider>();
+        bc.center = new Vector3(0, 0.2f, 0);
+        bc.size = new Vector3(0.9f, 0.5f, 0.8f);
+
+        var pickup = root.AddComponent<GameJamGroundPickup>();
+        pickup.itemId = "石块";
+        pickup.itemName = "石块";
+        pickup.pickupAmount = 2;
+        pickup.interactRange = 2.5f;
+        pickup.respawnTime = 90f;
+
+        root.AddComponent<GameJamPickupFX>();
+    }
+
+    void CreateIronPickup(Vector3 pos, Material mat)
+    {
+        var root = new GameObject("GroundPickup_铁矿");
+        root.transform.SetParent(sceneRoot.transform);
+        root.transform.position = pos;
+
+        var ore = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        ore.name = "OreModel";
+        ore.transform.SetParent(root.transform);
+        ore.transform.localPosition = new Vector3(0, 0.18f, 0);
+        ore.transform.localScale = new Vector3(0.45f, 0.35f, 0.4f);
+        ore.transform.localRotation = Quaternion.Euler(0, 25, 8);
+        ore.GetComponent<Renderer>().material = mat;
+        Destroy(ore.GetComponent<Collider>());
+
+        var shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        shard.name = "Shard";
+        shard.transform.SetParent(root.transform);
+        shard.transform.localPosition = new Vector3(-0.25f, 0.1f, 0.1f);
+        shard.transform.localScale = new Vector3(0.2f, 0.2f, 0.18f);
+        shard.transform.localRotation = Quaternion.Euler(10, -15, 5);
+        shard.GetComponent<Renderer>().material = mat;
+        Destroy(shard.GetComponent<Collider>());
+
+        var bc = root.AddComponent<BoxCollider>();
+        bc.center = new Vector3(0, 0.18f, 0);
+        bc.size = new Vector3(0.8f, 0.4f, 0.7f);
+
+        var pickup = root.AddComponent<GameJamGroundPickup>();
+        pickup.itemId = "铁矿";
+        pickup.itemName = "铁矿";
+        pickup.pickupAmount = 1;
+        pickup.interactRange = 2.5f;
+        pickup.respawnTime = 120f;
+
+        root.AddComponent<GameJamPickupFX>();
     }
 }
