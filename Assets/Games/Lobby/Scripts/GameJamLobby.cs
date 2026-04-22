@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class GameJamLobby : MonoBehaviour
 {
+    GameObject canvasGo;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void AutoStart()
     {
@@ -34,7 +36,7 @@ public class GameJamLobby : MonoBehaviour
 
     void CreateUI()
     {
-        var canvasGo = new GameObject("GameJamCanvas");
+        canvasGo = new GameObject("GameJamCanvas");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 100;
@@ -78,6 +80,21 @@ public class GameJamLobby : MonoBehaviour
         txtRect.anchorMax = Vector2.one;
         txtRect.sizeDelta = Vector2.zero;
 
-        btn.onClick.AddListener(() => Toast.ShowToast("敬请期待"));
+        btn.onClick.AddListener(LaunchGame);
+    }
+
+    void LaunchGame()
+    {
+        if (canvasGo != null) canvasGo.SetActive(false);
+
+        var gameGo = new GameObject("GameJamGame");
+        var game = gameGo.AddComponent<GameJamGame>();
+        game.OnReturnToLobby = ReturnToLobby;
+    }
+
+    void ReturnToLobby()
+    {
+        SetupCamera();
+        if (canvasGo != null) canvasGo.SetActive(true);
     }
 }
