@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public enum GameJamItemType { Material, Tool, Consumable, Equipment }
+public enum GameJamItemType { Material, Tool, Consumable, Equipment, Building }
 public enum GameJamRarity { Common, Uncommon, Rare, Epic }
 
 public class GameJamItemDef
@@ -77,6 +77,38 @@ public static class GameJamItemDB
         Reg(new GameJamItemDef("龙鳞", "龙鳞", "传说中巨龙身上脱落的鳞片，极其珍贵。",
             GameJamItemType.Material, GameJamRarity.Epic, 999, 200,
             new Color(0.6f, 0.1f, 0.7f)));
+
+        Reg(new GameJamItemDef("工作台", "工作台", "基础制作设施，可用于加工木材和石料。",
+            GameJamItemType.Building, GameJamRarity.Common, 99, 20,
+            new Color(0.45f, 0.35f, 0.2f)));
+
+        Reg(new GameJamItemDef("民用熔炉", "民用熔炉", "高温冶炼设施，可将矿石冶炼为金属锭。",
+            GameJamItemType.Building, GameJamRarity.Uncommon, 99, 35,
+            new Color(0.6f, 0.25f, 0.15f)));
+
+        Reg(new GameJamItemDef("切割机", "切割机", "精密的木材加工设备，可将原木切割为木板。",
+            GameJamItemType.Building, GameJamRarity.Common, 99, 25,
+            new Color(0.45f, 0.45f, 0.5f)));
+
+        Reg(new GameJamItemDef("沙子", "沙子", "细腻的沙粒，高温冶炼可制成玻璃。",
+            GameJamItemType.Material, GameJamRarity.Common, 999, 1,
+            new Color(0.85f, 0.78f, 0.55f)));
+
+        Reg(new GameJamItemDef("玻璃", "玻璃", "晶莹透明，需要高温冶炼而成。",
+            GameJamItemType.Material, GameJamRarity.Uncommon, 999, 12,
+            new Color(0.7f, 0.85f, 0.9f)));
+
+        Reg(new GameJamItemDef("木板", "木板", "切割加工后的木材，平整结实，适用于建造。",
+            GameJamItemType.Material, GameJamRarity.Common, 999, 5,
+            new Color(0.6f, 0.45f, 0.25f)));
+
+        Reg(new GameJamItemDef("木炭", "木炭", "木材烧制而成的燃料，燃烧温度高且持久。",
+            GameJamItemType.Material, GameJamRarity.Common, 999, 4,
+            new Color(0.2f, 0.18f, 0.15f)));
+
+        Reg(new GameJamItemDef("储物箱", "储物箱", "用于存放多余物资的木制箱子。",
+            GameJamItemType.Building, GameJamRarity.Common, 99, 10,
+            new Color(0.5f, 0.38f, 0.2f)));
     }
 
     static void Reg(GameJamItemDef def) => items[def.id] = def;
@@ -113,6 +145,7 @@ public static class GameJamItemDB
             case GameJamItemType.Tool: return "工具";
             case GameJamItemType.Consumable: return "消耗品";
             case GameJamItemType.Equipment: return "装备";
+            case GameJamItemType.Building: return "建筑";
             default: return "未知";
         }
     }

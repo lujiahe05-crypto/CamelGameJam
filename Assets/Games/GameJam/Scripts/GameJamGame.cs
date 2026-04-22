@@ -20,6 +20,9 @@ public class GameJamGame : MonoBehaviour
         SetupEventSystem();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        var inv = player.GetComponent<GameJamInventory>();
+        if (inv != null) inv.Add("木材", 10000);
     }
 
     void Update()
@@ -28,6 +31,10 @@ public class GameJamGame : MonoBehaviour
         {
             var inv = player != null ? player.GetComponent<GameJamInventory>() : null;
             if (inv != null && inv.IsPanelOpen) return;
+            var placer = player != null ? player.GetComponent<GameJamBuildingPlacer>() : null;
+            if (placer != null && placer.IsPlacing) return;
+            var machinePanel = player != null ? player.GetComponent<GameJamMachinePanel>() : null;
+            if (machinePanel != null && machinePanel.IsOpen) return;
             Cleanup();
         }
     }
@@ -46,6 +53,7 @@ public class GameJamGame : MonoBehaviour
         ground.name = "Ground";
         ground.transform.SetParent(sceneRoot.transform);
         ground.transform.localScale = new Vector3(5, 1, 5);
+        ground.layer = 8;
 
         var mat = new Material(Shader.Find("Standard"));
         mat.color = new Color(0.35f, 0.55f, 0.25f);
@@ -181,6 +189,17 @@ public class GameJamGame : MonoBehaviour
         CreateResourceNode("铁矿", ironMat, PrimitiveType.Sphere, new Vector3(0.8f, 0.8f, 0.8f), new Vector3(-17, 0.4f, 0));
         CreateResourceNode("铁矿", ironMat, PrimitiveType.Sphere, new Vector3(0.7f, 0.7f, 0.7f), new Vector3(14, 0.35f, 16));
         CreateResourceNode("铁矿", ironMat, PrimitiveType.Sphere, new Vector3(0.9f, 0.9f, 0.9f), new Vector3(0, 0.45f, -8));
+
+        var benchMat = ProceduralMeshUtil.CreateMaterial(new Color(0.45f, 0.35f, 0.2f));
+        var furnaceMat = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.25f, 0.15f));
+        var boxMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.38f, 0.2f));
+
+        CreateResourceNode("工作台", benchMat, PrimitiveType.Cube, new Vector3(0.6f, 0.6f, 0.6f), new Vector3(3, 0.3f, 5));
+        CreateResourceNode("工作台", benchMat, PrimitiveType.Cube, new Vector3(0.6f, 0.6f, 0.6f), new Vector3(-5, 0.3f, 3));
+        CreateResourceNode("储物箱", boxMat, PrimitiveType.Cube, new Vector3(0.5f, 0.5f, 0.5f), new Vector3(6, 0.25f, 8));
+        CreateResourceNode("储物箱", boxMat, PrimitiveType.Cube, new Vector3(0.5f, 0.5f, 0.5f), new Vector3(-7, 0.25f, -6));
+
+        CreatePlacedMachine("民用熔炉", new Vector3(-2, 0, -5));
     }
 
     void CreateResourceNode(string resName, Material mat, PrimitiveType shape, Vector3 scale, Vector3 pos)
@@ -195,6 +214,24 @@ public class GameJamGame : MonoBehaviour
         var node = go.AddComponent<GameJamResourceNode>();
         node.resourceName = resName;
         node.amount = 1;
+    }
+
+    void CreatePlacedMachine(string machineId, Vector3 pos)
+    {
+        var building = GameJamBuildingDB.CreateBuildingMesh(machineId);
+        building.name = machineId;
+        building.transform.SetParent(sceneRoot.transform);
+        building.transform.position = pos;
+
+        var bDef = GameJamBuildingDB.Get(machineId);
+        if (bDef != null)
+        {
+            var bc = building.AddComponent<BoxCollider>();
+            bc.size = new Vector3(bDef.gridW, bDef.height, bDef.gridH);
+            bc.center = new Vector3(0, bDef.height * 0.5f, 0);
+        }
+
+        building.AddComponent<GameJamMachine>().Init(machineId);
     }
 
     void SpawnPlayer()
@@ -231,6 +268,9 @@ public class GameJamGame : MonoBehaviour
         player.AddComponent<GameJamInventory>();
         player.AddComponent<GameJamInteractionUI>();
         player.AddComponent<GameJamInteraction>();
+
+        var placer = player.AddComponent<GameJamBuildingPlacer>();
+        placer.Init(sceneRoot.transform, player.transform);
 
         #if UNITY_EDITOR
         var animCtrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
