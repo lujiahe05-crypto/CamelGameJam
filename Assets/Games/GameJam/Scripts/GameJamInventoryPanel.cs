@@ -705,7 +705,7 @@ public class GameJamInventoryPanel : MonoBehaviour
             else RefreshMainSlot(prevIdx);
         }
 
-        detailGo.SetActive(false);
+        if (detailGo != null) detailGo.SetActive(false);
     }
 
     void RefreshDetail()
