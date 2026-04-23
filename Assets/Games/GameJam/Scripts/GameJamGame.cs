@@ -9,7 +9,7 @@ public class GameJamGame : MonoBehaviour
 {
     public Action OnReturnToLobby;
 
-    static readonly Vector3 SceneMainSpawnPoint = new Vector3(175.4f, 50.63f, -92.82f);
+    static readonly Vector3 SceneMainSpawnPoint = new Vector3(218.546f, 44.508f, -131.222f);
 
     GameObject sceneRoot;
     GameObject player;
@@ -221,7 +221,8 @@ public class GameJamGame : MonoBehaviour
                 string label = string.IsNullOrWhiteSpace(entry.label) ? itemId : entry.label;
                 int hp = Mathf.Max(1, entry.amount);
                 float respawn = (entry.amount <= 1 && entry.num <= 1) ? -1f : 120f;
-                CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops, Mathf.Max(0, entry.num));
+                bool useAbsoluteWorldPosition = isSceneMain && entry.position != null;
+                CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops, Mathf.Max(0, entry.num), useAbsoluteWorldPosition);
             }
         }
         else
@@ -335,12 +336,12 @@ public class GameJamGame : MonoBehaviour
     }
 
     void CreateResourceNode(string resName, Material mat, PrimitiveType shape,
-        Vector3 scale, Vector3 pos, int hp, float respawn, PortiaResourceDropConfig[] drops, int num = 0)
+        Vector3 scale, Vector3 pos, int hp, float respawn, PortiaResourceDropConfig[] drops, int num = 0, bool useAbsoluteWorldPosition = false)
     {
         var go = GameObject.CreatePrimitive(shape);
         go.name = resName;
         go.transform.SetParent(sceneRoot.transform);
-        go.transform.position = OffsetPosition(pos);
+        go.transform.position = useAbsoluteWorldPosition ? pos : OffsetPosition(pos);
         go.transform.localScale = scale;
         go.GetComponent<Renderer>().material = mat;
 
@@ -413,6 +414,7 @@ public class GameJamGame : MonoBehaviour
         player.AddComponent<GameJamInteractionUI>();
         var interaction = player.AddComponent<GameJamInteraction>();
         interaction.interactRadius = settings.interactRadius;
+        player.AddComponent<GameJamCoordinateProbe>().Init(player.transform);
 
         var placer = player.AddComponent<GameJamBuildingPlacer>();
         placer.Init(sceneRoot.transform, player.transform);

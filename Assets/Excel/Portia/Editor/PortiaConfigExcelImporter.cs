@@ -45,15 +45,17 @@ public static class PortiaConfigExcelImporter
         var machineSheet = workbook.RequireSheet("Machines");
         var synthesisSheet = workbook.RequireSheet("synthesis");
         var mapBuildingSheet = workbook.RequireSheet("mapbuilding");
+        var mapBuildingXYZSheet = workbook.RequireSheet("mapbuildingXYZ");
 
         var itemLookup = BuildItemLookup(itemSheet);
         var machineLookup = BuildMachineLookup(machineSheet, itemLookup);
         var resourceRows = BuildResourceRows(mapBuildingSheet, itemLookup);
+        var resourcePositions = BuildResourcePositionRows(mapBuildingXYZSheet);
 
         WriteJson("ItemTable.json", ImportItemTable(itemSheet));
         WriteJson("BuildingTable.json", ImportBuildingTable(machineLookup.Values));
         WriteJson("MachineTable.json", ImportMachineTable(machineLookup, synthesisSheet, itemLookup));
-        WriteJson("SettingsTable.json", ImportSettingsTable(resourceRows));
+        WriteJson("SettingsTable.json", ImportSettingsTable(resourceRows, resourcePositions));
 
         AssetDatabase.Refresh();
         Debug.Log($"Imported Portia config excel: {excelPath}");
@@ -127,12 +129,40 @@ public static class PortiaConfigExcelImporter
 
             rows.Add(new ResourceSheetRow
             {
-                label = row.GetRequired("id"),
+                resourceId = row.GetRequired("id"),
+                label = row.GetOrDefault("name", row.GetRequired("id")),
                 toolItemId = ResolveItemName(itemLookup, row.GetIntOrDefault("useitem", 0)),
                 attackCount = row.GetIntOrDefault("attacknum", 1),
                 totalAmount = row.GetIntOrDefault("num", 0),
                 respawnSeconds = row.GetFloatOrDefault("time", 0f),
                 drops = dropConfigs
+            });
+        }
+
+        return rows;
+    }
+
+    static List<ResourcePositionSheetRow> BuildResourcePositionRows(ExcelSheet sheet)
+    {
+        var rows = new List<ResourcePositionSheetRow>();
+        foreach (var row in sheet.Rows)
+        {
+            string resourceId = row.GetOrDefault("mapbuildingid", row.GetOrDefault("资源id", string.Empty));
+            if (string.IsNullOrWhiteSpace(resourceId))
+                continue;
+
+            if (!TryParseLooseFloat(row.GetOrDefault("X", row.GetOrDefault("X坐标", string.Empty)), out var x) ||
+                !TryParseLooseFloat(row.GetOrDefault("Y", row.GetOrDefault("Y坐标", string.Empty)), out var y) ||
+                !TryParseLooseFloat(row.GetOrDefault("Z", row.GetOrDefault("Z坐标", string.Empty)), out var z))
+            {
+                Debug.LogWarning($"Skipped invalid mapbuildingXYZ row for resourceId={resourceId}.");
+                continue;
+            }
+
+            rows.Add(new ResourcePositionSheetRow
+            {
+                resourceId = resourceId.Trim(),
+                position = new PortiaVector3Data { x = x, y = y, z = z }
             });
         }
 
@@ -250,7 +280,9 @@ public static class PortiaConfigExcelImporter
         return machineTable;
     }
 
-    static PortiaSettingsTable ImportSettingsTable(List<ResourceSheetRow> resourceRows)
+    static PortiaSettingsTable ImportSettingsTable(
+        List<ResourceSheetRow> resourceRows,
+        List<ResourcePositionSheetRow> resourcePositions)
     {
         var settings = new PortiaSettingsTable
         {
@@ -272,10 +304,25 @@ public static class PortiaConfigExcelImporter
         };
 
         var nodes = new List<PortiaResourceNodeConfig>();
+        var positionsByResourceId = resourcePositions
+            .GroupBy(entry => entry.resourceId, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.Select(entry => entry.position).ToList(), StringComparer.OrdinalIgnoreCase);
+
         foreach (var row in resourceRows)
         {
             var preset = GetResourcePreset(row.label);
-            foreach (var position in preset.positions)
+            var positions = positionsByResourceId.TryGetValue(row.resourceId, out var configuredPositions) &&
+                            configuredPositions != null && configuredPositions.Count > 0
+                ? configuredPositions
+                : preset.positions.Select(position => new PortiaVector3Data
+                    {
+                        x = position.x,
+                        y = position.y,
+                        z = position.z
+                    })
+                    .ToList();
+
+            foreach (var position in positions)
             {
                 nodes.Add(new PortiaResourceNodeConfig
                 {
@@ -517,6 +564,17 @@ public static class PortiaConfigExcelImporter
         return value;
     }
 
+    static bool TryParseLooseFloat(string raw, out float value)
+    {
+        value = 0f;
+        if (string.IsNullOrWhiteSpace(raw))
+            return false;
+
+        string normalized = raw.Trim();
+        normalized = normalized.TrimEnd('f', 'F', ',', '，');
+        return float.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+    }
+
     sealed class ResourcePreset
     {
         public readonly string shape;
@@ -555,12 +613,19 @@ public static class PortiaConfigExcelImporter
 
     sealed class ResourceSheetRow
     {
+        public string resourceId;
         public string label;
         public string toolItemId;
         public int attackCount;
         public int totalAmount;
         public float respawnSeconds;
         public List<PortiaResourceDropConfig> drops;
+    }
+
+    sealed class ResourcePositionSheetRow
+    {
+        public string resourceId;
+        public PortiaVector3Data position;
     }
 
     sealed class ExcelWorkbook
