@@ -28,6 +28,7 @@ public class GameJamMachinePanel : MonoBehaviour
     Text detailSourceText;
     Text detailPriceText;
     Transform matListParent;
+    GameObject matTemplate;
     List<GameObject> matEntries = new List<GameObject>();
 
     // Bottom bar
@@ -133,14 +134,37 @@ public class GameJamMachinePanel : MonoBehaviour
         recipeCardRect = content.GetComponent<RectTransform>();
 
         detailRoot = panelGo.transform.Find("Detail").gameObject;
-        detailNameText = detailRoot.transform.Find("Name").GetComponent<Text>();
         var infoBox = detailRoot.transform.Find("InfoBox");
+        detailNameText = infoBox.Find("Name").GetComponent<Text>();
         detailDescText = infoBox.Find("Desc").GetComponent<Text>();
         detailIcon = infoBox.Find("Icon").GetComponent<Image>();
         detailSourceText = infoBox.Find("Src").GetComponent<Text>();
         detailPriceText = infoBox.Find("Price").GetComponent<Text>();
         matListParent = infoBox.Find("MatArea");
+        matTemplate = matListParent.Find("Mat_0")?.gameObject;
+        if (matTemplate != null)
+            matTemplate.SetActive(false);
+        for (int i = matListParent.childCount - 1; i >= 0; i--)
+        {
+            var child = matListParent.GetChild(i).gameObject;
+            if (child != matTemplate) Destroy(child);
+        }
         detailRoot.SetActive(false);
+        
+        var infoBox2 = detailRoot.transform.Find("InfoBox2");
+        
+        var progBg = infoBox2.Find("ProgBG");
+        progressFill = progBg.Find("Fill").GetComponent<Image>();
+        progressText = progBg.Find("PText").GetComponent<Text>();
+
+        fuelSection = infoBox2.Find("Fuel").gameObject;
+        fuelIconImg = fuelSection.transform.Find("FIcon").GetComponent<Image>();
+        fuelAmountText = fuelSection.transform.Find("FAmt").GetComponent<Text>();
+        fuelTimeText = fuelSection.transform.Find("FTime").GetComponent<Text>();
+        fuelBtn = fuelSection.transform.Find("FuelBtn").GetComponent<Button>();
+        fuelBtn.onClick.RemoveAllListeners();
+        fuelBtn.onClick.AddListener(OnAddFuel);
+        fuelSection.SetActive(false);
 
         var bottom = panelGo.transform.Find("Bottom");
 
@@ -153,19 +177,6 @@ public class GameJamMachinePanel : MonoBehaviour
         collectBtn.onClick.RemoveAllListeners();
         collectBtn.onClick.AddListener(OnCollect);
         collectBtn.gameObject.SetActive(false);
-
-        var progBg = bottom.Find("ProgBG");
-        progressFill = progBg.Find("Fill").GetComponent<Image>();
-        progressText = progBg.Find("PText").GetComponent<Text>();
-
-        fuelSection = bottom.Find("Fuel").gameObject;
-        fuelIconImg = fuelSection.transform.Find("FIcon").GetComponent<Image>();
-        fuelAmountText = fuelSection.transform.Find("FAmt").GetComponent<Text>();
-        fuelTimeText = fuelSection.transform.Find("FTime").GetComponent<Text>();
-        fuelBtn = fuelSection.transform.Find("FuelBtn").GetComponent<Button>();
-        fuelBtn.onClick.RemoveAllListeners();
-        fuelBtn.onClick.AddListener(OnAddFuel);
-        fuelSection.SetActive(false);
 
         canvasGo.SetActive(false);
     }
@@ -294,7 +305,40 @@ public class GameJamMachinePanel : MonoBehaviour
         ma.offsetMax = new Vector2(-6, -2);
         matListParent = matArea.transform;
 
+        matTemplate = BuildMatTemplate(matArea.transform);
+        matTemplate.SetActive(false);
+
         detailRoot.SetActive(false);
+    }
+
+    GameObject BuildMatTemplate(Transform parent)
+    {
+        var row = MakeRect("Mat_0", parent);
+        var rr = row.GetComponent<RectTransform>();
+        rr.anchorMin = new Vector2(0, 1);
+        rr.anchorMax = new Vector2(1, 1);
+        rr.pivot = new Vector2(0, 1);
+        rr.anchoredPosition = Vector2.zero;
+        rr.sizeDelta = new Vector2(0, 32);
+        row.AddComponent<Image>().color = MatRowBG;
+
+        var miGo = MakeRect("MI", row.transform);
+        var mi = miGo.GetComponent<RectTransform>();
+        mi.anchorMin = mi.anchorMax = new Vector2(0, 0.5f);
+        mi.pivot = new Vector2(0, 0.5f);
+        mi.anchoredPosition = new Vector2(6, 0);
+        mi.sizeDelta = new Vector2(24, 24);
+        miGo.AddComponent<Image>();
+
+        MakeText("MN", row.transform, 13, TextAnchor.MiddleLeft, TextDark,
+            new Vector2(0, 0), new Vector2(0.6f, 1), new Vector2(0, 0.5f),
+            new Vector2(34, 0), Vector2.zero);
+
+        MakeText("MC", row.transform, 13, TextAnchor.MiddleRight, TextDark,
+            new Vector2(0.6f, 0), new Vector2(1, 1), new Vector2(1, 0.5f),
+            new Vector2(-8, 0), Vector2.zero);
+
+        return row;
     }
 
     void BuildBottomBar()
@@ -576,14 +620,14 @@ public class GameJamMachinePanel : MonoBehaviour
         var machineDef = currentMachine != null ? currentMachine.GetDef() : null;
         detailSourceText.text = "来源：" + (machineDef != null ? machineDef.displayName : "");
         detailPriceText.text = "出售价：" + (outDef != null ? outDef.sellPrice.ToString() : "0");
-
+        
         RefreshMaterials();
     }
 
     void RefreshMaterials()
     {
         ClearMaterialEntries();
-        if (selectedRecipe == null) return;
+        if (selectedRecipe == null || matTemplate == null) return;
 
         int i = 0;
         foreach (var kv in selectedRecipe.materials)
@@ -594,33 +638,21 @@ public class GameJamMachinePanel : MonoBehaviour
             int needed = kv.Value;
             bool enough = owned >= needed;
 
-            var row = MakeRect("Mat_" + i, matListParent);
+            var row = Instantiate(matTemplate, matListParent);
+            row.name = "Mat_" + i;
+            row.SetActive(true);
             var rr = row.GetComponent<RectTransform>();
-            rr.anchorMin = new Vector2(0, 1);
-            rr.anchorMax = new Vector2(1, 1);
-            rr.pivot = new Vector2(0, 1);
             rr.anchoredPosition = new Vector2(0, -i * 34f);
-            rr.sizeDelta = new Vector2(0, 32);
-            row.AddComponent<Image>().color = MatRowBG;
 
-            var miGo = MakeRect("MI", row.transform);
-            var mi = miGo.GetComponent<RectTransform>();
-            mi.anchorMin = mi.anchorMax = new Vector2(0, 0.5f);
-            mi.pivot = new Vector2(0, 0.5f);
-            mi.anchoredPosition = new Vector2(6, 0);
-            mi.sizeDelta = new Vector2(24, 24);
-            var matIcon = miGo.AddComponent<Image>();
+            var matIcon = row.transform.Find("MI").GetComponent<Image>();
             GameJamArtLoader.ApplyItemIcon(matIcon, kv.Key,
                 matDef != null ? matDef.iconColor : Color.gray);
 
-            MakeText("MN", row.transform, 13, TextAnchor.MiddleLeft, TextDark,
-                new Vector2(0, 0), new Vector2(0.6f, 1), new Vector2(0, 0.5f),
-                new Vector2(34, 0), Vector2.zero).text = matName;
+            row.transform.Find("MN").GetComponent<Text>().text = matName;
 
-            var countColor = enough ? GreenText : RedText;
-            MakeText("MC", row.transform, 13, TextAnchor.MiddleRight, countColor,
-                new Vector2(0.6f, 0), new Vector2(1, 1), new Vector2(1, 0.5f),
-                new Vector2(-8, 0), Vector2.zero).text = $"{owned}/{needed}";
+            var mcText = row.transform.Find("MC").GetComponent<Text>();
+            mcText.color = enough ? GreenText : RedText;
+            mcText.text = $"{owned}/{needed}";
 
             matEntries.Add(row);
             i++;

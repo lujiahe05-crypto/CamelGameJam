@@ -185,7 +185,21 @@ public static class GameJamArtLoader
         {
             string resourcesPath = assetPath.Substring(resourcesIndex + resourcesMarker.Length);
             resourcesPath = Path.ChangeExtension(resourcesPath, null).Replace('\\', '/');
-            return Resources.Load<T>(resourcesPath);
+            var res = Resources.Load<T>(resourcesPath);
+            if (res != null) return res;
+        }
+
+        string fileName = Path.GetFileNameWithoutExtension(assetPath.Replace('\\', '/'));
+        if (!string.IsNullOrWhiteSpace(fileName))
+        {
+            var res = Resources.Load<T>(fileName);
+            if (res != null) return res;
+
+            var res2 = Resources.Load<T>("ItemIcons/" + fileName);
+            if (res2 != null) return res2;
+
+            var res3 = Resources.Load<T>("BuildingModels/" + fileName);
+            if (res3 != null) return res3;
         }
 
         return null;
@@ -209,11 +223,11 @@ public static class GameJamArtLoader
 
     static Sprite FindSpriteByFileName(string rawPath)
     {
-#if UNITY_EDITOR
         string fileName = NormalizeFileName(rawPath, "Item_");
         if (string.IsNullOrWhiteSpace(fileName))
             return null;
 
+#if UNITY_EDITOR
         var guids = UnityEditor.AssetDatabase.FindAssets(fileName + " t:Sprite",
             new[] { "Assets/Games/GameJam/assets/UI/sprites", "Assets/Games/GameJam/assets/UI" });
         foreach (var guid in guids)
@@ -229,16 +243,22 @@ public static class GameJamArtLoader
                 return sprite;
         }
 #endif
+
+        var res = Resources.Load<Sprite>(fileName);
+        if (res != null) return res;
+        res = Resources.Load<Sprite>("ItemIcons/" + fileName);
+        if (res != null) return res;
+
         return null;
     }
 
     static GameObject FindPrefabByFileName(string rawPath)
     {
-#if UNITY_EDITOR
         string fileName = NormalizeFileName(rawPath, null);
         if (string.IsNullOrWhiteSpace(fileName))
             return null;
 
+#if UNITY_EDITOR
         var guids = UnityEditor.AssetDatabase.FindAssets(fileName + " t:Prefab",
             new[] { "Assets/Games/GameJam/assets/Model" });
         foreach (var guid in guids)
@@ -252,6 +272,12 @@ public static class GameJamArtLoader
                 return prefab;
         }
 #endif
+
+        var res = Resources.Load<GameObject>(fileName);
+        if (res != null) return res;
+        res = Resources.Load<GameObject>("BuildingModels/" + fileName);
+        if (res != null) return res;
+
         return null;
     }
 
