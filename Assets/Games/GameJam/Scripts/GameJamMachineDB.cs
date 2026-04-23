@@ -99,7 +99,6 @@ public static class GameJamMachineDB
 
         Reg(new GameJamMachineDef
         {
-<<<<<<< Updated upstream
             machineId = "工作台",
             displayName = "工作台",
             hasFuelSystem = false,
@@ -126,20 +125,6 @@ public static class GameJamMachineDB
                     new Dictionary<string, int> { { "铁锭", 8 }, { "木材", 10 } }, 30f, false),
                 new GameJamRecipe("bench_storage", "储物箱", 1,
                     new Dictionary<string, int> { { "木板", 6 } }, 10f, false),
-=======
-            machineId = "组装台",
-            displayName = "组装台",
-            hasFuelSystem = false,
-            fuelItemId = null,
-            fuelPerWood = 0f,
-            maxFuelUnits = 0,
-            recipes = new List<GameJamRecipe>
-            {
-                new GameJamRecipe("6", "熔炉", 1,
-                    new Dictionary<string, int> { { "木材", 2 }, { "石头", 1 } }, 0f, false),
-                new GameJamRecipe("7", "切割机", 1,
-                    new Dictionary<string, int> { { "石砖", 2 }, { "铜锭", 1 } }, 0f, false),
->>>>>>> Stashed changes
             }
         });
 

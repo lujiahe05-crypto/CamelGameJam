@@ -1,16 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-
-[System.Serializable]
-public struct GameJamDrop
-{
-    public string itemId;
-    public int amount;
-    [Range(0f, 1f)]
-    public float chance;
-}
 
 public struct GameJamHarvestReward
 {
@@ -28,11 +18,10 @@ public class GameJamResourceNode : MonoBehaviour
 {
     [Header("基础配置")]
     public string resourceName = "石块";
-<<<<<<< Updated upstream
-    public int maxHp = 3;
-
-    [Header("掉落配置")]
-    public GameJamDrop[] drops;
+    public int maxHp = 1;
+    public int amount = 1;
+    public int num;
+    public PortiaResourceDropConfig[] drops;
 
     [Header("刷新配置 (-1 = 不刷新)")]
     public float respawnTime = -1f;
@@ -40,6 +29,7 @@ public class GameJamResourceNode : MonoBehaviour
     int hp;
     bool alive = true;
     Vector3 originalScale;
+    List<GameJamHarvestReward> cachedRewards;
 
     void Start()
     {
@@ -64,17 +54,17 @@ public class GameJamResourceNode : MonoBehaviour
         return false;
     }
 
-    public List<(string itemId, int amount)> GetDrops()
+    public List<GameJamHarvestReward> PeekHarvestRewards()
     {
-        var result = new List<(string, int)>();
-        if (drops == null) return result;
-        foreach (var drop in drops)
-        {
-            if (Random.value <= drop.chance)
-                result.Add((drop.itemId, drop.amount));
-        }
-        if (result.Count == 0 && drops.Length > 0)
-            result.Add((drops[0].itemId, drops[0].amount));
+        if (cachedRewards == null)
+            cachedRewards = GenerateRewards();
+        return cachedRewards;
+    }
+
+    public List<GameJamHarvestReward> Harvest()
+    {
+        var result = new List<GameJamHarvestReward>(PeekHarvestRewards());
+        OnDepleted();
         return result;
     }
 
@@ -83,31 +73,13 @@ public class GameJamResourceNode : MonoBehaviour
         if (respawnTime >= 0)
         {
             SetVisible(false);
+            cachedRewards = null;
             StartCoroutine(RespawnRoutine());
         }
         else
         {
             Destroy(gameObject);
-=======
-    public int amount = 1;
-    public int num;
-    public PortiaResourceDropConfig[] drops;
-
-    List<GameJamHarvestReward> cachedRewards;
-
-    public List<GameJamHarvestReward> PeekHarvestRewards()
-    {
-        if (cachedRewards == null)
-            cachedRewards = GenerateRewards();
-
-        return cachedRewards;
-    }
-
-    public List<GameJamHarvestReward> Harvest()
-    {
-        var result = new List<GameJamHarvestReward>(PeekHarvestRewards());
-        Destroy(gameObject);
-        return result;
+        }
     }
 
     List<GameJamHarvestReward> GenerateRewards()
@@ -121,7 +93,6 @@ public class GameJamResourceNode : MonoBehaviour
         {
             if (drop == null || string.IsNullOrWhiteSpace(drop.itemId))
                 continue;
-
             validDrops.Add(drop);
         }
 
@@ -153,21 +124,8 @@ public class GameJamResourceNode : MonoBehaviour
         {
             AddReward(counts, validDrops[0].itemId, totalAmount);
             return BuildRewardList(validDrops, counts);
->>>>>>> Stashed changes
         }
-    }
 
-<<<<<<< Updated upstream
-    IEnumerator HitFeedback()
-    {
-        float t = 0;
-        while (t < 0.2f)
-        {
-            t += Time.deltaTime;
-            float shake = Mathf.Sin(t * 60f) * 0.05f * (1f - t / 0.2f);
-            transform.localScale = originalScale * (1f + shake);
-            yield return null;
-=======
         for (int i = 0; i < totalAmount; i++)
         {
             var selectedDrop = RollWeightedDrop(validDrops, totalWeight);
@@ -188,27 +146,8 @@ public class GameJamResourceNode : MonoBehaviour
             roll -= Mathf.Max(0f, drop.weight);
             if (roll <= 0f)
                 return drop;
->>>>>>> Stashed changes
         }
-        transform.localScale = originalScale;
-    }
 
-<<<<<<< Updated upstream
-    IEnumerator RespawnRoutine()
-    {
-        yield return new WaitForSeconds(respawnTime);
-        hp = maxHp;
-        alive = true;
-        SetVisible(true);
-    }
-
-    void SetVisible(bool visible)
-    {
-        foreach (var r in GetComponentsInChildren<Renderer>())
-            r.enabled = visible;
-        foreach (var c in GetComponentsInChildren<Collider>())
-            c.enabled = visible;
-=======
         return validDrops[validDrops.Count - 1];
     }
 
@@ -241,6 +180,34 @@ public class GameJamResourceNode : MonoBehaviour
         }
 
         return results;
->>>>>>> Stashed changes
+    }
+
+    IEnumerator HitFeedback()
+    {
+        float t = 0;
+        while (t < 0.2f)
+        {
+            t += Time.deltaTime;
+            float shake = Mathf.Sin(t * 60f) * 0.05f * (1f - t / 0.2f);
+            transform.localScale = originalScale * (1f + shake);
+            yield return null;
+        }
+        transform.localScale = originalScale;
+    }
+
+    IEnumerator RespawnRoutine()
+    {
+        yield return new WaitForSeconds(respawnTime);
+        hp = maxHp;
+        alive = true;
+        SetVisible(true);
+    }
+
+    void SetVisible(bool visible)
+    {
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            r.enabled = visible;
+        foreach (var c in GetComponentsInChildren<Collider>())
+            c.enabled = visible;
     }
 }

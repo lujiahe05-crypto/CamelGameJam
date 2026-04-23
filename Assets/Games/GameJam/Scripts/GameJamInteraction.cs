@@ -68,21 +68,14 @@ public class GameJamInteraction : MonoBehaviour
             bool destroyed = currentTarget.Hit();
             if (destroyed)
             {
-<<<<<<< Updated upstream
-                var drops = currentTarget.GetDrops();
-                foreach (var (itemId, amount) in drops)
-                    inventory.Add(itemId, amount);
-                currentTarget.OnDepleted();
-=======
                 var rewards = currentTarget.PeekHarvestRewards();
                 if (!inventory.Model.CanAddItems(rewards))
                 {
-                    Toast.ShowToast("鑳屽寘绌洪棿涓嶈冻锛屾棤娉曢噰闆嗭紒");
+                    Toast.ShowToast("背包空间不足，无法采集！");
                     return;
                 }
 
                 inventory.AddRange(currentTarget.Harvest());
->>>>>>> Stashed changes
                 currentTarget = null;
                 ui.Hide();
             }
