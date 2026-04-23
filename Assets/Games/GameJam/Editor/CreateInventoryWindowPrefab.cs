@@ -11,7 +11,7 @@ public static class CreateInventoryWindowPrefab
     [InitializeOnLoadMethod]
     static void AutoCreate()
     {
-        EditorApplication.delayCall += TryForceRebuildAfterCompile;
+        //EditorApplication.delayCall += TryForceRebuildAfterCompile;
     }
 
     static void TryForceRebuildAfterCompile()

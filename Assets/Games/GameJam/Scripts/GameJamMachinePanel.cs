@@ -10,31 +10,61 @@ public class GameJamMachinePanel : MonoBehaviour
     GameObject canvasGo;
     GameObject panelGo;
     Text titleText;
-    Transform recipeListParent;
-    RectTransform recipeListRect;
-    GameObject fuelSection;
-    Text fuelText;
-    Button fuelBtn;
-    Text statusText;
+
+    // Left column
+    Transform recipeCardParent;
+    RectTransform recipeCardRect;
+    List<GameObject> recipeCards = new List<GameObject>();
+    List<Image> cardBgImages = new List<Image>();
+    int selectedIndex = -1;
+    GameJamRecipe selectedRecipe;
+    List<GameJamRecipe> currentRecipes;
+
+    // Right column - detail
+    GameObject detailRoot;
+    Text detailNameText;
+    Text detailDescText;
+    Image detailIcon;
+    Text detailSourceText;
+    Text detailPriceText;
+    Transform matListParent;
+    List<GameObject> matEntries = new List<GameObject>();
+
+    // Bottom bar
+    Button craftBtn;
+    Text craftBtnText;
     Button collectBtn;
+    Image progressFill;
+    Text progressText;
+    GameObject fuelSection;
+    Image fuelIconImg;
+    Text fuelAmountText;
+    Text fuelTimeText;
+    Button fuelBtn;
+
     bool isOpen;
 
-    static readonly Color PanelBG = new Color(0.08f, 0.09f, 0.1f, 0.95f);
-    static readonly Color RowNormal = new Color(0.14f, 0.14f, 0.17f, 0.9f);
-    static readonly Color RowHover = new Color(0.2f, 0.2f, 0.26f, 0.95f);
-    static readonly Color BtnNormal = new Color(0.22f, 0.22f, 0.28f);
-    static readonly Color BtnHighlight = new Color(0.3f, 0.3f, 0.4f);
-    static readonly Color BtnDisabled = new Color(0.15f, 0.15f, 0.18f, 0.6f);
-    static readonly Color AccentColor = new Color(0.37f, 0.42f, 0.82f);
-    static readonly Color TextBright = new Color(0.95f, 0.95f, 0.97f);
-    static readonly Color TextDim = new Color(0.65f, 0.65f, 0.7f);
-    static readonly Color GreenText = new Color(0.3f, 0.85f, 0.4f);
-    static readonly Color RedText = new Color(0.9f, 0.35f, 0.3f);
-    static readonly Color OrangeText = new Color(1f, 0.7f, 0.25f);
-
-    List<GameObject> recipeRows = new List<GameObject>();
-    Dictionary<string, int> recipeCounts = new Dictionary<string, int>();
-    Dictionary<string, Text> recipeCountTexts = new Dictionary<string, Text>();
+    static readonly Color PanelBG = new Color(0.13f, 0.17f, 0.24f, 0.94f);
+    static readonly Color TitleBG = new Color(0.78f, 0.40f, 0.10f);
+    static readonly Color CloseBtnBG = new Color(0.82f, 0.22f, 0.18f);
+    static readonly Color CardBG = new Color(0.82f, 0.85f, 0.80f, 0.92f);
+    static readonly Color CardSelectedBG = new Color(0.93f, 0.95f, 0.90f, 0.98f);
+    static readonly Color DetailInfoBG = new Color(0.92f, 0.93f, 0.90f, 0.95f);
+    static readonly Color MatRowBG = new Color(0.85f, 0.87f, 0.83f, 0.95f);
+    static readonly Color BottomBarBG = new Color(0.11f, 0.14f, 0.20f, 0.95f);
+    static readonly Color ProgressBG = new Color(0.08f, 0.10f, 0.15f);
+    static readonly Color ProgressFillColor = new Color(0.22f, 0.32f, 0.48f);
+    static readonly Color GreenAccent = new Color(0.30f, 0.72f, 0.38f);
+    static readonly Color CraftBtnColor = new Color(0.30f, 0.68f, 0.38f);
+    static readonly Color FuelBtnColor = new Color(0.25f, 0.62f, 0.55f);
+    static readonly Color TextDark = new Color(0.18f, 0.18f, 0.22f);
+    static readonly Color TextLight = new Color(0.95f, 0.95f, 0.97f);
+    static readonly Color TextMid = new Color(0.45f, 0.47f, 0.52f);
+    static readonly Color TextDim = new Color(0.55f, 0.57f, 0.62f);
+    static readonly Color GreenText = new Color(0.25f, 0.75f, 0.35f);
+    static readonly Color RedText = new Color(0.88f, 0.28f, 0.22f);
+    static readonly Color OrangeText = new Color(0.92f, 0.62f, 0.18f);
+    static readonly Color BadgeBG = new Color(0.20f, 0.22f, 0.28f, 0.85f);
 
     public bool IsOpen => isOpen;
 
@@ -68,102 +98,19 @@ public class GameJamMachinePanel : MonoBehaviour
 
         var dimmer = MakeRect("Dimmer", canvasGo.transform);
         Stretch(dimmer);
-        dimmer.AddComponent<Image>().color = new Color(0, 0, 0, 0.5f);
+        dimmer.AddComponent<Image>().color = new Color(0, 0, 0, 0.45f);
 
-        float panelW = 480f;
-        float panelH = 520f;
+        float pw = 840f, ph = 480f;
         panelGo = MakeRect("Panel", canvasGo.transform);
-        var panelRect = panelGo.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
-        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-        panelRect.sizeDelta = new Vector2(panelW, panelH);
+        var pr = panelGo.GetComponent<RectTransform>();
+        pr.anchorMin = pr.anchorMax = new Vector2(0.5f, 0.5f);
+        pr.sizeDelta = new Vector2(pw, ph);
         panelGo.AddComponent<Image>().color = PanelBG;
 
-        // Title
-        titleText = MakeText("Title", panelGo.transform, 22, TextAnchor.MiddleCenter, TextBright,
-            new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
-            Vector2.zero, new Vector2(0, 44));
-
-        // Close button
-        var closeBtn = MakeButton("CloseBtn", panelGo.transform,
-            new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1),
-            new Vector2(-8, -8), new Vector2(32, 32), "X", Close);
-
-        // Status text (shows crafting progress or idle state)
-        statusText = MakeText("Status", panelGo.transform, 16, TextAnchor.MiddleCenter, TextDim,
-            new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
-            new Vector2(0, -44), new Vector2(-24, 28));
-
-        // Collect button (shown when crafting complete)
-        collectBtn = MakeButton("CollectBtn", panelGo.transform,
-            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
-            new Vector2(0, -76), new Vector2(160, 36), "收取产品", OnCollect);
-        SetButtonColors(collectBtn, AccentColor);
-        collectBtn.gameObject.SetActive(false);
-
-        // Fuel section
-        fuelSection = MakeRect("FuelSection", panelGo.transform);
-        var fuelRect = fuelSection.GetComponent<RectTransform>();
-        fuelRect.anchorMin = new Vector2(0, 1);
-        fuelRect.anchorMax = new Vector2(1, 1);
-        fuelRect.pivot = new Vector2(0.5f, 1);
-        fuelRect.anchoredPosition = new Vector2(0, -116);
-        fuelRect.sizeDelta = new Vector2(-24, 36);
-        fuelSection.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.15f, 0.8f);
-
-        fuelText = MakeText("FuelText", fuelSection.transform, 14, TextAnchor.MiddleLeft, OrangeText,
-            new Vector2(0, 0), new Vector2(0.6f, 1), new Vector2(0, 0.5f),
-            new Vector2(12, 0), Vector2.zero);
-
-        fuelBtn = MakeButton("FuelBtn", fuelSection.transform,
-            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-            new Vector2(-6, 0), new Vector2(120, 28), "添加燃料(木材)", OnAddFuel);
-
-        fuelSection.SetActive(false);
-
-        // Recipe list scroll area
-        var scrollGo = MakeRect("RecipeScroll", panelGo.transform);
-        var scrollRect = scrollGo.GetComponent<RectTransform>();
-        scrollRect.anchorMin = new Vector2(0, 0);
-        scrollRect.anchorMax = new Vector2(1, 1);
-        scrollRect.offsetMin = new Vector2(12, 48);
-        scrollRect.offsetMax = new Vector2(-12, -156);
-        var scroll = scrollGo.AddComponent<ScrollRect>();
-        scroll.horizontal = false;
-        scroll.movementType = ScrollRect.MovementType.Clamped;
-
-        var viewport = MakeRect("Viewport", scrollGo.transform);
-        Stretch(viewport);
-        viewport.AddComponent<Image>().color = Color.clear;
-        viewport.AddComponent<Mask>().showMaskGraphic = false;
-
-        var content = MakeRect("Content", viewport.transform);
-        var contentRect = content.GetComponent<RectTransform>();
-        contentRect.anchorMin = new Vector2(0, 1);
-        contentRect.anchorMax = new Vector2(1, 1);
-        contentRect.pivot = new Vector2(0.5f, 1);
-        contentRect.sizeDelta = new Vector2(0, 0);
-        scroll.content = contentRect;
-        scroll.viewport = viewport.GetComponent<RectTransform>();
-
-        recipeListParent = content.transform;
-        recipeListRect = contentRect;
-
-        var recipeArea = MakeRect("RecipeAreaFallback", panelGo.transform);
-        var recipeAreaRect = recipeArea.GetComponent<RectTransform>();
-        recipeAreaRect.anchorMin = new Vector2(0f, 1f);
-        recipeAreaRect.anchorMax = new Vector2(1f, 1f);
-        recipeAreaRect.pivot = new Vector2(0.5f, 1f);
-        recipeAreaRect.anchoredPosition = new Vector2(0f, -156f);
-        recipeAreaRect.sizeDelta = new Vector2(-24f, 300f);
-        recipeArea.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
-        recipeListParent = recipeArea.transform;
-        recipeListRect = recipeAreaRect;
-
-        // Hints
-        MakeText("Hints", panelGo.transform, 12, TextAnchor.MiddleCenter, new Color(0.5f, 0.5f, 0.55f),
-            new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0),
-            new Vector2(0, 6), new Vector2(0, 20)).text = "Esc 关闭  |  选择配方开始制作";
+        BuildTitleBar();
+        BuildLeftColumn();
+        BuildRightColumn();
+        BuildBottomBar();
 
         canvasGo.SetActive(false);
         GameJamUIPrefabHelper.SavePrefab(canvasGo, "MachinePanel");
@@ -172,30 +119,275 @@ public class GameJamMachinePanel : MonoBehaviour
     void FindReferences()
     {
         panelGo = canvasGo.transform.Find("Panel").gameObject;
-        titleText = panelGo.transform.Find("Title").GetComponent<Text>();
-        statusText = panelGo.transform.Find("Status").GetComponent<Text>();
 
-        collectBtn = panelGo.transform.Find("CollectBtn").GetComponent<Button>();
+        var titleBg = panelGo.transform.Find("TitleBG");
+        titleText = titleBg.Find("Title").GetComponent<Text>();
+
+        var closeBtn = panelGo.transform.Find("Close").GetComponent<Button>();
+        closeBtn.onClick.RemoveAllListeners();
+        closeBtn.onClick.AddListener(Close);
+
+        var leftCol = panelGo.transform.Find("LeftCol");
+        var content = leftCol.Find("Scroll/VP/Content");
+        recipeCardParent = content;
+        recipeCardRect = content.GetComponent<RectTransform>();
+
+        detailRoot = panelGo.transform.Find("Detail").gameObject;
+        detailNameText = detailRoot.transform.Find("Name").GetComponent<Text>();
+        var infoBox = detailRoot.transform.Find("InfoBox");
+        detailDescText = infoBox.Find("Desc").GetComponent<Text>();
+        detailIcon = infoBox.Find("Icon").GetComponent<Image>();
+        detailSourceText = infoBox.Find("Src").GetComponent<Text>();
+        detailPriceText = infoBox.Find("Price").GetComponent<Text>();
+        matListParent = infoBox.Find("MatArea");
+        detailRoot.SetActive(false);
+
+        var bottom = panelGo.transform.Find("Bottom");
+
+        craftBtn = bottom.Find("CraftBtn").GetComponent<Button>();
+        craftBtn.onClick.RemoveAllListeners();
+        craftBtn.onClick.AddListener(OnCraftClicked);
+        craftBtnText = craftBtn.transform.Find("Lbl").GetComponent<Text>();
+
+        collectBtn = bottom.Find("CollectBtn").GetComponent<Button>();
         collectBtn.onClick.RemoveAllListeners();
         collectBtn.onClick.AddListener(OnCollect);
         collectBtn.gameObject.SetActive(false);
 
-        fuelSection = panelGo.transform.Find("FuelSection").gameObject;
-        fuelText = fuelSection.transform.Find("FuelText").GetComponent<Text>();
+        var progBg = bottom.Find("ProgBG");
+        progressFill = progBg.Find("Fill").GetComponent<Image>();
+        progressText = progBg.Find("PText").GetComponent<Text>();
+
+        fuelSection = bottom.Find("Fuel").gameObject;
+        fuelIconImg = fuelSection.transform.Find("FIcon").GetComponent<Image>();
+        fuelAmountText = fuelSection.transform.Find("FAmt").GetComponent<Text>();
+        fuelTimeText = fuelSection.transform.Find("FTime").GetComponent<Text>();
         fuelBtn = fuelSection.transform.Find("FuelBtn").GetComponent<Button>();
         fuelBtn.onClick.RemoveAllListeners();
         fuelBtn.onClick.AddListener(OnAddFuel);
         fuelSection.SetActive(false);
 
-        var recipeArea = panelGo.transform.Find("RecipeAreaFallback");
-        recipeListParent = recipeArea;
-        recipeListRect = recipeArea.GetComponent<RectTransform>();
-
-        var closeBtn = panelGo.transform.Find("CloseBtn").GetComponent<Button>();
-        closeBtn.onClick.RemoveAllListeners();
-        closeBtn.onClick.AddListener(Close);
-
         canvasGo.SetActive(false);
+    }
+
+    void BuildTitleBar()
+    {
+        var titleBg = MakeRect("TitleBG", panelGo.transform);
+        var t = titleBg.GetComponent<RectTransform>();
+        t.anchorMin = t.anchorMax = new Vector2(0, 1);
+        t.pivot = new Vector2(0, 1);
+        t.anchoredPosition = new Vector2(14, -10);
+        t.sizeDelta = new Vector2(140, 34);
+        titleBg.AddComponent<Image>().color = TitleBG;
+
+        titleText = MakeText("Title", titleBg.transform, 17, TextAnchor.MiddleCenter, TextLight,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Stretch(titleText.gameObject);
+
+        var closeGo = MakeRect("Close", panelGo.transform);
+        var c = closeGo.GetComponent<RectTransform>();
+        c.anchorMin = c.anchorMax = new Vector2(1, 1);
+        c.pivot = new Vector2(1, 1);
+        c.anchoredPosition = new Vector2(-10, -10);
+        c.sizeDelta = new Vector2(34, 34);
+        closeGo.AddComponent<Image>().color = CloseBtnBG;
+        var cb = closeGo.AddComponent<Button>();
+        cb.onClick.AddListener(Close);
+        var cx = MakeText("X", closeGo.transform, 20, TextAnchor.MiddleCenter, TextLight,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Stretch(cx.gameObject);
+        cx.text = "X";
+    }
+
+    void BuildLeftColumn()
+    {
+        float leftW = 268f;
+
+        var col = MakeRect("LeftCol", panelGo.transform);
+        var r = col.GetComponent<RectTransform>();
+        r.anchorMin = new Vector2(0, 0);
+        r.anchorMax = new Vector2(0, 1);
+        r.pivot = new Vector2(0, 1);
+        r.offsetMin = new Vector2(14, 80);
+        r.offsetMax = new Vector2(14 + leftW, -54);
+
+        var hdr = MakeText("Header", col.transform, 14, TextAnchor.MiddleLeft, GreenAccent,
+            new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1),
+            new Vector2(4, 0), new Vector2(0, 24));
+        hdr.text = "●  材料";
+
+        var scrollGo = MakeRect("Scroll", col.transform);
+        var sr = scrollGo.GetComponent<RectTransform>();
+        sr.anchorMin = Vector2.zero;
+        sr.anchorMax = Vector2.one;
+        sr.offsetMin = Vector2.zero;
+        sr.offsetMax = new Vector2(0, -28);
+        var scroll = scrollGo.AddComponent<ScrollRect>();
+        scroll.horizontal = false;
+        scroll.movementType = ScrollRect.MovementType.Clamped;
+
+        var vp = MakeRect("VP", scrollGo.transform);
+        Stretch(vp);
+        vp.AddComponent<Image>().color = Color.clear;
+        vp.AddComponent<Mask>().showMaskGraphic = false;
+
+        var content = MakeRect("Content", vp.transform);
+        recipeCardRect = content.GetComponent<RectTransform>();
+        recipeCardRect.anchorMin = new Vector2(0, 1);
+        recipeCardRect.anchorMax = new Vector2(1, 1);
+        recipeCardRect.pivot = new Vector2(0.5f, 1);
+        recipeCardRect.sizeDelta = Vector2.zero;
+        scroll.content = recipeCardRect;
+        scroll.viewport = vp.GetComponent<RectTransform>();
+        recipeCardParent = content.transform;
+    }
+
+    void BuildRightColumn()
+    {
+        float leftEnd = 292f;
+
+        detailRoot = MakeRect("Detail", panelGo.transform);
+        var r = detailRoot.GetComponent<RectTransform>();
+        r.anchorMin = Vector2.zero;
+        r.anchorMax = Vector2.one;
+        r.offsetMin = new Vector2(leftEnd, 80);
+        r.offsetMax = new Vector2(-14, -54);
+
+        detailNameText = MakeText("Name", detailRoot.transform, 22, TextAnchor.UpperLeft, TextLight,
+            new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1),
+            new Vector2(14, -6), new Vector2(-14, 30));
+
+        var infoBox = MakeRect("InfoBox", detailRoot.transform);
+        var ib = infoBox.GetComponent<RectTransform>();
+        ib.anchorMin = Vector2.zero;
+        ib.anchorMax = Vector2.one;
+        ib.offsetMin = new Vector2(8, 6);
+        ib.offsetMax = new Vector2(-8, -40);
+        infoBox.AddComponent<Image>().color = DetailInfoBG;
+
+        detailDescText = MakeText("Desc", infoBox.transform, 13, TextAnchor.UpperLeft, TextMid,
+            new Vector2(0.32f, 0.65f), new Vector2(1, 1), new Vector2(0, 1),
+            new Vector2(8, -10), new Vector2(-10, 0));
+
+        var iconGo = MakeRect("Icon", infoBox.transform);
+        var ic = iconGo.GetComponent<RectTransform>();
+        ic.anchorMin = new Vector2(0, 0.50f);
+        ic.anchorMax = new Vector2(0.30f, 0.95f);
+        ic.offsetMin = new Vector2(16, 0);
+        ic.offsetMax = new Vector2(-8, -10);
+        detailIcon = iconGo.AddComponent<Image>();
+        detailIcon.preserveAspect = true;
+
+        detailSourceText = MakeText("Src", infoBox.transform, 13, TextAnchor.MiddleLeft, TextMid,
+            new Vector2(0.32f, 0.45f), new Vector2(1, 0.55f), new Vector2(0, 0.5f),
+            new Vector2(8, 0), new Vector2(-10, 0));
+
+        detailPriceText = MakeText("Price", infoBox.transform, 13, TextAnchor.MiddleLeft, TextMid,
+            new Vector2(0.32f, 0.33f), new Vector2(1, 0.43f), new Vector2(0, 0.5f),
+            new Vector2(8, 0), new Vector2(-10, 0));
+
+        var matArea = MakeRect("MatArea", infoBox.transform);
+        var ma = matArea.GetComponent<RectTransform>();
+        ma.anchorMin = Vector2.zero;
+        ma.anchorMax = new Vector2(1, 0.30f);
+        ma.offsetMin = new Vector2(6, 6);
+        ma.offsetMax = new Vector2(-6, -2);
+        matListParent = matArea.transform;
+
+        detailRoot.SetActive(false);
+    }
+
+    void BuildBottomBar()
+    {
+        var bar = MakeRect("Bottom", panelGo.transform);
+        var b = bar.GetComponent<RectTransform>();
+        b.anchorMin = Vector2.zero;
+        b.anchorMax = new Vector2(1, 0);
+        b.pivot = new Vector2(0.5f, 0);
+        b.sizeDelta = new Vector2(0, 76);
+        bar.AddComponent<Image>().color = BottomBarBG;
+
+        var craftGo = MakeRect("CraftBtn", bar.transform);
+        var cr = craftGo.GetComponent<RectTransform>();
+        cr.anchorMin = cr.anchorMax = new Vector2(0, 0.5f);
+        cr.pivot = new Vector2(0, 0.5f);
+        cr.anchoredPosition = new Vector2(20, 0);
+        cr.sizeDelta = new Vector2(90, 40);
+        craftGo.AddComponent<Image>().color = CraftBtnColor;
+        craftBtn = craftGo.AddComponent<Button>();
+        craftBtn.onClick.AddListener(OnCraftClicked);
+        SetBtnColors(craftBtn, CraftBtnColor);
+        craftBtnText = AddLabel(craftGo, 16, "制作");
+
+        var colGo = MakeRect("CollectBtn", bar.transform);
+        var col = colGo.GetComponent<RectTransform>();
+        col.anchorMin = col.anchorMax = new Vector2(0, 0.5f);
+        col.pivot = new Vector2(0, 0.5f);
+        col.anchoredPosition = new Vector2(20, 0);
+        col.sizeDelta = new Vector2(120, 40);
+        colGo.AddComponent<Image>().color = GreenAccent;
+        collectBtn = colGo.AddComponent<Button>();
+        collectBtn.onClick.AddListener(OnCollect);
+        SetBtnColors(collectBtn, GreenAccent);
+        AddLabel(colGo, 16, "收取产品");
+        colGo.SetActive(false);
+
+        var progBg = MakeRect("ProgBG", bar.transform);
+        var pb = progBg.GetComponent<RectTransform>();
+        pb.anchorMin = new Vector2(0.16f, 0.5f);
+        pb.anchorMax = new Vector2(0.62f, 0.5f);
+        pb.sizeDelta = new Vector2(0, 30);
+        progBg.AddComponent<Image>().color = ProgressBG;
+
+        var fill = MakeRect("Fill", progBg.transform);
+        var fr = fill.GetComponent<RectTransform>();
+        fr.anchorMin = Vector2.zero;
+        fr.anchorMax = new Vector2(0, 1);
+        fr.sizeDelta = Vector2.zero;
+        progressFill = fill.AddComponent<Image>();
+        progressFill.color = ProgressFillColor;
+
+        progressText = MakeText("PText", progBg.transform, 14, TextAnchor.MiddleCenter, TextLight,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Stretch(progressText.gameObject);
+
+        fuelSection = MakeRect("Fuel", bar.transform);
+        var fs = fuelSection.GetComponent<RectTransform>();
+        fs.anchorMin = new Vector2(1, 0);
+        fs.anchorMax = Vector2.one;
+        fs.pivot = new Vector2(1, 0.5f);
+        fs.offsetMin = new Vector2(-290, 4);
+        fs.offsetMax = new Vector2(-12, -4);
+
+        var fiGo = MakeRect("FIcon", fuelSection.transform);
+        var fi = fiGo.GetComponent<RectTransform>();
+        fi.anchorMin = fi.anchorMax = new Vector2(0, 0.5f);
+        fi.pivot = new Vector2(0, 0.5f);
+        fi.anchoredPosition = new Vector2(4, 4);
+        fi.sizeDelta = new Vector2(26, 26);
+        fuelIconImg = fiGo.AddComponent<Image>();
+
+        fuelAmountText = MakeText("FAmt", fuelSection.transform, 13, TextAnchor.MiddleLeft, OrangeText,
+            new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
+            new Vector2(36, 7), new Vector2(140, 18));
+
+        fuelTimeText = MakeText("FTime", fuelSection.transform, 11, TextAnchor.MiddleLeft, TextDim,
+            new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
+            new Vector2(36, -10), new Vector2(140, 16));
+
+        var fbGo = MakeRect("FuelBtn", fuelSection.transform);
+        var fb = fbGo.GetComponent<RectTransform>();
+        fb.anchorMin = fb.anchorMax = new Vector2(1, 0.5f);
+        fb.pivot = new Vector2(1, 0.5f);
+        fb.anchoredPosition = Vector2.zero;
+        fb.sizeDelta = new Vector2(82, 34);
+        fbGo.AddComponent<Image>().color = FuelBtnColor;
+        fuelBtn = fbGo.AddComponent<Button>();
+        fuelBtn.onClick.AddListener(OnAddFuel);
+        SetBtnColors(fuelBtn, FuelBtnColor);
+        AddLabel(fbGo, 13, "补充燃料");
+
+        fuelSection.SetActive(false);
     }
 
     public void Open(GameJamMachine machine)
@@ -207,11 +399,13 @@ public class GameJamMachinePanel : MonoBehaviour
 
         var pc = GetComponent<GameJamPlayerController>();
         if (pc != null) pc.enabled = false;
+
         var def = machine.GetDef();
         titleText.text = def != null ? def.displayName : machine.machineId;
-        UpdateFuelButtonLabel(def);
-
         fuelSection.SetActive(def != null && def.hasFuelSystem);
+
+        if (def != null && def.hasFuelSystem)
+            GameJamArtLoader.ApplyItemIcon(fuelIconImg, def.fuelItemId ?? "木材", OrangeText);
 
         canvasGo.SetActive(true);
         RefreshAll();
@@ -222,6 +416,8 @@ public class GameJamMachinePanel : MonoBehaviour
         if (!isOpen) return;
         isOpen = false;
         currentMachine = null;
+        selectedRecipe = null;
+        selectedIndex = -1;
         canvasGo.SetActive(false);
 
         var inv = GetComponent<GameJamInventory>();
@@ -251,40 +447,184 @@ public class GameJamMachinePanel : MonoBehaviour
 
     void RefreshAll()
     {
-        ClearRecipeRows();
+        ClearRecipeCards();
+        ClearMaterialEntries();
+        selectedIndex = -1;
+        selectedRecipe = null;
+
         if (currentMachine == null) return;
 
         var def = currentMachine.GetDef();
-        string machineId = currentMachine.machineId != null ? currentMachine.machineId.Trim() : string.Empty;
-        var recipes = GameJamMachineDB.GetRecipesForMachine(machineId);
-        if ((recipes == null || recipes.Count == 0) && def != null && def.recipes != null)
-            recipes = def.recipes;
-        if (recipes == null || recipes.Count == 0)
+        string mid = currentMachine.machineId != null ? currentMachine.machineId.Trim() : "";
+        currentRecipes = GameJamMachineDB.GetRecipesForMachine(mid);
+        if ((currentRecipes == null || currentRecipes.Count == 0) && def != null && def.recipes != null)
+            currentRecipes = def.recipes;
+
+        if (currentRecipes == null || currentRecipes.Count == 0)
         {
-            statusText.text = "暂无可用配方";
-            statusText.color = TextDim;
-            ForceRecipeLayoutRefresh();
+            detailRoot.SetActive(false);
+            progressText.text = "暂无可用配方";
             return;
         }
 
-        foreach (var recipe in recipes)
-            CreateRecipeRow(recipe);
+        float cardH = 62f, gap = 6f;
+        for (int i = 0; i < currentRecipes.Count; i++)
+            CreateRecipeCard(currentRecipes[i], i);
 
-        if (recipeListRect != null)
-            recipeListRect.sizeDelta = new Vector2(0f, recipes.Count * 94f + 8f);
+        recipeCardRect.sizeDelta = new Vector2(0, currentRecipes.Count * (cardH + gap) + 4f);
 
-        ForceRecipeLayoutRefresh();
+        SelectRecipe(0);
         RefreshStatus();
     }
 
-    void ForceRecipeLayoutRefresh()
+    void CreateRecipeCard(GameJamRecipe recipe, int index)
     {
-        if (recipeListParent == null)
+        float cardH = 62f, gap = 6f;
+
+        var card = MakeRect("Card_" + index, recipeCardParent);
+        var r = card.GetComponent<RectTransform>();
+        r.anchorMin = new Vector2(0, 1);
+        r.anchorMax = new Vector2(1, 1);
+        r.pivot = new Vector2(0.5f, 1);
+        r.anchoredPosition = new Vector2(0, -(index * (cardH + gap)));
+        r.sizeDelta = new Vector2(0, cardH);
+
+        var bgImg = card.AddComponent<Image>();
+        bgImg.color = CardBG;
+        cardBgImages.Add(bgImg);
+
+        int idx = index;
+        var btn = card.AddComponent<Button>();
+        btn.transition = Selectable.Transition.None;
+        btn.onClick.AddListener(() => SelectRecipe(idx));
+
+        var outDef = GameJamItemDB.Get(recipe.outputItemId);
+        string outName = outDef != null ? outDef.name : recipe.outputItemId;
+
+        var iconGo = MakeRect("Icon", card.transform);
+        var ic = iconGo.GetComponent<RectTransform>();
+        ic.anchorMin = ic.anchorMax = new Vector2(0, 0.5f);
+        ic.pivot = new Vector2(0, 0.5f);
+        ic.anchoredPosition = new Vector2(8, 0);
+        ic.sizeDelta = new Vector2(44, 44);
+        var icon = iconGo.AddComponent<Image>();
+        GameJamArtLoader.ApplyItemIcon(icon, recipe.outputItemId,
+            outDef != null ? outDef.iconColor : Color.gray);
+
+        int owned = inventory != null ? inventory.Model.GetTotalCount(recipe.outputItemId) : 0;
+        if (owned > 0)
+        {
+            var badge = MakeRect("Badge", card.transform);
+            var br2 = badge.GetComponent<RectTransform>();
+            br2.anchorMin = br2.anchorMax = new Vector2(0, 0);
+            br2.pivot = new Vector2(0, 0);
+            br2.anchoredPosition = new Vector2(8, 4);
+            br2.sizeDelta = new Vector2(24, 16);
+            badge.AddComponent<Image>().color = BadgeBG;
+            var bt = MakeText("Cnt", badge.transform, 10, TextAnchor.MiddleCenter, TextLight,
+                Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            Stretch(bt.gameObject);
+            bt.text = owned.ToString();
+        }
+
+        MakeText("Name", card.transform, 15, TextAnchor.MiddleLeft, TextDark,
+            new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 0.5f),
+            new Vector2(60, 0), new Vector2(-50, 0)).text = outName;
+
+        MakeText("Amt", card.transform, 14, TextAnchor.MiddleRight, TextMid,
+            new Vector2(1, 0), new Vector2(1, 1), new Vector2(1, 0.5f),
+            new Vector2(-8, 0), new Vector2(40, 0)).text = $"x{recipe.outputAmount}";
+
+        recipeCards.Add(card);
+    }
+
+    void SelectRecipe(int index)
+    {
+        if (currentRecipes == null || index < 0 || index >= currentRecipes.Count)
             return;
 
-        var rect = recipeListParent as RectTransform;
-        if (rect != null)
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+        selectedIndex = index;
+        selectedRecipe = currentRecipes[index];
+
+        for (int i = 0; i < cardBgImages.Count; i++)
+        {
+            if (cardBgImages[i] != null)
+                cardBgImages[i].color = i == index ? CardSelectedBG : CardBG;
+        }
+
+        RefreshDetailPanel();
+    }
+
+    void RefreshDetailPanel()
+    {
+        if (selectedRecipe == null)
+        {
+            detailRoot.SetActive(false);
+            return;
+        }
+
+        detailRoot.SetActive(true);
+
+        var outDef = GameJamItemDB.Get(selectedRecipe.outputItemId);
+        string outName = outDef != null ? outDef.name : selectedRecipe.outputItemId;
+
+        detailNameText.text = outName;
+        detailDescText.text = outDef != null ? outDef.description : "";
+        GameJamArtLoader.ApplyItemIcon(detailIcon, selectedRecipe.outputItemId,
+            outDef != null ? outDef.iconColor : Color.gray);
+
+        var machineDef = currentMachine != null ? currentMachine.GetDef() : null;
+        detailSourceText.text = "来源：" + (machineDef != null ? machineDef.displayName : "");
+        detailPriceText.text = "出售价：" + (outDef != null ? outDef.sellPrice.ToString() : "0");
+
+        RefreshMaterials();
+    }
+
+    void RefreshMaterials()
+    {
+        ClearMaterialEntries();
+        if (selectedRecipe == null) return;
+
+        int i = 0;
+        foreach (var kv in selectedRecipe.materials)
+        {
+            var matDef = GameJamItemDB.Get(kv.Key);
+            string matName = matDef != null ? matDef.name : kv.Key;
+            int owned = inventory != null ? inventory.Model.GetTotalCount(kv.Key) : 0;
+            int needed = kv.Value;
+            bool enough = owned >= needed;
+
+            var row = MakeRect("Mat_" + i, matListParent);
+            var rr = row.GetComponent<RectTransform>();
+            rr.anchorMin = new Vector2(0, 1);
+            rr.anchorMax = new Vector2(1, 1);
+            rr.pivot = new Vector2(0, 1);
+            rr.anchoredPosition = new Vector2(0, -i * 34f);
+            rr.sizeDelta = new Vector2(0, 32);
+            row.AddComponent<Image>().color = MatRowBG;
+
+            var miGo = MakeRect("MI", row.transform);
+            var mi = miGo.GetComponent<RectTransform>();
+            mi.anchorMin = mi.anchorMax = new Vector2(0, 0.5f);
+            mi.pivot = new Vector2(0, 0.5f);
+            mi.anchoredPosition = new Vector2(6, 0);
+            mi.sizeDelta = new Vector2(24, 24);
+            var matIcon = miGo.AddComponent<Image>();
+            GameJamArtLoader.ApplyItemIcon(matIcon, kv.Key,
+                matDef != null ? matDef.iconColor : Color.gray);
+
+            MakeText("MN", row.transform, 13, TextAnchor.MiddleLeft, TextDark,
+                new Vector2(0, 0), new Vector2(0.6f, 1), new Vector2(0, 0.5f),
+                new Vector2(34, 0), Vector2.zero).text = matName;
+
+            var countColor = enough ? GreenText : RedText;
+            MakeText("MC", row.transform, 13, TextAnchor.MiddleRight, countColor,
+                new Vector2(0.6f, 0), new Vector2(1, 1), new Vector2(1, 0.5f),
+                new Vector2(-8, 0), Vector2.zero).text = $"{owned}/{needed}";
+
+            matEntries.Add(row);
+            i++;
+        }
     }
 
     void RefreshStatus()
@@ -292,207 +632,90 @@ public class GameJamMachinePanel : MonoBehaviour
         if (currentMachine == null) return;
 
         var def = currentMachine.GetDef();
+        bool isCrafting = currentMachine.State == GameJamMachineState.Crafting;
+        bool isComplete = currentMachine.State == GameJamMachineState.Complete;
 
-        switch (currentMachine.State)
+        if (isCrafting)
         {
-            case GameJamMachineState.Idle:
-                statusText.text = "待机中 — 选择配方开始制作";
-                statusText.color = TextDim;
-                collectBtn.gameObject.SetActive(false);
-                break;
-            case GameJamMachineState.Crafting:
-                float progress = 1f - currentMachine.CraftTimer / Mathf.Max(currentMachine.CraftTotal, 0.01f);
-                string timeLeft = GameJamMachine.FormatTime(currentMachine.CraftTimer);
-                if (currentMachine.FuelPaused)
-                {
-                    statusText.text = $"制作暂停 — 燃料不足 ({Mathf.RoundToInt(progress * 100)}%)";
-                    statusText.color = RedText;
-                }
-                else if (currentMachine.CraftCount > 1)
-                {
-                    statusText.text = $"制作中 {currentMachine.CraftIndex}/{currentMachine.CraftCount}  {Mathf.RoundToInt(progress * 100)}%  剩余 {timeLeft}";
-                    statusText.color = OrangeText;
-                }
-                else
-                {
-                    statusText.text = $"制作中... {Mathf.RoundToInt(progress * 100)}%  剩余 {timeLeft}";
-                    statusText.color = OrangeText;
-                }
-                if (currentMachine.QueueCount > 0)
-                    statusText.text += $"  (队列: {currentMachine.QueueCount})";
-                collectBtn.gameObject.SetActive(false);
-                break;
-            case GameJamMachineState.Complete:
-                var outDef = GameJamItemDB.Get(currentMachine.ProductItemId);
-                string outName = outDef != null ? outDef.name : currentMachine.ProductItemId;
-                statusText.text = $"制作完成! {outName} x{currentMachine.ProductAmount}";
-                statusText.color = GreenText;
-                collectBtn.gameObject.SetActive(true);
-                break;
+            float progress = 1f - currentMachine.CraftTimer / Mathf.Max(currentMachine.CraftTotal, 0.01f);
+            string timeLeft = GameJamMachine.FormatTime(currentMachine.CraftTimer);
+
+            var fillRect = progressFill.GetComponent<RectTransform>();
+            fillRect.anchorMax = new Vector2(progress, 1);
+
+            if (currentMachine.FuelPaused)
+                progressText.text = $"燃料不足 {Mathf.RoundToInt(progress * 100)}%";
+            else if (currentMachine.CraftCount > 1)
+                progressText.text = $"{currentMachine.CraftIndex}/{currentMachine.CraftCount}  {timeLeft}";
+            else
+                progressText.text = timeLeft;
+
+            if (currentMachine.QueueCount > 0)
+                progressText.text += $"  (队列:{currentMachine.QueueCount})";
+        }
+        else if (isComplete)
+        {
+            var fillRect = progressFill.GetComponent<RectTransform>();
+            fillRect.anchorMax = new Vector2(1, 1);
+
+            var outDef = GameJamItemDB.Get(currentMachine.ProductItemId);
+            string pName = outDef != null ? outDef.name : currentMachine.ProductItemId;
+            progressText.text = $"完成! {pName} x{currentMachine.ProductAmount}";
+        }
+        else
+        {
+            var fillRect = progressFill.GetComponent<RectTransform>();
+            fillRect.anchorMax = new Vector2(0, 1);
+            progressText.text = "待机中";
+        }
+
+        craftBtn.gameObject.SetActive(!isComplete);
+        collectBtn.gameObject.SetActive(isComplete);
+
+        if (!isComplete && selectedRecipe != null)
+        {
+            bool canCraft = currentMachine.GetMaxCraftCount(selectedRecipe, inventory) >= 1;
+            craftBtn.interactable = canCraft;
+            craftBtnText.text = currentMachine.State == GameJamMachineState.Idle ? "制作" : "排队";
         }
 
         if (def != null && def.hasFuelSystem)
         {
             int units = currentMachine.GetFuelUnits();
-            fuelText.text = $"燃料({GetFuelItemName(def)}): {units}/{def.maxFuelUnits}";
-            fuelText.color = units > 0 ? OrangeText : RedText;
-        }
+            string fuelName = GetFuelItemName(def);
+            fuelAmountText.text = $"{fuelName}: {units}/{def.maxFuelUnits}";
+            fuelAmountText.color = units > 0 ? OrangeText : RedText;
 
-        foreach (var row in recipeRows)
-        {
-            var btn = row.GetComponentInChildren<Button>();
-            if (btn != null && btn.name == "CraftBtn")
-            {
-                var label = btn.GetComponentInChildren<Text>();
-                if (label != null)
-                    label.text = currentMachine.State == GameJamMachineState.Idle ? "制作" : "排队";
-            }
+            float totalSec = currentMachine.FuelTime;
+            fuelTimeText.text = totalSec > 0 ? $"({GameJamMachine.FormatTime(totalSec)})" : "";
         }
     }
 
-    void CreateRecipeRow(GameJamRecipe recipe)
+    void ClearRecipeCards()
     {
-        var row = MakeRect("Recipe_" + recipe.id, recipeListParent);
-        var rowRect = row.GetComponent<RectTransform>();
-        rowRect.anchorMin = new Vector2(0f, 1f);
-        rowRect.anchorMax = new Vector2(1f, 1f);
-        rowRect.pivot = new Vector2(0.5f, 1f);
-        rowRect.sizeDelta = new Vector2(0f, 90f);
-        rowRect.anchoredPosition = new Vector2(0f, -recipeRows.Count * 94f);
-        row.AddComponent<Image>().color = RowNormal;
-
-        var outDef = GameJamItemDB.Get(recipe.outputItemId);
-        string outName = outDef != null ? outDef.name : recipe.outputItemId;
-        // Output icon
-        var iconGo = MakeRect("Icon", row.transform);
-        var iconRect = iconGo.GetComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0, 0.5f);
-        iconRect.anchorMax = new Vector2(0, 0.5f);
-        iconRect.pivot = new Vector2(0, 0.5f);
-        iconRect.anchoredPosition = new Vector2(12, 8);
-        iconRect.sizeDelta = new Vector2(48, 48);
-        var outputIcon = iconGo.AddComponent<Image>();
-        GameJamArtLoader.ApplyItemIcon(outputIcon, recipe.outputItemId, outDef != null ? outDef.iconColor : Color.gray);
-
-        // Output name + amount
-        MakeText("Name", row.transform, 16, TextAnchor.MiddleLeft, TextBright,
-            new Vector2(0, 0.5f), new Vector2(0.5f, 1), new Vector2(0, 1),
-            new Vector2(70, 0), new Vector2(0, -8)).text = $"{outName} x{recipe.outputAmount}";
-
-        // Craft time
-        MakeText("Time", row.transform, 12, TextAnchor.MiddleLeft, TextDim,
-            new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0),
-            new Vector2(70, 8), new Vector2(120, 20)).text = $"耗时: {GameJamMachine.FormatTime(recipe.craftTime)}";
-
-        // Materials
-        float matX = 12;
-        float matY = -48;
-        foreach (var kv in recipe.materials)
-        {
-            var matDef = GameJamItemDB.Get(kv.Key);
-            string matName = matDef != null ? matDef.name : kv.Key;
-            int owned = inventory.Model.GetTotalCount(kv.Key);
-            bool enough = owned >= kv.Value;
-
-            var matGo = MakeRect("Mat", row.transform);
-            var matRect = matGo.GetComponent<RectTransform>();
-            matRect.anchorMin = new Vector2(0, 1);
-            matRect.anchorMax = new Vector2(0, 1);
-            matRect.pivot = new Vector2(0, 1);
-            matRect.anchoredPosition = new Vector2(matX, matY);
-            matRect.sizeDelta = new Vector2(140, 22);
-
-            // Mat icon
-            var matIcon = MakeRect("MIcon", matGo.transform);
-            var miRect = matIcon.GetComponent<RectTransform>();
-            miRect.anchorMin = new Vector2(0, 0);
-            miRect.anchorMax = new Vector2(0, 1);
-            miRect.pivot = new Vector2(0, 0.5f);
-            miRect.anchoredPosition = Vector2.zero;
-            miRect.sizeDelta = new Vector2(18, 0);
-            var materialIcon = matIcon.AddComponent<Image>();
-            GameJamArtLoader.ApplyItemIcon(materialIcon, kv.Key, matDef != null ? matDef.iconColor : Color.gray);
-
-            // Mat text
-            var matText = MakeText("MText", matGo.transform, 12, TextAnchor.MiddleLeft,
-                enough ? GreenText : RedText,
-                new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 0.5f),
-                new Vector2(22, 0), Vector2.zero);
-            matText.text = $"{matName} {owned}/{kv.Value}";
-
-            matX += 150;
-            if (matX > 300)
-            {
-                matX = 12;
-                matY -= 24;
-            }
-        }
-
-        // Quantity selector [-] count [+]
-        if (!recipeCounts.ContainsKey(recipe.id))
-            recipeCounts[recipe.id] = 1;
-
-        var minusBtn = MakeButton("MinusBtn", row.transform,
-            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-            new Vector2(-96, -18), new Vector2(24, 24), "-", () => AdjustCount(recipe, -1));
-
-        var countText = MakeText("CountText", row.transform, 14, TextAnchor.MiddleCenter, TextBright,
-            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-            new Vector2(-72, -18), new Vector2(24, 24));
-        countText.text = recipeCounts[recipe.id].ToString();
-        recipeCountTexts[recipe.id] = countText;
-
-        var plusBtn = MakeButton("PlusBtn", row.transform,
-            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-            new Vector2(-48, -18), new Vector2(24, 24), "+", () => AdjustCount(recipe, 1));
-
-        // Craft button
-        bool isBusy = currentMachine.State != GameJamMachineState.Idle;
-        string craftLabel = isBusy ? "排队" : "制作";
-        var craftBtn = MakeButton("CraftBtn", row.transform,
-            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-            new Vector2(-10, 8), new Vector2(80, 32), craftLabel, () => OnCraft(recipe));
-
-        int count = recipeCounts[recipe.id];
-        bool canCraft = currentMachine.GetMaxCraftCount(recipe, inventory) >= count;
-        craftBtn.interactable = canCraft;
-
-        recipeRows.Add(row);
+        foreach (var c in recipeCards)
+            if (c != null) Destroy(c);
+        recipeCards.Clear();
+        cardBgImages.Clear();
     }
 
-    void ClearRecipeRows()
+    void ClearMaterialEntries()
     {
-        foreach (var row in recipeRows)
-            if (row != null) Destroy(row);
-        recipeRows.Clear();
-        recipeCountTexts.Clear();
+        foreach (var e in matEntries)
+            if (e != null) Destroy(e);
+        matEntries.Clear();
     }
 
-    void AdjustCount(GameJamRecipe recipe, int delta)
+    void OnCraftClicked()
     {
-        if (!recipeCounts.ContainsKey(recipe.id))
-            recipeCounts[recipe.id] = 1;
-
-        int maxCount = currentMachine != null ? currentMachine.GetMaxCraftCount(recipe, inventory) : 1;
-        recipeCounts[recipe.id] = Mathf.Clamp(recipeCounts[recipe.id] + delta, 1, Mathf.Max(1, maxCount));
-
-        if (recipeCountTexts.TryGetValue(recipe.id, out var txt))
-            txt.text = recipeCounts[recipe.id].ToString();
-    }
-
-    void OnCraft(GameJamRecipe recipe)
-    {
-        if (currentMachine == null || inventory == null) return;
-
-        int count = recipeCounts.ContainsKey(recipe.id) ? recipeCounts[recipe.id] : 1;
-        if (currentMachine.GetMaxCraftCount(recipe, inventory) < count) return;
+        if (currentMachine == null || inventory == null || selectedRecipe == null) return;
+        if (currentMachine.GetMaxCraftCount(selectedRecipe, inventory) < 1) return;
 
         if (currentMachine.State == GameJamMachineState.Idle)
-            currentMachine.StartCraft(recipe, inventory, count);
+            currentMachine.StartCraft(selectedRecipe, inventory, 1);
         else
-            currentMachine.EnqueueCraft(recipe, inventory, count);
+            currentMachine.EnqueueCraft(selectedRecipe, inventory, 1);
 
-        recipeCounts[recipe.id] = 1;
         RefreshAll();
     }
 
@@ -501,9 +724,7 @@ public class GameJamMachinePanel : MonoBehaviour
         if (currentMachine == null || inventory == null) return;
         var (itemId, amount) = currentMachine.CollectProducts();
         if (itemId != null)
-        {
             inventory.Add(itemId, amount);
-        }
         RefreshAll();
     }
 
@@ -516,37 +737,24 @@ public class GameJamMachinePanel : MonoBehaviour
             Toast.ShowToast($"没有{GetFuelItemName(currentMachine.GetDef())}!");
     }
 
-    void UpdateFuelButtonLabel(GameJamMachineDef def)
-    {
-        if (fuelBtn == null) return;
-
-        var label = fuelBtn.GetComponentInChildren<Text>();
-        if (label != null)
-            label.text = $"添加燃料({GetFuelItemName(def)})";
-    }
-
     string GetFuelItemName(GameJamMachineDef def)
     {
         if (def == null || string.IsNullOrWhiteSpace(def.fuelItemId))
             return "木材";
-
         var itemDef = GameJamItemDB.Get(def.fuelItemId);
         return itemDef != null && !string.IsNullOrWhiteSpace(itemDef.name)
-            ? itemDef.name
-            : def.fuelItemId;
+            ? itemDef.name : def.fuelItemId;
     }
 
     public void Cleanup()
     {
         if (canvasGo != null) Destroy(canvasGo);
+        canvasGo = null;
     }
 
-    void OnDestroy()
-    {
-        Cleanup();
-    }
+    void OnDestroy() => Cleanup();
 
-    // --- UI Helpers ---
+    // --- Helpers ---
 
     static GameObject MakeRect(string name, Transform parent)
     {
@@ -562,79 +770,46 @@ public class GameJamMachinePanel : MonoBehaviour
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         rt.sizeDelta = Vector2.zero;
+        rt.anchoredPosition = Vector2.zero;
     }
 
-    static Font GetFont()
-    {
-        return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-    }
+    static Font GetFont() => Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-    static Text MakeText(string name, Transform parent, int fontSize, TextAnchor align, Color color,
-        Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot,
-        Vector2 pos, Vector2 size)
+    static Text MakeText(string name, Transform parent, int size, TextAnchor align, Color color,
+        Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 pos, Vector2 sizeDelta)
     {
         var go = MakeRect(name, parent);
-        var rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = anchorMin;
-        rect.anchorMax = anchorMax;
-        rect.pivot = pivot;
-        rect.sizeDelta = size;
-        rect.anchoredPosition = pos;
-        var txt = go.AddComponent<Text>();
-        txt.font = GetFont();
-        txt.fontSize = fontSize;
-        txt.alignment = align;
-        txt.color = color;
-        txt.raycastTarget = false;
-        return txt;
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = anchorMin;
+        rt.anchorMax = anchorMax;
+        rt.pivot = pivot;
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = sizeDelta;
+        var t = go.AddComponent<Text>();
+        t.font = GetFont();
+        t.fontSize = size;
+        t.alignment = align;
+        t.color = color;
+        t.raycastTarget = false;
+        return t;
     }
 
-    Button MakeButton(string name, Transform parent,
-        Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot,
-        Vector2 pos, Vector2 size, string label, UnityEngine.Events.UnityAction onClick)
+    static Text AddLabel(GameObject parent, int size, string text)
     {
-        var go = MakeRect(name, parent);
-        var rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = anchorMin;
-        rect.anchorMax = anchorMax;
-        rect.pivot = pivot;
-        rect.sizeDelta = size;
-        rect.anchoredPosition = pos;
-
-        var img = go.AddComponent<Image>();
-        img.color = BtnNormal;
-
-        var btn = go.AddComponent<Button>();
-        var colors = btn.colors;
-        colors.normalColor = BtnNormal;
-        colors.highlightedColor = BtnHighlight;
-        colors.pressedColor = new Color(0.18f, 0.18f, 0.24f);
-        colors.disabledColor = BtnDisabled;
-        btn.colors = colors;
-        btn.onClick.AddListener(onClick);
-
-        var txtGo = MakeRect("Text", go.transform);
-        var tRect = txtGo.GetComponent<RectTransform>();
-        tRect.anchorMin = Vector2.zero;
-        tRect.anchorMax = Vector2.one;
-        tRect.sizeDelta = Vector2.zero;
-        var txt = txtGo.AddComponent<Text>();
-        txt.font = GetFont();
-        txt.fontSize = 14;
-        txt.alignment = TextAnchor.MiddleCenter;
-        txt.color = TextBright;
-        txt.text = label;
-
-        return btn;
+        var t = MakeText("Lbl", parent.transform, size, TextAnchor.MiddleCenter, TextLight,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Stretch(t.gameObject);
+        t.text = text;
+        return t;
     }
 
-    static void SetButtonColors(Button btn, Color normalColor)
+    static void SetBtnColors(Button btn, Color normal)
     {
-        var colors = btn.colors;
-        colors.normalColor = normalColor;
-        colors.highlightedColor = normalColor * 1.2f;
-        colors.pressedColor = normalColor * 0.8f;
-        btn.colors = colors;
-        btn.GetComponent<Image>().color = normalColor;
+        var c = btn.colors;
+        c.normalColor = normal;
+        c.highlightedColor = normal * 1.15f;
+        c.pressedColor = normal * 0.85f;
+        c.disabledColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        btn.colors = c;
     }
 }

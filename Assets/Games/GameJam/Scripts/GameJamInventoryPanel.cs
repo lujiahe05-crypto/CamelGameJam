@@ -9,7 +9,6 @@ public class GameJamInventoryPanel : MonoBehaviour
     public event Action CloseRequested;
 
     GameObject canvasGo;
-    bool usingInventoryWindow;
 
     Image[] mainSlotBGs;
     Image[] mainSlotIcons;
@@ -23,7 +22,6 @@ public class GameJamInventoryPanel : MonoBehaviour
     Text[] hotbarSlotCounts;
     Image[] hotbarSlotBorders;
     Image[] hotbarSlotSelecteds;
-    Text[] hotbarSlotNumbers;
 
     GameObject detailGo;
     Image detailIcon;
@@ -83,20 +81,9 @@ public class GameJamInventoryPanel : MonoBehaviour
 
     void BuildUI()
     {
-        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("InventoryWindow");
-        if (canvasGo != null)
-        {
-            usingInventoryWindow = true;
-            EnsureEventSystem();
-            FindInventoryWindowReferences();
-            canvasGo.SetActive(false);
-            return;
-        }
-
         canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("InventoryPanel");
         if (canvasGo != null)
         {
-            usingInventoryWindow = false;
             EnsureEventSystem();
             FindLegacyReferences();
             canvasGo.SetActive(false);
@@ -114,128 +101,6 @@ public class GameJamInventoryPanel : MonoBehaviour
         var esGo = new GameObject("EventSystem");
         esGo.AddComponent<EventSystem>();
         esGo.AddComponent<StandaloneInputModule>();
-    }
-
-    void FindInventoryWindowReferences()
-    {
-        characterNameText = FindRequired("SafeArea/Body/LeftPanel/CharacterName").GetComponent<Text>();
-        characterPortrait = FindRequired("SafeArea/Body/LeftPanel/CharacterPreviewRoot/PreviewRawImage").GetComponent<Image>();
-
-        equipItemIcons = new Image[6];
-        string[] equipNames = { "Head", "Body", "Legs", "Weapon", "Accessory1", "Accessory2" };
-        for (int i = 0; i < equipNames.Length; i++)
-            equipItemIcons[i] = FindRequired("SafeArea/Body/LeftPanel/EquipSlotGroup/EquipSlot_" + equipNames[i] + "/ItemIcon").GetComponent<Image>();
-
-        string[] barNames = { "Exp", "HP", "Stamina", "Endurance" };
-        statBarLabels = new Text[barNames.Length];
-        statBarValues = new Text[barNames.Length];
-        statBarFills = new Image[barNames.Length];
-        for (int i = 0; i < barNames.Length; i++)
-        {
-            var root = FindRequired("SafeArea/Body/LeftPanel/StatsPanel/Stat_" + barNames[i]);
-            statBarLabels[i] = root.Find("Label").GetComponent<Text>();
-            statBarValues[i] = root.Find("Value").GetComponent<Text>();
-            statBarFills[i] = root.Find("BarBg/Fill").GetComponent<Image>();
-        }
-
-        string[] plainNames = { "Attack", "Defense", "Crit", "MeleeCritDmg", "RangeCritDmg" };
-        plainStatLabels = new Text[plainNames.Length];
-        plainStatValues = new Text[plainNames.Length];
-        for (int i = 0; i < plainNames.Length; i++)
-        {
-            var root = FindRequired("SafeArea/Body/LeftPanel/StatsPanel/Stat_" + plainNames[i]);
-            plainStatLabels[i] = root.Find("Label").GetComponent<Text>();
-            plainStatValues[i] = root.Find("Value").GetComponent<Text>();
-        }
-
-        detailGo = FindRequired("SafeArea/Body/RightPanel/ItemDetailPanel").gameObject;
-        detailIcon = FindRequired("SafeArea/Body/RightPanel/ItemDetailPanel/ItemPreviewBg/ItemPreviewIcon").GetComponent<Image>();
-        detailName = FindRequired("SafeArea/Body/RightPanel/ItemDetailPanel/ItemName").GetComponent<Text>();
-        detailType = FindRequired("SafeArea/Body/RightPanel/ItemDetailPanel/ItemType").GetComponent<Text>();
-        detailDesc = FindRequired("SafeArea/Body/RightPanel/ItemDetailPanel/ItemDesc").GetComponent<Text>();
-        detailPrice = FindRequired("SafeArea/Body/RightPanel/ItemDetailPanel/ItemPriceGroup/PriceText").GetComponent<Text>();
-        detailRarityBar = FindOptional("SafeArea/Body/RightPanel/ItemDetailPanel/DetailBg")?.GetComponent<Image>();
-        detailGo.SetActive(false);
-
-        int mainCount = GameJamInventoryModel.MainSlotCount;
-        mainSlotBGs = new Image[mainCount];
-        mainSlotIcons = new Image[mainCount];
-        mainSlotCounts = new Text[mainCount];
-        mainSlotBorders = new Image[mainCount];
-        mainSlotLocks = new Image[mainCount];
-        mainSlotSelecteds = new Image[mainCount];
-
-        var bagGrid = FindRequired("SafeArea/Body/RightPanel/BagPanel/BagGridViewport/BagGridContent");
-        for (int i = 0; i < mainCount; i++)
-        {
-            var slot = bagGrid.Find("Slot_" + i.ToString("00"));
-            if (slot == null)
-                throw new MissingReferenceException("Missing inventory slot in InventoryWindow: Slot_" + i.ToString("00"));
-
-            mainSlotBGs[i] = slot.Find("Bg").GetComponent<Image>();
-            mainSlotIcons[i] = slot.Find("Icon").GetComponent<Image>();
-            mainSlotCounts[i] = slot.Find("Count").GetComponent<Text>();
-            mainSlotBorders[i] = slot.Find("QualityFrame").GetComponent<Image>();
-            mainSlotLocks[i] = slot.Find("Lock").GetComponent<Image>();
-            mainSlotSelecteds[i] = slot.Find("Selected").GetComponent<Image>();
-            ConfigureSlotHandler(slot, slot.Find("HitArea"), false, i);
-        }
-
-        int hotbarCount = GameJamInventoryModel.HotbarSlotCount;
-        hotbarSlotBGs = new Image[hotbarCount];
-        hotbarSlotIcons = new Image[hotbarCount];
-        hotbarSlotCounts = new Text[hotbarCount];
-        hotbarSlotBorders = new Image[hotbarCount];
-        hotbarSlotSelecteds = new Image[hotbarCount];
-        hotbarSlotNumbers = new Text[hotbarCount];
-
-        var hotbarContent = FindRequired("SafeArea/Body/RightPanel/BagPanel/HotbarPanel/HotbarContent");
-        for (int i = 0; i < hotbarCount; i++)
-        {
-            var slot = hotbarContent.Find("HotbarSlot_" + i);
-            if (slot == null)
-                throw new MissingReferenceException("Missing hotbar slot in InventoryWindow: HotbarSlot_" + i);
-
-            hotbarSlotBGs[i] = slot.Find("Bg").GetComponent<Image>();
-            hotbarSlotIcons[i] = slot.Find("Icon").GetComponent<Image>();
-            hotbarSlotCounts[i] = slot.Find("Count").GetComponent<Text>();
-            hotbarSlotBorders[i] = slot.Find("QualityFrame").GetComponent<Image>();
-            hotbarSlotSelecteds[i] = slot.Find("Selected").GetComponent<Image>();
-            hotbarSlotNumbers[i] = slot.Find("KeyLabel").GetComponent<Text>();
-            ConfigureSlotHandler(slot, slot.Find("HitArea"), true, i);
-        }
-
-        goldText = FindRequired("SafeArea/Body/RightPanel/BottomBar/CurrencyGroup/MoneyText").GetComponent<Text>();
-
-        BindButton("SafeArea/TopBar/Btn_Close", OnCloseClicked);
-        BindButton("SafeArea/Body/RightPanel/BottomBar/Btn_Sort", OnSortClicked);
-        BindButton("SafeArea/Body/RightPanel/BottomBar/Btn_Discard", OnDiscardClicked);
-        BindButton("SafeArea/Body/RightPanel/BottomBar/Btn_Use", OnSellClicked);
-        BindButton("SafeArea/Body/RightPanel/BottomBar/Btn_Split", OnSplitClicked);
-
-        var unlockTransform = FindOptional("SafeArea/Body/RightPanel/BottomBar/Btn_Unlock");
-        if (unlockTransform != null)
-        {
-            unlockBtn = unlockTransform.GetComponent<Button>();
-            unlockBtn.onClick.RemoveAllListeners();
-            unlockBtn.onClick.AddListener(OnUnlockClicked);
-            unlockBtnText = unlockTransform.Find("Label").GetComponent<Text>();
-        }
-
-        splitDialogGo = FindRequired("SafeArea/SplitDialog").gameObject;
-        splitInput = FindRequired("SafeArea/SplitDialog/InputBg/InputField").GetComponent<InputField>();
-        splitInput.textComponent = splitInput.GetComponent<Text>();
-        BindButton("SafeArea/SplitDialog/Btn_Confirm", OnSplitConfirm);
-        BindButton("SafeArea/SplitDialog/Btn_Cancel", HideSplitDialog);
-        splitDialogGo.SetActive(false);
-
-        tooltipGo = FindRequired("SafeArea/Tooltip").gameObject;
-        tooltipNameText = FindRequired("SafeArea/Tooltip/TooltipName").GetComponent<Text>();
-        tooltipTypeText = FindRequired("SafeArea/Tooltip/TooltipType").GetComponent<Text>();
-        tooltipDescText = FindRequired("SafeArea/Tooltip/TooltipDesc").GetComponent<Text>();
-        tooltipPriceText = FindRequired("SafeArea/Tooltip/TooltipPrice").GetComponent<Text>();
-        tooltipCompareText = FindRequired("SafeArea/Tooltip/TooltipCompare").GetComponent<Text>();
-        tooltipGo.SetActive(false);
     }
 
     void FindLegacyReferences()
@@ -258,9 +123,38 @@ public class GameJamInventoryPanel : MonoBehaviour
         mainSlotSelecteds = null;
 
         var mainGrid = FindRequired("Panel/MainGrid");
+        var mTemplate = mainGrid.Find("MSlot_0");
+        if (mTemplate == null)
+            throw new MissingReferenceException("Missing slot template in InventoryPanel: MSlot_0");
+
+        var mTemplateRect = mTemplate.GetComponent<RectTransform>();
+        float mSlotW = mTemplateRect.sizeDelta.x;
+        float mSlotH = mTemplateRect.sizeDelta.y;
+        float mGap = 6f;
+        int columns = 8;
+
         for (int i = 0; i < mainCount; i++)
         {
-            var slot = mainGrid.Find("MSlot_" + i);
+            Transform slot;
+            if (i == 0)
+            {
+                slot = mTemplate;
+            }
+            else
+            {
+                string slotName = "MSlot_" + i;
+                slot = mainGrid.Find(slotName);
+                if (slot == null)
+                {
+                    slot = Instantiate(mTemplate.gameObject, mainGrid).transform;
+                    slot.name = slotName;
+                    var rect = slot.GetComponent<RectTransform>();
+                    int row = i / columns;
+                    int col = i % columns;
+                    rect.anchoredPosition = new Vector2(col * (mSlotW + mGap), -row * (mSlotH + mGap));
+                }
+            }
+
             mainSlotBorders[i] = slot.GetComponent<Image>();
             mainSlotBGs[i] = slot.Find("Inner").GetComponent<Image>();
             mainSlotIcons[i] = slot.Find("Inner/Icon").GetComponent<Image>();
@@ -274,21 +168,44 @@ public class GameJamInventoryPanel : MonoBehaviour
         hotbarSlotCounts = new Text[hotbarCount];
         hotbarSlotBorders = new Image[hotbarCount];
         hotbarSlotSelecteds = null;
-        hotbarSlotNumbers = new Text[hotbarCount];
 
         var hotbarRow = FindRequired("Panel/HotbarRow");
+        var hTemplate = hotbarRow.Find("HSlot_0");
+        if (hTemplate == null)
+            throw new MissingReferenceException("Missing hotbar slot template in InventoryPanel: HSlot_0");
+
+        var hTemplateRect = hTemplate.GetComponent<RectTransform>();
+        float hSlotW = hTemplateRect.sizeDelta.x;
+        float hGap = 6f;
+
         for (int i = 0; i < hotbarCount; i++)
         {
-            var slot = hotbarRow.Find("HSlot_" + i);
+            Transform slot;
+            if (i == 0)
+            {
+                slot = hTemplate;
+            }
+            else
+            {
+                string slotName = "HSlot_" + i;
+                slot = hotbarRow.Find(slotName);
+                if (slot == null)
+                {
+                    slot = Instantiate(hTemplate.gameObject, hotbarRow).transform;
+                    slot.name = slotName;
+                    var rect = slot.GetComponent<RectTransform>();
+                    rect.anchoredPosition = new Vector2(i * (hSlotW + hGap), 0f);
+                }
+            }
+
             hotbarSlotBorders[i] = slot.GetComponent<Image>();
             hotbarSlotBGs[i] = slot.Find("Inner").GetComponent<Image>();
             hotbarSlotIcons[i] = slot.Find("Inner/Icon").GetComponent<Image>();
             hotbarSlotCounts[i] = slot.Find("Inner/Count").GetComponent<Text>();
-            hotbarSlotNumbers[i] = slot.Find("Num").GetComponent<Text>();
             ConfigureSlotHandler(slot, slot, true, i);
         }
 
-        goldText = FindRequired("Panel/BottomBar/Gold").GetComponent<Text>();
+        goldText = FindRequired("Panel/BottomBar/GoldBar/Gold").GetComponent<Text>();
         BindButton("Panel/BottomBar/SortBtn", OnSortClicked);
         BindButton("Panel/BottomBar/DiscardBtn", OnDiscardClicked);
         BindButton("Panel/BottomBar/SellBtn", OnSellClicked);
@@ -374,11 +291,11 @@ public class GameJamInventoryPanel : MonoBehaviour
 
         if (!unlocked)
         {
-            mainSlotBGs[index].color = usingInventoryWindow ? new Color(1f, 1f, 1f, 0.72f) : LockedColor;
+            mainSlotBGs[index].color = LockedColor;
             GameJamArtLoader.ClearIcon(mainSlotIcons[index]);
             mainSlotCounts[index].text = string.Empty;
-            if (mainSlotBorders[index] != null)
-                mainSlotBorders[index].color = new Color(1f, 1f, 1f, 0.08f);
+            // if (mainSlotBorders[index] != null)
+            //     mainSlotBorders[index].color = new Color(1f, 1f, 1f, 0.08f);
             SetSelectedOverlay(mainSlotSelecteds, index, false);
             return;
         }
@@ -392,8 +309,6 @@ public class GameJamInventoryPanel : MonoBehaviour
             mainSlotSelecteds,
             index,
             selected);
-
-        RefreshInventoryWindowSummary();
     }
 
     void RefreshHotbarSlot(int index)
@@ -410,8 +325,6 @@ public class GameJamInventoryPanel : MonoBehaviour
             hotbarSlotSelecteds,
             index,
             selectedIsHotbar && selectedIndex == index);
-
-        RefreshInventoryWindowSummary();
     }
 
     void RefreshSlotVisuals(
@@ -426,28 +339,30 @@ public class GameJamInventoryPanel : MonoBehaviour
     {
         if (slot.IsEmpty)
         {
-            bg.color = usingInventoryWindow
-                ? new Color(1f, 1f, 1f, selected ? 1f : 0.96f)
-                : (selected ? SlotSelected : SlotEmpty);
+            bg.color = (selected ? SlotSelected : SlotEmpty);
             GameJamArtLoader.ClearIcon(icon);
             count.text = string.Empty;
-            if (border != null)
-                border.color = selected ? new Color(1f, 0.92f, 0.45f, 0.72f) : BorderDefault;
+            // if (border != null)
+            //     border.color = selected ? new Color(1f, 0.92f, 0.45f, 0.72f) : BorderDefault;
             SetSelectedOverlay(selectedOverlays, slotIndex, selected);
             return;
         }
 
         var def = GameJamItemDB.Get(slot.itemId);
-        bg.color = usingInventoryWindow ? Color.white : SlotFilled;
+        bg.color = SlotFilled;
         GameJamArtLoader.ApplyItemIcon(icon, slot.itemId, Color.white);
         count.text = slot.count > 1 ? slot.count.ToString() : string.Empty;
 
         if (border != null)
         {
-            var rarityColor = def != null ? GameJamItemDB.GetRarityColor(def.rarity) : BorderDefault;
-            border.color = selected
-                ? SetAlpha(rarityColor, 0.95f)
-                : SetAlpha(rarityColor, def != null && def.rarity > GameJamRarity.Common ? 0.52f : 0.18f);
+            // var rarityColor = def != null ? GameJamItemDB.GetRarityColor(def.rarity) : BorderDefault;
+            // border.color = selected
+            //     ? SetAlpha(rarityColor, 0.95f)
+            //     : SetAlpha(rarityColor, def != null && def.rarity > GameJamRarity.Common ? 0.52f : 0.18f);
+            if (selected)
+                border.sprite = Resources.Load<Sprite>("bg_blue_select");
+            else
+                border.sprite = Resources.Load<Sprite>("bg_item");
         }
 
         SetSelectedOverlay(selectedOverlays, slotIndex, selected);
@@ -480,13 +395,12 @@ public class GameJamInventoryPanel : MonoBehaviour
         RefreshGold();
         RefreshDetail();
         RefreshUnlockButton();
-        RefreshInventoryWindowSummary();
     }
 
     void RefreshGold()
     {
         if (goldText != null)
-            goldText.text = usingInventoryWindow ? Model.gold.ToString() : "Gold: " + Model.gold;
+            goldText.text = Model.gold.ToString();
 
         RefreshUnlockButton();
     }
@@ -506,48 +420,6 @@ public class GameJamInventoryPanel : MonoBehaviour
 
         unlockBtn.interactable = Model.gold >= cost;
         unlockBtnText.text = "Unlock " + cost + "g";
-    }
-
-    void RefreshInventoryWindowSummary()
-    {
-        if (!usingInventoryWindow)
-            return;
-
-        if (characterNameText != null)
-        {
-            var player = GetComponent<GameJamPlayerController>();
-            string playerName = player != null && player.Animator != null
-                ? player.Animator.gameObject.name
-                : gameObject.name;
-            characterNameText.text = playerName.Replace("(Clone)", string.Empty).Trim();
-        }
-
-        if (characterPortrait != null)
-            characterPortrait.color = new Color(1f, 1f, 1f, 0.96f);
-
-        if (statBarLabels != null && statBarLabels.Length >= 4)
-        {
-            int mainUsed = CountOccupied(Model.mainSlots, Model.unlockedMainSlots);
-            int hotbarUsed = CountOccupied(Model.hotbarSlots, Model.hotbarSlots.Length);
-            int totalCapacity = Model.unlockedMainSlots + Model.hotbarSlots.Length;
-            int totalUsed = mainUsed + hotbarUsed;
-
-            SetBarStat(0, "Capacity", totalUsed, Mathf.Max(1, totalCapacity));
-            SetBarStat(1, "Main Bag", mainUsed, Mathf.Max(1, Model.unlockedMainSlots));
-            SetBarStat(2, "Hotbar", hotbarUsed, Model.hotbarSlots.Length);
-            SetBarStat(3, "Unlocked", Model.unlockedMainSlots, GameJamInventoryModel.MainSlotCount);
-        }
-
-        if (plainStatLabels != null && plainStatLabels.Length >= 5)
-        {
-            SetPlainStat(0, "Materials", CountByType(GameJamItemType.Material));
-            SetPlainStat(1, "Tools", CountByType(GameJamItemType.Tool));
-            SetPlainStat(2, "Consumables", CountByType(GameJamItemType.Consumable));
-            SetPlainStat(3, "Equipment", CountByType(GameJamItemType.Equipment));
-            SetPlainStat(4, "Buildings", CountByType(GameJamItemType.Building));
-        }
-
-        RefreshEquipPreview();
     }
 
     void SetBarStat(int index, string label, int value, int max)
@@ -724,12 +596,12 @@ public class GameJamInventoryPanel : MonoBehaviour
         detailName.text = def.name;
         detailType.text = GameJamItemDB.GetTypeName(def.type) + " / " + GameJamItemDB.GetRarityName(def.rarity);
         detailDesc.text = def.description;
-        detailPrice.text = usingInventoryWindow ? def.sellPrice + "g" : "Sell: " + def.sellPrice + "g";
+        detailPrice.text = "Sell: " + def.sellPrice + "g";
 
         if (detailRarityBar != null)
         {
             var rarityColor = GameJamItemDB.GetRarityColor(def.rarity);
-            detailRarityBar.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, usingInventoryWindow ? 0.28f : 0.3f);
+            detailRarityBar.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.3f);
         }
     }
 
