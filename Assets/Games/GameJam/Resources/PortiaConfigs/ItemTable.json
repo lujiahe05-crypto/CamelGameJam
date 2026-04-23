@@ -1,0 +1,154 @@
+{
+  "items": [
+    {
+      "itemId": "斧头",
+      "displayName": "斧头",
+      "description": "斧头是可装备的工具。",
+      "itemType": "Tool",
+      "rarity": "Common",
+      "maxStack": 1,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.55, "g": 0.55, "b": 0.6, "a": 1.0 }
+    },
+    {
+      "itemId": "矿稿",
+      "displayName": "矿稿",
+      "description": "矿稿是可装备的工具。",
+      "itemType": "Tool",
+      "rarity": "Common",
+      "maxStack": 1,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.5, "g": 0.5, "b": 0.52, "a": 1.0 }
+    },
+    {
+      "itemId": "木材",
+      "displayName": "木材",
+      "description": "木材是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.5, "g": 0.33, "b": 0.15, "a": 1.0 }
+    },
+    {
+      "itemId": "石头",
+      "displayName": "石头",
+      "description": "石头是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.6, "g": 0.6, "b": 0.58, "a": 1.0 }
+    },
+    {
+      "itemId": "铜矿",
+      "displayName": "铜矿",
+      "description": "铜矿是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.72, "g": 0.45, "b": 0.2, "a": 1.0 }
+    },
+    {
+      "itemId": "能源石",
+      "displayName": "能源石",
+      "description": "能源石是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.2, "g": 0.8, "b": 0.95, "a": 1.0 }
+    },
+    {
+      "itemId": "矿泉水",
+      "displayName": "矿泉水",
+      "description": "矿泉水 可回复食物或体力。",
+      "itemType": "Consumable",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.45, "g": 0.72, "b": 0.95, "a": 1.0 }
+    },
+    {
+      "itemId": "蘑菇",
+      "displayName": "蘑菇",
+      "description": "蘑菇 可回复食物或体力。",
+      "itemType": "Consumable",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.78, "g": 0.22, "b": 0.2, "a": 1.0 }
+    },
+    {
+      "itemId": "组装台",
+      "displayName": "组装台",
+      "description": "组装台是可放置建筑。",
+      "itemType": "Building",
+      "rarity": "Common",
+      "maxStack": 99,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.45, "g": 0.35, "b": 0.2, "a": 1.0 }
+    },
+    {
+      "itemId": "熔炉",
+      "displayName": "熔炉",
+      "description": "熔炉是可放置建筑。",
+      "itemType": "Building",
+      "rarity": "Common",
+      "maxStack": 99,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.6, "g": 0.25, "b": 0.15, "a": 1.0 }
+    },
+    {
+      "itemId": "切割机",
+      "displayName": "切割机",
+      "description": "切割机是可放置建筑。",
+      "itemType": "Building",
+      "rarity": "Common",
+      "maxStack": 99,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.45, "g": 0.45, "b": 0.5, "a": 1.0 }
+    },
+    {
+      "itemId": "石砖",
+      "displayName": "石砖",
+      "description": "石砖是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.68, "g": 0.68, "b": 0.65, "a": 1.0 }
+    },
+    {
+      "itemId": "木板",
+      "displayName": "木板",
+      "description": "木板是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.6, "g": 0.45, "b": 0.25, "a": 1.0 }
+    },
+    {
+      "itemId": "铜锭",
+      "displayName": "铜锭",
+      "description": "铜锭是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.85, "g": 0.55, "b": 0.28, "a": 1.0 }
+    },
+    {
+      "itemId": "铜质板材",
+      "displayName": "铜质板材",
+      "description": "铜质板材是制作与建造材料。",
+      "itemType": "Material",
+      "rarity": "Common",
+      "maxStack": 999,
+      "sellPrice": 0,
+      "iconColor": { "r": 0.82, "g": 0.62, "b": 0.32, "a": 1.0 }
+    }
+  ]
+}

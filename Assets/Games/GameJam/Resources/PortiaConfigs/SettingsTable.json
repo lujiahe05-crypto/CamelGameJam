@@ -1,0 +1,212 @@
+{
+  "groundScaleX": 5.0,
+  "groundScaleZ": 5.0,
+  "boundaryHalfSize": 25.0,
+  "boundaryWallHeight": 2.0,
+  "boundaryWallThickness": 0.5,
+  "playerMoveSpeed": 6.0,
+  "playerJumpHeight": 1.2,
+  "playerGravity": -20.0,
+  "playerTurnSmoothTime": 0.1,
+  "interactRadius": 2.5,
+  "initialInventory": [
+    { "itemId": "斧头", "amount": 1 },
+    { "itemId": "矿稿", "amount": 1 },
+    { "itemId": "木材", "amount": 20 },
+    { "itemId": "石头", "amount": 10 }
+  ],
+  "resourceNodes": [
+    {
+      "label": "树",
+      "itemId": "木材",
+      "amount": 3,
+      "shape": "Cylinder",
+      "scale": { "x": 0.3, "y": 0.8, "z": 0.3 },
+      "position": { "x": 10.0, "y": 0.8, "z": 3.0 },
+      "color": { "r": 0.5, "g": 0.33, "b": 0.15, "a": 1.0 },
+      "drops": [
+        { "itemId": "木材", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "树",
+      "itemId": "木材",
+      "amount": 3,
+      "shape": "Cylinder",
+      "scale": { "x": 0.35, "y": 0.9, "z": 0.35 },
+      "position": { "x": -9.0, "y": 0.9, "z": 7.0 },
+      "color": { "r": 0.5, "g": 0.33, "b": 0.15, "a": 1.0 },
+      "drops": [
+        { "itemId": "木材", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "树",
+      "itemId": "木材",
+      "amount": 3,
+      "shape": "Cylinder",
+      "scale": { "x": 0.25, "y": 0.7, "z": 0.25 },
+      "position": { "x": 2.0, "y": 0.7, "z": -18.0 },
+      "color": { "r": 0.5, "g": 0.33, "b": 0.15, "a": 1.0 },
+      "drops": [
+        { "itemId": "木材", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "石头",
+      "itemId": "石头",
+      "amount": 3,
+      "shape": "Sphere",
+      "scale": { "x": 1.2, "y": 0.8, "z": 1.0 },
+      "position": { "x": 7.0, "y": 0.4, "z": 10.0 },
+      "color": { "r": 0.6, "g": 0.6, "b": 0.58, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 50.0 },
+        { "itemId": "能源石", "amount": 1, "weight": 50.0 }
+      ]
+    },
+    {
+      "label": "石头",
+      "itemId": "石头",
+      "amount": 3,
+      "shape": "Sphere",
+      "scale": { "x": 1.0, "y": 0.7, "z": 0.9 },
+      "position": { "x": -3.0, "y": 0.35, "z": 14.0 },
+      "color": { "r": 0.6, "g": 0.6, "b": 0.58, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 50.0 },
+        { "itemId": "能源石", "amount": 1, "weight": 50.0 }
+      ]
+    },
+    {
+      "label": "石头",
+      "itemId": "石头",
+      "amount": 3,
+      "shape": "Sphere",
+      "scale": { "x": 1.3, "y": 0.9, "z": 1.2 },
+      "position": { "x": -14.0, "y": 0.45, "z": -10.0 },
+      "color": { "r": 0.6, "g": 0.6, "b": 0.58, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 50.0 },
+        { "itemId": "能源石", "amount": 1, "weight": 50.0 }
+      ]
+    },
+    {
+      "label": "矿脉",
+      "itemId": "石头",
+      "amount": 3,
+      "shape": "Sphere",
+      "scale": { "x": 0.8, "y": 0.8, "z": 0.8 },
+      "position": { "x": -17.0, "y": 0.4, "z": 0.0 },
+      "color": { "r": 0.65, "g": 0.46, "b": 0.26, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 50.0 },
+        { "itemId": "铜矿", "amount": 1, "weight": 50.0 }
+      ]
+    },
+    {
+      "label": "矿脉",
+      "itemId": "石头",
+      "amount": 3,
+      "shape": "Sphere",
+      "scale": { "x": 0.7, "y": 0.7, "z": 0.7 },
+      "position": { "x": 14.0, "y": 0.35, "z": 16.0 },
+      "color": { "r": 0.65, "g": 0.46, "b": 0.26, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 50.0 },
+        { "itemId": "铜矿", "amount": 1, "weight": 50.0 }
+      ]
+    },
+    {
+      "label": "矿脉",
+      "itemId": "石头",
+      "amount": 3,
+      "shape": "Sphere",
+      "scale": { "x": 0.9, "y": 0.9, "z": 0.9 },
+      "position": { "x": 0.0, "y": 0.45, "z": -8.0 },
+      "color": { "r": 0.65, "g": 0.46, "b": 0.26, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 50.0 },
+        { "itemId": "铜矿", "amount": 1, "weight": 50.0 }
+      ]
+    },
+    {
+      "label": "采集物树枝u",
+      "itemId": "木材",
+      "amount": 1,
+      "shape": "Cylinder",
+      "scale": { "x": 0.18, "y": 0.25, "z": 0.18 },
+      "position": { "x": 4.0, "y": 0.15, "z": 6.0 },
+      "color": { "r": 0.56, "g": 0.36, "b": 0.18, "a": 1.0 },
+      "drops": [
+        { "itemId": "木材", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "采集物树枝u",
+      "itemId": "木材",
+      "amount": 1,
+      "shape": "Cylinder",
+      "scale": { "x": 0.18, "y": 0.25, "z": 0.18 },
+      "position": { "x": -5.0, "y": 0.15, "z": 4.0 },
+      "color": { "r": 0.56, "g": 0.36, "b": 0.18, "a": 1.0 },
+      "drops": [
+        { "itemId": "木材", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "采集物石块",
+      "itemId": "石头",
+      "amount": 1,
+      "shape": "Sphere",
+      "scale": { "x": 0.4, "y": 0.25, "z": 0.35 },
+      "position": { "x": -6.0, "y": 0.15, "z": 12.0 },
+      "color": { "r": 0.62, "g": 0.62, "b": 0.6, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "采集物石块",
+      "itemId": "石头",
+      "amount": 1,
+      "shape": "Sphere",
+      "scale": { "x": 0.4, "y": 0.25, "z": 0.35 },
+      "position": { "x": 11.0, "y": 0.15, "z": -2.0 },
+      "color": { "r": 0.62, "g": 0.62, "b": 0.6, "a": 1.0 },
+      "drops": [
+        { "itemId": "石头", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "采集物蘑菇",
+      "itemId": "蘑菇",
+      "amount": 1,
+      "shape": "Capsule",
+      "scale": { "x": 0.2, "y": 0.25, "z": 0.2 },
+      "position": { "x": 6.0, "y": 0.12, "z": -12.0 },
+      "color": { "r": 0.78, "g": 0.22, "b": 0.2, "a": 1.0 },
+      "drops": [
+        { "itemId": "蘑菇", "amount": 1, "weight": 100.0 }
+      ]
+    },
+    {
+      "label": "采集物蘑菇",
+      "itemId": "蘑菇",
+      "amount": 1,
+      "shape": "Capsule",
+      "scale": { "x": 0.2, "y": 0.25, "z": 0.2 },
+      "position": { "x": -10.0, "y": 0.12, "z": -5.0 },
+      "color": { "r": 0.78, "g": 0.22, "b": 0.2, "a": 1.0 },
+      "drops": [
+        { "itemId": "蘑菇", "amount": 1, "weight": 100.0 }
+      ]
+    }
+  ],
+  "placedMachines": [
+    {
+      "machineId": "组装台",
+      "position": { "x": -2.0, "y": 0.0, "z": -5.0 }
+    }
+  ]
+}

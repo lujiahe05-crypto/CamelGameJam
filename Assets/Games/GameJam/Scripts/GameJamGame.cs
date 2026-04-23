@@ -1,8 +1,6 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using System;
-using Random = UnityEngine.Random;
-using Object = UnityEngine.Object;
 
 public class GameJamGame : MonoBehaviour
 {
@@ -11,20 +9,26 @@ public class GameJamGame : MonoBehaviour
     GameObject sceneRoot;
     GameObject player;
     GameObject eventSystemGo;
+    PortiaSettingsTable settings;
 
     void Start()
     {
+        PortiaConfigTables.Reload();
+        GameJamItemDB.Reload();
+        GameJamBuildingDB.Reload();
+        GameJamMachineDB.Reload();
+
+        settings = PortiaConfigTables.SettingsTableData;
         sceneRoot = new GameObject("GameJamScene");
         BuildScene();
         SpawnPlayer();
         SetupCamera();
         SetupLight();
         SetupEventSystem();
+        GiveStartingInventory();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        var inv = player.GetComponent<GameJamInventory>();
-        if (inv != null) inv.Add("木材", 10000);
     }
 
     void Update()
@@ -47,7 +51,6 @@ public class GameJamGame : MonoBehaviour
         CreateBoundaryWalls();
         CreateObstacles();
         CreateResources();
-        CreateGroundPickups();
     }
 
     void CreateGround()
@@ -55,7 +58,7 @@ public class GameJamGame : MonoBehaviour
         var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
         ground.name = "Ground";
         ground.transform.SetParent(sceneRoot.transform);
-        ground.transform.localScale = new Vector3(5, 1, 5);
+        ground.transform.localScale = new Vector3(settings.groundScaleX, 1f, settings.groundScaleZ);
         ground.layer = 8;
 
         var mat = new Material(Shader.Find("Standard"));
@@ -65,16 +68,16 @@ public class GameJamGame : MonoBehaviour
 
     void CreateBoundaryWalls()
     {
-        float half = 25f;
-        float wallHeight = 2f;
-        float wallThick = 0.5f;
+        float half = settings.boundaryHalfSize;
+        float wallHeight = settings.boundaryWallHeight;
+        float wallThick = settings.boundaryWallThickness;
         var wallMat = new Material(Shader.Find("Standard"));
         wallMat.color = new Color(0.45f, 0.4f, 0.35f);
 
-        CreateWall("WallN", new Vector3(0, wallHeight / 2, half), new Vector3(half * 2, wallHeight, wallThick), wallMat);
-        CreateWall("WallS", new Vector3(0, wallHeight / 2, -half), new Vector3(half * 2, wallHeight, wallThick), wallMat);
-        CreateWall("WallE", new Vector3(half, wallHeight / 2, 0), new Vector3(wallThick, wallHeight, half * 2), wallMat);
-        CreateWall("WallW", new Vector3(-half, wallHeight / 2, 0), new Vector3(wallThick, wallHeight, half * 2), wallMat);
+        CreateWall("WallN", new Vector3(0, wallHeight * 0.5f, half), new Vector3(half * 2f, wallHeight, wallThick), wallMat);
+        CreateWall("WallS", new Vector3(0, wallHeight * 0.5f, -half), new Vector3(half * 2f, wallHeight, wallThick), wallMat);
+        CreateWall("WallE", new Vector3(half, wallHeight * 0.5f, 0), new Vector3(wallThick, wallHeight, half * 2f), wallMat);
+        CreateWall("WallW", new Vector3(-half, wallHeight * 0.5f, 0), new Vector3(wallThick, wallHeight, half * 2f), wallMat);
     }
 
     void CreateWall(string name, Vector3 pos, Vector3 scale, Material mat)
@@ -136,7 +139,7 @@ public class GameJamGame : MonoBehaviour
 
     void TryLoadDecorativePrefabs()
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         var stonePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/Games/GameJam/Model/interactive/stone/stone_interactive_01.prefab");
         if (stonePrefab != null)
@@ -148,10 +151,8 @@ public class GameJamGame : MonoBehaviour
         var boxPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/Games/GameJam/Model/itembox/objects_box_baoxiang01_Anim_Play.prefab");
         if (boxPrefab != null)
-        {
             SpawnDecor(boxPrefab, new Vector3(-15, 0, 5));
-        }
-        #endif
+#endif
     }
 
     void SpawnDecor(GameObject prefab, Vector3 pos)
@@ -159,6 +160,7 @@ public class GameJamGame : MonoBehaviour
         var go = Instantiate(prefab, pos, Quaternion.identity, sceneRoot.transform);
         foreach (var col in go.GetComponentsInChildren<Collider>())
             col.enabled = true;
+
         if (go.GetComponentInChildren<Collider>() == null)
         {
             var bc = go.AddComponent<BoxCollider>();
@@ -176,47 +178,62 @@ public class GameJamGame : MonoBehaviour
 
     void CreateResources()
     {
-        var stoneMat = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.6f, 0.58f));
-        var woodMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.33f, 0.15f));
-        var ironMat = ProceduralMeshUtil.CreateMaterial(new Color(0.4f, 0.42f, 0.5f));
+        if (settings.resourceNodes != null)
+        {
+            foreach (var entry in settings.resourceNodes)
+            {
+                if (entry == null)
+                    continue;
 
-        CreateResourceNode("石块", stoneMat, PrimitiveType.Sphere, new Vector3(1.2f, 0.8f, 1f), new Vector3(7, 0.4f, 10));
-        CreateResourceNode("石块", stoneMat, PrimitiveType.Sphere, new Vector3(1f, 0.7f, 0.9f), new Vector3(-3, 0.35f, 14));
-        CreateResourceNode("石块", stoneMat, PrimitiveType.Sphere, new Vector3(0.9f, 0.6f, 1.1f), new Vector3(16, 0.3f, -4));
-        CreateResourceNode("石块", stoneMat, PrimitiveType.Sphere, new Vector3(1.3f, 0.9f, 1.2f), new Vector3(-14, 0.45f, -10));
+                string itemId = PortiaConfigTables.GetPrimaryResourceItemId(entry);
+                if (string.IsNullOrWhiteSpace(itemId))
+                    continue;
 
-        CreateResourceNode("木材", woodMat, PrimitiveType.Cylinder, new Vector3(0.3f, 0.8f, 0.3f), new Vector3(10, 0.8f, 3));
-        CreateResourceNode("木材", woodMat, PrimitiveType.Cylinder, new Vector3(0.35f, 0.9f, 0.35f), new Vector3(-9, 0.9f, 7));
-        CreateResourceNode("木材", woodMat, PrimitiveType.Cylinder, new Vector3(0.25f, 0.7f, 0.25f), new Vector3(2, 0.7f, -18));
+                var shape = PrimitiveType.Cube;
+                if (!string.IsNullOrWhiteSpace(entry.shape) &&
+                    PortiaConfigTables.TryParsePrimitiveType(entry.shape, out var parsedShape))
+                {
+                    shape = parsedShape;
+                }
 
-        CreateResourceNode("铁矿", ironMat, PrimitiveType.Sphere, new Vector3(0.8f, 0.8f, 0.8f), new Vector3(-17, 0.4f, 0));
-        CreateResourceNode("铁矿", ironMat, PrimitiveType.Sphere, new Vector3(0.7f, 0.7f, 0.7f), new Vector3(14, 0.35f, 16));
-        CreateResourceNode("铁矿", ironMat, PrimitiveType.Sphere, new Vector3(0.9f, 0.9f, 0.9f), new Vector3(0, 0.45f, -8));
+                Vector3 scale = entry.scale != null ? entry.scale.ToVector3() : Vector3.one;
+                Vector3 position = entry.position != null ? entry.position.ToVector3() : Vector3.zero;
+                var mat = BuildResourceMaterial(entry, itemId);
+                CreateResourceNode(entry, itemId, mat, shape, scale, position);
+            }
+        }
 
-        var benchMat = ProceduralMeshUtil.CreateMaterial(new Color(0.45f, 0.35f, 0.2f));
-        var furnaceMat = ProceduralMeshUtil.CreateMaterial(new Color(0.6f, 0.25f, 0.15f));
-        var boxMat = ProceduralMeshUtil.CreateMaterial(new Color(0.5f, 0.38f, 0.2f));
+        if (settings.placedMachines != null)
+        {
+            foreach (var entry in settings.placedMachines)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.machineId) || entry.position == null)
+                    continue;
 
-        CreateResourceNode("工作台", benchMat, PrimitiveType.Cube, new Vector3(0.6f, 0.6f, 0.6f), new Vector3(3, 0.3f, 5));
-        CreateResourceNode("工作台", benchMat, PrimitiveType.Cube, new Vector3(0.6f, 0.6f, 0.6f), new Vector3(-5, 0.3f, 3));
-        CreateResourceNode("储物箱", boxMat, PrimitiveType.Cube, new Vector3(0.5f, 0.5f, 0.5f), new Vector3(6, 0.25f, 8));
-        CreateResourceNode("储物箱", boxMat, PrimitiveType.Cube, new Vector3(0.5f, 0.5f, 0.5f), new Vector3(-7, 0.25f, -6));
-
-        CreatePlacedMachine("民用熔炉", new Vector3(-2, 0, -5));
+                CreatePlacedMachine(entry.machineId, entry.position.ToVector3());
+            }
+        }
     }
 
-    void CreateResourceNode(string resName, Material mat, PrimitiveType shape, Vector3 scale, Vector3 pos)
+    void CreateResourceNode(
+        PortiaResourceNodeConfig entry,
+        string itemId,
+        Material mat,
+        PrimitiveType shape,
+        Vector3 scale,
+        Vector3 pos)
     {
         var go = GameObject.CreatePrimitive(shape);
-        go.name = resName;
+        go.name = string.IsNullOrWhiteSpace(entry.label) ? itemId : entry.label;
         go.transform.SetParent(sceneRoot.transform);
         go.transform.position = pos;
         go.transform.localScale = scale;
         go.GetComponent<Renderer>().material = mat;
 
         var node = go.AddComponent<GameJamResourceNode>();
-        node.resourceName = resName;
-        node.amount = 1;
+        node.resourceName = string.IsNullOrWhiteSpace(entry.label) ? itemId : entry.label;
+        node.amount = Mathf.Max(1, entry.amount);
+        node.drops = entry.drops;
     }
 
     void CreatePlacedMachine(string machineId, Vector3 pos)
@@ -241,10 +258,10 @@ public class GameJamGame : MonoBehaviour
     {
         GameObject prefab = null;
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/Games/GameJam/Model/actor/Npc_Oaks.prefab");
-        #endif
+#endif
 
         if (prefab != null)
         {
@@ -267,16 +284,21 @@ public class GameJamGame : MonoBehaviour
         cc.radius = 0.3f;
         cc.center = new Vector3(0, 0.8f, 0);
 
-        player.AddComponent<GameJamPlayerController>();
+        var controller = player.AddComponent<GameJamPlayerController>();
+        controller.moveSpeed = settings.playerMoveSpeed;
+        controller.jumpHeight = settings.playerJumpHeight;
+        controller.gravity = settings.playerGravity;
+        controller.turnSmoothTime = settings.playerTurnSmoothTime;
+
         player.AddComponent<GameJamInventory>();
         player.AddComponent<GameJamInteractionUI>();
-        player.AddComponent<GameJamPickupUI>();
-        player.AddComponent<GameJamInteraction>();
+        var interaction = player.AddComponent<GameJamInteraction>();
+        interaction.interactRadius = settings.interactRadius;
 
         var placer = player.AddComponent<GameJamBuildingPlacer>();
         placer.Init(sceneRoot.transform, player.transform);
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         var animCtrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
             "Assets/Games/GameJam/gamemodules/animation/animator/Anim_Medium_Oaks.controller");
         if (animCtrl != null)
@@ -285,7 +307,34 @@ public class GameJamGame : MonoBehaviour
             if (animator == null) animator = player.AddComponent<Animator>();
             animator.runtimeAnimatorController = animCtrl;
         }
-        #endif
+#endif
+    }
+
+    Material BuildResourceMaterial(PortiaResourceNodeConfig entry, string itemId)
+    {
+        Color color = entry.color != null ? entry.color.ToColor() : GetDefaultResourceColor(itemId);
+        return ProceduralMeshUtil.CreateMaterial(color);
+    }
+
+    Color GetDefaultResourceColor(string itemId)
+    {
+        var itemDef = GameJamItemDB.Get(itemId);
+        return itemDef != null ? itemDef.iconColor : Color.gray;
+    }
+
+    void GiveStartingInventory()
+    {
+        var inv = player != null ? player.GetComponent<GameJamInventory>() : null;
+        if (inv == null || settings.initialInventory == null)
+            return;
+
+        foreach (var entry in settings.initialInventory)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.itemId) || entry.amount <= 0)
+                continue;
+
+            inv.Add(entry.itemId, entry.amount);
+        }
     }
 
     void SetupCamera()
@@ -355,136 +404,5 @@ public class GameJamGame : MonoBehaviour
             eventSystemGo.AddComponent<EventSystem>();
             eventSystemGo.AddComponent<StandaloneInputModule>();
         }
-    }
-
-    void CreateGroundPickups()
-    {
-        var woodMat = new Material(Shader.Find("Standard"));
-        woodMat.color = new Color(0.5f, 0.33f, 0.15f);
-        var stoneMat = new Material(Shader.Find("Standard"));
-        stoneMat.color = new Color(0.65f, 0.63f, 0.58f);
-        var ironMat = new Material(Shader.Find("Standard"));
-        ironMat.color = new Color(0.45f, 0.42f, 0.48f);
-
-        CreateWoodPickup(new Vector3(4, 0, 12), woodMat);
-        CreateWoodPickup(new Vector3(-8, 0, 4), woodMat);
-        CreateWoodPickup(new Vector3(12, 0, -10), woodMat);
-        CreateWoodPickup(new Vector3(-15, 0, 14), woodMat);
-
-        CreateStonePickup(new Vector3(9, 0, -6), stoneMat);
-        CreateStonePickup(new Vector3(-11, 0, 11), stoneMat);
-        CreateStonePickup(new Vector3(18, 0, 8), stoneMat);
-
-        CreateIronPickup(new Vector3(-6, 0, -14), ironMat);
-        CreateIronPickup(new Vector3(13, 0, 14), ironMat);
-        CreateIronPickup(new Vector3(-18, 0, -6), ironMat);
-    }
-
-    void CreateWoodPickup(Vector3 pos, Material mat)
-    {
-        var root = new GameObject("GroundPickup_木材");
-        root.transform.SetParent(sceneRoot.transform);
-        root.transform.position = pos;
-
-        for (int i = 0; i < 3; i++)
-        {
-            var log = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            log.name = "Log";
-            log.transform.SetParent(root.transform);
-            float offsetX = (i - 1) * 0.25f + Random.Range(-0.05f, 0.05f);
-            float offsetZ = Random.Range(-0.15f, 0.15f);
-            log.transform.localPosition = new Vector3(offsetX, 0.06f, offsetZ);
-            log.transform.localScale = new Vector3(0.1f, 0.35f, 0.1f);
-            log.transform.localRotation = Quaternion.Euler(90, Random.Range(0f, 60f) - 30f, 0);
-            log.GetComponent<Renderer>().material = mat;
-            Destroy(log.GetComponent<Collider>());
-        }
-
-        var bc = root.AddComponent<BoxCollider>();
-        bc.center = new Vector3(0, 0.1f, 0);
-        bc.size = new Vector3(1f, 0.25f, 0.6f);
-
-        var pickup = root.AddComponent<GameJamGroundPickup>();
-        pickup.itemId = "木材";
-        pickup.itemName = "木材";
-        pickup.pickupAmount = 3;
-        pickup.interactRange = 2.5f;
-        pickup.respawnTime = 60f;
-
-        root.AddComponent<GameJamPickupFX>();
-    }
-
-    void CreateStonePickup(Vector3 pos, Material mat)
-    {
-        var root = new GameObject("GroundPickup_石块");
-        root.transform.SetParent(sceneRoot.transform);
-        root.transform.position = pos;
-
-        var stone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        stone.name = "StoneModel";
-        stone.transform.SetParent(root.transform);
-        stone.transform.localPosition = new Vector3(0, 0.2f, 0);
-        stone.transform.localScale = new Vector3(0.6f, 0.4f, 0.55f);
-        stone.GetComponent<Renderer>().material = mat;
-        Destroy(stone.GetComponent<Collider>());
-
-        var chip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        chip.name = "Chip";
-        chip.transform.SetParent(root.transform);
-        chip.transform.localPosition = new Vector3(0.3f, 0.1f, 0.15f);
-        chip.transform.localScale = new Vector3(0.25f, 0.2f, 0.25f);
-        chip.GetComponent<Renderer>().material = mat;
-        Destroy(chip.GetComponent<Collider>());
-
-        var bc = root.AddComponent<BoxCollider>();
-        bc.center = new Vector3(0, 0.2f, 0);
-        bc.size = new Vector3(0.9f, 0.5f, 0.8f);
-
-        var pickup = root.AddComponent<GameJamGroundPickup>();
-        pickup.itemId = "石块";
-        pickup.itemName = "石块";
-        pickup.pickupAmount = 2;
-        pickup.interactRange = 2.5f;
-        pickup.respawnTime = 90f;
-
-        root.AddComponent<GameJamPickupFX>();
-    }
-
-    void CreateIronPickup(Vector3 pos, Material mat)
-    {
-        var root = new GameObject("GroundPickup_铁矿");
-        root.transform.SetParent(sceneRoot.transform);
-        root.transform.position = pos;
-
-        var ore = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        ore.name = "OreModel";
-        ore.transform.SetParent(root.transform);
-        ore.transform.localPosition = new Vector3(0, 0.18f, 0);
-        ore.transform.localScale = new Vector3(0.45f, 0.35f, 0.4f);
-        ore.transform.localRotation = Quaternion.Euler(0, 25, 8);
-        ore.GetComponent<Renderer>().material = mat;
-        Destroy(ore.GetComponent<Collider>());
-
-        var shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        shard.name = "Shard";
-        shard.transform.SetParent(root.transform);
-        shard.transform.localPosition = new Vector3(-0.25f, 0.1f, 0.1f);
-        shard.transform.localScale = new Vector3(0.2f, 0.2f, 0.18f);
-        shard.transform.localRotation = Quaternion.Euler(10, -15, 5);
-        shard.GetComponent<Renderer>().material = mat;
-        Destroy(shard.GetComponent<Collider>());
-
-        var bc = root.AddComponent<BoxCollider>();
-        bc.center = new Vector3(0, 0.18f, 0);
-        bc.size = new Vector3(0.8f, 0.4f, 0.7f);
-
-        var pickup = root.AddComponent<GameJamGroundPickup>();
-        pickup.itemId = "铁矿";
-        pickup.itemName = "铁矿";
-        pickup.pickupAmount = 1;
-        pickup.interactRange = 2.5f;
-        pickup.respawnTime = 120f;
-
-        root.AddComponent<GameJamPickupFX>();
     }
 }

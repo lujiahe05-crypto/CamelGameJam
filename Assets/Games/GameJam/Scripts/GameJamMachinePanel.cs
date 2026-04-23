@@ -164,6 +164,7 @@ public class GameJamMachinePanel : MonoBehaviour
 
         var def = machine.GetDef();
         titleText.text = def != null ? def.displayName : machine.machineId;
+        UpdateFuelButtonLabel(def);
 
         fuelSection.SetActive(def != null && def.hasFuelSystem);
 
@@ -259,7 +260,7 @@ public class GameJamMachinePanel : MonoBehaviour
         if (def != null && def.hasFuelSystem)
         {
             int units = currentMachine.GetFuelUnits();
-            fuelText.text = $"燃料: {units}/{def.maxFuelUnits}";
+            fuelText.text = $"燃料({GetFuelItemName(def)}): {units}/{def.maxFuelUnits}";
             fuelText.color = units > 0 ? OrangeText : RedText;
         }
 
@@ -388,7 +389,27 @@ public class GameJamMachinePanel : MonoBehaviour
         if (currentMachine.AddFuel(inventory))
             RefreshStatus();
         else
-            Toast.ShowToast("没有木材!");
+            Toast.ShowToast($"没有{GetFuelItemName(currentMachine.GetDef())}!");
+    }
+
+    void UpdateFuelButtonLabel(GameJamMachineDef def)
+    {
+        if (fuelBtn == null) return;
+
+        var label = fuelBtn.GetComponentInChildren<Text>();
+        if (label != null)
+            label.text = $"添加燃料({GetFuelItemName(def)})";
+    }
+
+    string GetFuelItemName(GameJamMachineDef def)
+    {
+        if (def == null || string.IsNullOrWhiteSpace(def.fuelItemId))
+            return "木材";
+
+        var itemDef = GameJamItemDB.Get(def.fuelItemId);
+        return itemDef != null && !string.IsNullOrWhiteSpace(itemDef.name)
+            ? itemDef.name
+            : def.fuelItemId;
     }
 
     public void Cleanup()

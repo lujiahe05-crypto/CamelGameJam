@@ -105,11 +105,14 @@ public class GameJamMachine : MonoBehaviour
     public bool AddFuel(GameJamInventory inv)
     {
         if (def == null || !def.hasFuelSystem) return false;
+        if (def.fuelPerWood <= 0f) return false;
+
+        string fuelItemId = string.IsNullOrWhiteSpace(def.fuelItemId) ? "木材" : def.fuelItemId;
         int currentUnits = Mathf.CeilToInt(FuelTime / def.fuelPerWood);
         if (currentUnits >= def.maxFuelUnits) return false;
-        if (inv.Model.GetTotalCount("木材") <= 0) return false;
+        if (inv.Model.GetTotalCount(fuelItemId) <= 0) return false;
 
-        inv.Remove("木材", 1);
+        inv.Remove(fuelItemId, 1);
         FuelTime += def.fuelPerWood;
         if (FuelPaused && State == GameJamMachineState.Crafting)
             FuelPaused = false;

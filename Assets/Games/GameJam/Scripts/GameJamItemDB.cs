@@ -109,9 +109,73 @@ public static class GameJamItemDB
         Reg(new GameJamItemDef("储物箱", "储物箱", "用于存放多余物资的木制箱子。",
             GameJamItemType.Building, GameJamRarity.Common, 99, 10,
             new Color(0.5f, 0.38f, 0.2f)));
+
+        ApplyConfigOverrides();
     }
 
     static void Reg(GameJamItemDef def) => items[def.id] = def;
+
+    public static void Reload() => items = null;
+
+    static void ApplyConfigOverrides()
+    {
+        var table = PortiaConfigTables.ItemTableData;
+        if (table == null || table.items == null) return;
+
+        foreach (var entry in table.items)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.itemId))
+                continue;
+
+            items.TryGetValue(entry.itemId, out var existing);
+
+            GameJamItemType itemType = existing != null ? existing.type : GameJamItemType.Material;
+            if (!string.IsNullOrWhiteSpace(entry.itemType))
+            {
+                if (!PortiaConfigTables.TryParseItemType(entry.itemType, out itemType))
+                {
+                    Debug.LogWarning($"Invalid GameJam itemType in Portia config: {entry.itemType}");
+                    if (existing == null)
+                        continue;
+                    itemType = existing.type;
+                }
+            }
+
+            GameJamRarity rarity = existing != null ? existing.rarity : GameJamRarity.Common;
+            if (!string.IsNullOrWhiteSpace(entry.rarity))
+            {
+                if (!PortiaConfigTables.TryParseRarity(entry.rarity, out rarity))
+                {
+                    Debug.LogWarning($"Invalid GameJam rarity in Portia config: {entry.rarity}");
+                    if (existing == null)
+                        continue;
+                    rarity = existing.rarity;
+                }
+            }
+
+            string displayName = !string.IsNullOrWhiteSpace(entry.displayName)
+                ? entry.displayName
+                : existing != null ? existing.name : entry.itemId;
+            string description = !string.IsNullOrWhiteSpace(entry.description)
+                ? entry.description
+                : existing != null ? existing.description : string.Empty;
+            int maxStack = entry.maxStack > 0 ? entry.maxStack : existing != null ? existing.maxStack : 1;
+            int sellPrice = entry.sellPrice;
+            Color iconColor = entry.iconColor != null
+                ? entry.iconColor.ToColor()
+                : existing != null ? existing.iconColor : Color.white;
+
+            Reg(new GameJamItemDef(
+                entry.itemId,
+                displayName,
+                description,
+                itemType,
+                rarity,
+                maxStack,
+                sellPrice,
+                iconColor));
+        }
+    }
 
     public static GameJamItemDef Get(string id)
     {

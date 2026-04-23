@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GameJamRecipe
 {
@@ -26,6 +27,7 @@ public class GameJamMachineDef
     public string machineId;
     public string displayName;
     public bool hasFuelSystem;
+    public string fuelItemId;
     public float fuelPerWood;
     public int maxFuelUnits;
     public List<GameJamRecipe> recipes;
@@ -45,6 +47,7 @@ public static class GameJamMachineDB
             machineId = "民用熔炉",
             displayName = "民用熔炉",
             hasFuelSystem = true,
+            fuelItemId = "木材",
             fuelPerWood = 30f,
             maxFuelUnits = 40,
             recipes = new List<GameJamRecipe>
@@ -61,7 +64,8 @@ public static class GameJamMachineDB
             machineId = "切割机",
             displayName = "切割机",
             hasFuelSystem = false,
-            fuelPerWood = 0,
+            fuelItemId = null,
+            fuelPerWood = 0f,
             maxFuelUnits = 0,
             recipes = new List<GameJamRecipe>
             {
@@ -69,9 +73,89 @@ public static class GameJamMachineDB
                     new Dictionary<string, int> { { "木材", 2 } }, 15f, false),
             }
         });
+
+        ApplyConfigOverrides();
     }
 
     static void Reg(GameJamMachineDef def) => defs[def.machineId] = def;
+
+    public static void Reload() => defs = null;
+
+    static void ApplyConfigOverrides()
+    {
+        var table = PortiaConfigTables.MachineTableData;
+        if (table == null || table.machines == null) return;
+
+        foreach (var entry in table.machines)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.machineId))
+                continue;
+
+            defs.TryGetValue(entry.machineId, out var existing);
+
+            var def = new GameJamMachineDef
+            {
+                machineId = entry.machineId,
+                displayName = !string.IsNullOrWhiteSpace(entry.displayName)
+                    ? entry.displayName
+                    : existing != null ? existing.displayName : entry.machineId,
+                hasFuelSystem = entry.hasFuelSystem,
+                fuelItemId = entry.hasFuelSystem
+                    ? (!string.IsNullOrWhiteSpace(entry.fuelItemId) ? entry.fuelItemId : existing != null ? existing.fuelItemId : null)
+                    : null,
+                fuelPerWood = entry.hasFuelSystem
+                    ? (entry.fuelPerWood > 0f ? entry.fuelPerWood : existing != null ? existing.fuelPerWood : 0f)
+                    : 0f,
+                maxFuelUnits = entry.hasFuelSystem
+                    ? (entry.maxFuelUnits > 0 ? entry.maxFuelUnits : existing != null ? existing.maxFuelUnits : 0)
+                    : 0,
+                recipes = BuildRecipes(entry, existing)
+            };
+
+            Reg(def);
+        }
+    }
+
+    static List<GameJamRecipe> BuildRecipes(PortiaMachineConfig entry, GameJamMachineDef existing)
+    {
+        if (entry.recipes == null || entry.recipes.Length == 0)
+            return existing != null ? existing.recipes : new List<GameJamRecipe>();
+
+        var recipes = new List<GameJamRecipe>(entry.recipes.Length);
+        foreach (var recipeEntry in entry.recipes)
+        {
+            if (recipeEntry == null || string.IsNullOrWhiteSpace(recipeEntry.recipeId) || string.IsNullOrWhiteSpace(recipeEntry.outputItemId))
+            {
+                Debug.LogWarning("Skipped invalid Portia recipe config entry.");
+                continue;
+            }
+
+            var materials = new Dictionary<string, int>();
+            if (recipeEntry.inputs != null)
+            {
+                foreach (var input in recipeEntry.inputs)
+                {
+                    if (input == null || string.IsNullOrWhiteSpace(input.itemId) || input.amount <= 0)
+                        continue;
+
+                    if (materials.ContainsKey(input.itemId))
+                        materials[input.itemId] += input.amount;
+                    else
+                        materials[input.itemId] = input.amount;
+                }
+            }
+
+            recipes.Add(new GameJamRecipe(
+                recipeEntry.recipeId,
+                recipeEntry.outputItemId,
+                recipeEntry.outputAmount > 0 ? recipeEntry.outputAmount : 1,
+                materials,
+                Mathf.Max(0f, recipeEntry.craftTime),
+                recipeEntry.requiresFuel));
+        }
+
+        return recipes;
+    }
 
     public static GameJamMachineDef Get(string machineId)
     {

@@ -1,0 +1,7 @@
+{
+  "buildings": [
+    { "itemId": "熔炉", "gridW": 2, "gridH": 2, "height": 1.8 },
+    { "itemId": "切割机", "gridW": 3, "gridH": 2, "height": 1.4 },
+    { "itemId": "组装台", "gridW": 3, "gridH": 2, "height": 1.5 }
+  ]
+}

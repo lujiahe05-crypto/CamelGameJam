@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GameJamBuildingDef
 {
@@ -19,12 +19,39 @@ public static class GameJamBuildingDB
         defs = new Dictionary<string, GameJamBuildingDef>();
 
         Reg(new GameJamBuildingDef { itemId = "工作台", gridW = 3, gridH = 2, height = 1.5f });
+        Reg(new GameJamBuildingDef { itemId = "组装台", gridW = 3, gridH = 2, height = 1.5f });
         Reg(new GameJamBuildingDef { itemId = "民用熔炉", gridW = 2, gridH = 2, height = 1.8f });
+        Reg(new GameJamBuildingDef { itemId = "熔炉", gridW = 2, gridH = 2, height = 1.8f });
         Reg(new GameJamBuildingDef { itemId = "切割机", gridW = 3, gridH = 2, height = 1.4f });
         Reg(new GameJamBuildingDef { itemId = "储物箱", gridW = 1, gridH = 1, height = 0.8f });
+
+        ApplyConfigOverrides();
     }
 
     static void Reg(GameJamBuildingDef def) => defs[def.itemId] = def;
+
+    public static void Reload() => defs = null;
+
+    static void ApplyConfigOverrides()
+    {
+        var table = PortiaConfigTables.BuildingTableData;
+        if (table == null || table.buildings == null) return;
+
+        foreach (var entry in table.buildings)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.itemId))
+                continue;
+
+            defs.TryGetValue(entry.itemId, out var existing);
+            Reg(new GameJamBuildingDef
+            {
+                itemId = entry.itemId,
+                gridW = entry.gridW > 0 ? entry.gridW : existing != null ? existing.gridW : 1,
+                gridH = entry.gridH > 0 ? entry.gridH : existing != null ? existing.gridH : 1,
+                height = entry.height > 0f ? entry.height : existing != null ? existing.height : 1f
+            });
+        }
+    }
 
     public static GameJamBuildingDef Get(string itemId)
     {
@@ -40,19 +67,31 @@ public static class GameJamBuildingDB
 
     public static GameObject CreateBuildingMesh(string itemId)
     {
-        switch (itemId)
+        string displayName = itemId;
+        var itemDef = GameJamItemDB.Get(itemId);
+        if (itemDef != null && !string.IsNullOrWhiteSpace(itemDef.name))
+            displayName = itemDef.name;
+
+        switch (displayName)
         {
-            case "工作台": return CreateWorkbench();
-            case "民用熔炉": return CreateFurnace();
-            case "切割机": return CreateCutter();
-            case "储物箱": return CreateStorageBox();
-            default: return CreateFallbackBox(itemId);
+            case "工作台":
+            case "组装台":
+                return CreateWorkbench(displayName);
+            case "民用熔炉":
+            case "熔炉":
+                return CreateFurnace(displayName);
+            case "切割机":
+                return CreateCutter();
+            case "储物箱":
+                return CreateStorageBox();
+            default:
+                return CreateFallbackBox(displayName);
         }
     }
 
-    static GameObject CreateWorkbench()
+    static GameObject CreateWorkbench(string displayName)
     {
-        var root = new GameObject("工作台");
+        var root = new GameObject(displayName);
         var mainColor = new Color(0.45f, 0.35f, 0.2f);
         var topColor = new Color(0.5f, 0.4f, 0.25f);
 
@@ -63,7 +102,8 @@ public static class GameJamBuildingDB
         top.transform.localScale = new Vector3(2.8f, 0.15f, 1.6f);
         top.GetComponent<Renderer>().material = CreateMat(topColor);
 
-        float legInsetX = 1.2f, legInsetZ = 0.6f;
+        float legInsetX = 1.2f;
+        float legInsetZ = 0.6f;
         for (int xi = -1; xi <= 1; xi += 2)
         for (int zi = -1; zi <= 1; zi += 2)
         {
@@ -82,21 +122,20 @@ public static class GameJamBuildingDB
         back.transform.localScale = new Vector3(2.8f, 0.6f, 0.08f);
         back.GetComponent<Renderer>().material = CreateMat(mainColor);
 
-        var anvil = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        anvil.name = "Vice";
-        anvil.transform.SetParent(root.transform);
-        anvil.transform.localPosition = new Vector3(0.8f, 1.1f, 0);
-        anvil.transform.localScale = new Vector3(0.4f, 0.35f, 0.3f);
-        anvil.GetComponent<Renderer>().material = CreateMat(new Color(0.5f, 0.5f, 0.55f));
+        var vice = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        vice.name = "Vice";
+        vice.transform.SetParent(root.transform);
+        vice.transform.localPosition = new Vector3(0.8f, 1.1f, 0);
+        vice.transform.localScale = new Vector3(0.4f, 0.35f, 0.3f);
+        vice.GetComponent<Renderer>().material = CreateMat(new Color(0.5f, 0.5f, 0.55f));
 
         RemoveAllColliders(root);
         return root;
     }
 
-    static GameObject CreateFurnace()
+    static GameObject CreateFurnace(string displayName)
     {
-        var root = new GameObject("民用熔炉");
-        var bodyColor = new Color(0.5f, 0.3f, 0.2f);
+        var root = new GameObject(displayName);
         var stoneColor = new Color(0.55f, 0.5f, 0.45f);
 
         var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -161,17 +200,6 @@ public static class GameJamBuildingDB
         return root;
     }
 
-    static GameObject CreateFallbackBox(string name)
-    {
-        var root = new GameObject(name);
-        var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        body.transform.SetParent(root.transform);
-        body.transform.localPosition = new Vector3(0, 0.5f, 0);
-        body.GetComponent<Renderer>().material = CreateMat(Color.gray);
-        RemoveAllColliders(root);
-        return root;
-    }
-
     static GameObject CreateCutter()
     {
         var root = new GameObject("切割机");
@@ -218,6 +246,17 @@ public static class GameJamBuildingDB
         motor.transform.localScale = new Vector3(0.5f, 0.3f, 0.4f);
         motor.GetComponent<Renderer>().material = CreateMat(new Color(0.35f, 0.35f, 0.38f));
 
+        RemoveAllColliders(root);
+        return root;
+    }
+
+    static GameObject CreateFallbackBox(string name)
+    {
+        var root = new GameObject(name);
+        var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        body.transform.SetParent(root.transform);
+        body.transform.localPosition = new Vector3(0, 0.5f, 0);
+        body.GetComponent<Renderer>().material = CreateMat(Color.gray);
         RemoveAllColliders(root);
         return root;
     }
