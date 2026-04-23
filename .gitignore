@@ -23,6 +23,7 @@ Assets/Games/GameJam/Shader
 Assets/Games/GameJam/Texture2D
 Assets/Games/GameJam/texture3d
 Assets/Games/GameJam/UI
+Assets/Games/GameJam/*.meta
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
