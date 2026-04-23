@@ -1,327 +1,327 @@
-﻿{
-    "items":  [
-                  {
-                      "itemId":  "斧头",
-                      "displayName":  "斧头",
-                      "description":  "Tool item.",
-                      "itemType":  "Tool",
-                      "rarity":  "Common",
-                      "maxStack":  1,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.55,
-                                        "g":  0.55,
-                                        "b":  0.6,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_Axe.png",
-                      "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\comparegame\\ItemCom_Axe.prefab"
-                  },
-                  {
-                      "itemId":  "矿稿",
-                      "displayName":  "矿稿",
-                      "description":  "Tool item.",
-                      "itemType":  "Tool",
-                      "rarity":  "Common",
-                      "maxStack":  1,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.5,
-                                        "g":  0.5,
-                                        "b":  0.52,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_hoe_steel",
-                      "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\Item_hoe_lv1"
-                  },
-                  {
-                      "itemId":  "木材",
-                      "displayName":  "木材",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.5,
-                                        "g":  0.33,
-                                        "b":  0.15,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_huYangMu",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "石头",
-                      "displayName":  "石头",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.6,
-                                        "g":  0.6,
-                                        "b":  0.58,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_009",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "铜矿",
-                      "displayName":  "铜矿",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.72,
-                                        "g":  0.45,
-                                        "b":  0.2,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_007",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "能源石",
-                      "displayName":  "能源石",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.2,
-                                        "g":  0.8,
-                                        "b":  0.95,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_crystal",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "锡矿石",
-                      "displayName":  "锡矿石",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.65,
-                                        "g":  0.46,
-                                        "b":  0.26,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_011",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "矿泉水",
-                      "displayName":  "矿泉水",
-                      "description":  "Consumable item.",
-                      "itemType":  "Consumable",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.45,
-                                        "g":  0.72,
-                                        "b":  0.95,
-                                        "a":  1
-                                    },
-                      "iconPath":  null,
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "蘑菇",
-                      "displayName":  "蘑菇",
-                      "description":  "Consumable item.",
-                      "itemType":  "Consumable",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.78,
-                                        "g":  0.22,
-                                        "b":  0.2,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_mushroom01",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "组装台",
-                      "displayName":  "组装台",
-                      "description":  "Building item.",
-                      "itemType":  "Building",
-                      "rarity":  "Common",
-                      "maxStack":  99,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.45,
-                                        "g":  0.35,
-                                        "b":  0.2,
-                                        "a":  1
-                                    },
-                      "iconPath":  null,
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "熔炉",
-                      "displayName":  "熔炉",
-                      "description":  "Building item.",
-                      "itemType":  "Building",
-                      "rarity":  "Common",
-                      "maxStack":  99,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.6,
-                                        "g":  0.25,
-                                        "b":  0.15,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_furnace02",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "切割机",
-                      "displayName":  "切割机",
-                      "description":  "Building item.",
-                      "itemType":  "Building",
-                      "rarity":  "Common",
-                      "maxStack":  99,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.45,
-                                        "g":  0.45,
-                                        "b":  0.5,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_sawing",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "烹饪锅",
-                      "displayName":  "烹饪锅",
-                      "description":  "Building item.",
-                      "itemType":  "Building",
-                      "rarity":  "Common",
-                      "maxStack":  99,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.75,
-                                        "g":  0.4,
-                                        "b":  0.22,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_cookingBench",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "石砖",
-                      "displayName":  "石砖",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.68,
-                                        "g":  0.68,
-                                        "b":  0.65,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_002",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "木板",
-                      "displayName":  "木板",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.6,
-                                        "g":  0.45,
-                                        "b":  0.25,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_productionLine_WoodCompositeBoard",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "铜锭",
-                      "displayName":  "铜锭",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.85,
-                                        "g":  0.55,
-                                        "b":  0.28,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_metal_004",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "铜质板材",
-                      "displayName":  "铜质板材",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.82,
-                                        "g":  0.62,
-                                        "b":  0.32,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_home_wateredFloor",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "铁锅",
-                      "displayName":  "铁锅",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.72,
-                                        "g":  0.72,
-                                        "b":  0.75,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_products_steelPan",
-                      "prefabPath":  null
-                  },
-                  {
-                      "itemId":  "青铜锭",
-                      "displayName":  "青铜锭",
-                      "description":  "Material item.",
-                      "itemType":  "Material",
-                      "rarity":  "Common",
-                      "maxStack":  999,
-                      "sellPrice":  0,
-                      "iconColor":  {
-                                        "r":  0.78,
-                                        "g":  0.58,
-                                        "b":  0.3,
-                                        "a":  1
-                                    },
-                      "iconPath":  "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_metal_006",
-                      "prefabPath":  null
-                  }
-              ]
+{
+    "items": [
+        {
+            "itemId": "斧头",
+            "displayName": "斧头",
+            "description": "Tool item.",
+            "itemType": "Tool",
+            "rarity": "Common",
+            "maxStack": 1,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.550000011920929,
+                "g": 0.550000011920929,
+                "b": 0.6000000238418579,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_Axe.png",
+            "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\comparegame\\ItemCom_Axe.prefab"
+        },
+        {
+            "itemId": "矿稿",
+            "displayName": "矿稿",
+            "description": "Tool item.",
+            "itemType": "Tool",
+            "rarity": "Common",
+            "maxStack": 1,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.5,
+                "g": 0.5,
+                "b": 0.5199999809265137,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_hoe_steel",
+            "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\Item_hoe_lv1"
+        },
+        {
+            "itemId": "木材",
+            "displayName": "木材",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.5,
+                "g": 0.33000001311302187,
+                "b": 0.15000000596046449,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_huYangMu",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "石头",
+            "displayName": "石头",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.6000000238418579,
+                "g": 0.6000000238418579,
+                "b": 0.5799999833106995,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_009",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "铜矿",
+            "displayName": "铜矿",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.7200000286102295,
+                "g": 0.44999998807907107,
+                "b": 0.20000000298023225,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_007",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "能源石",
+            "displayName": "能源石",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.20000000298023225,
+                "g": 0.800000011920929,
+                "b": 0.949999988079071,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_crystal",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "锡矿石",
+            "displayName": "锡矿石",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.6499999761581421,
+                "g": 0.46000000834465029,
+                "b": 0.25999999046325686,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_011",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "矿泉水",
+            "displayName": "矿泉水",
+            "description": "Consumable item.",
+            "itemType": "Consumable",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.44999998807907107,
+                "g": 0.7200000286102295,
+                "b": 0.949999988079071,
+                "a": 1.0
+            },
+            "iconPath": "",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "蘑菇",
+            "displayName": "蘑菇",
+            "description": "Consumable item.",
+            "itemType": "Consumable",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.7799999713897705,
+                "g": 0.2199999988079071,
+                "b": 0.20000000298023225,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_mushroom01",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "组装台",
+            "displayName": "组装台",
+            "description": "Building item.",
+            "itemType": "Building",
+            "rarity": "Common",
+            "maxStack": 99,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.44999998807907107,
+                "g": 0.3499999940395355,
+                "b": 0.20000000298023225,
+                "a": 1.0
+            },
+            "iconPath": "",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "熔炉",
+            "displayName": "熔炉",
+            "description": "Building item.",
+            "itemType": "Building",
+            "rarity": "Common",
+            "maxStack": 99,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.6000000238418579,
+                "g": 0.25,
+                "b": 0.15000000596046449,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_furnace02",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "切割机",
+            "displayName": "切割机",
+            "description": "Building item.",
+            "itemType": "Building",
+            "rarity": "Common",
+            "maxStack": 99,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.44999998807907107,
+                "g": 0.44999998807907107,
+                "b": 0.5,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_sawing",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "烹饪锅",
+            "displayName": "烹饪锅",
+            "description": "Building item.",
+            "itemType": "Building",
+            "rarity": "Common",
+            "maxStack": 99,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.75,
+                "g": 0.4000000059604645,
+                "b": 0.2199999988079071,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_cookingBench",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "石砖",
+            "displayName": "石砖",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.6800000071525574,
+                "g": 0.6800000071525574,
+                "b": 0.6499999761581421,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_002",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "木板",
+            "displayName": "木板",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.6000000238418579,
+                "g": 0.44999998807907107,
+                "b": 0.25,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_productionLine_WoodCompositeBoard",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "铜锭",
+            "displayName": "铜锭",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.8500000238418579,
+                "g": 0.550000011920929,
+                "b": 0.2800000011920929,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_metal_004",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "铜质板材",
+            "displayName": "铜质板材",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.8199999928474426,
+                "g": 0.6200000047683716,
+                "b": 0.3199999928474426,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_home_wateredFloor",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "铁锅",
+            "displayName": "铁锅",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.7200000286102295,
+                "g": 0.7200000286102295,
+                "b": 0.75,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_products_steelPan",
+            "prefabPath": ""
+        },
+        {
+            "itemId": "青铜锭",
+            "displayName": "青铜锭",
+            "description": "Material item.",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.7799999713897705,
+                "g": 0.5799999833106995,
+                "b": 0.30000001192092898,
+                "a": 1.0
+            },
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_metal_006",
+            "prefabPath": ""
+        }
+    ]
 }

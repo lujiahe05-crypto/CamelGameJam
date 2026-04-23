@@ -1,182 +1,180 @@
-﻿{
-    "machines":  [
-                     {
-                         "machineId":  "熔炉",
-                         "displayName":  "熔炉",
-                         "hasFuelSystem":  true,
-                         "fuelItemId":  "木材",
-                         "fuelPerWood":  300,
-                         "maxFuelUnits":  10,
-                         "recipes":  [
-                                         {
-                                             "recipeId":  "1",
-                                             "outputItemId":  "石砖",
-                                             "outputAmount":  1,
-                                             "craftTime":  5,
-                                             "requiresFuel":  true,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "石头",
-                                                                "amount":  1
-                                                            }
-                                                        ]
-                                         },
-                                         {
-                                             "recipeId":  "3",
-                                             "outputItemId":  "铜锭",
-                                             "outputAmount":  1,
-                                             "craftTime":  3,
-                                             "requiresFuel":  true,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "铜矿",
-                                                                "amount":  1
-                                                            }
-                                                        ]
-                                         },
-                                         {
-                                             "recipeId":  "9",
-                                             "outputItemId":  "青铜锭",
-                                             "outputAmount":  1,
-                                             "craftTime":  3,
-                                             "requiresFuel":  true,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "铜矿",
-                                                                "amount":  4
-                                                            },
-                                                            {
-                                                                "itemId":  "锡矿石",
-                                                                "amount":  1
-                                                            }
-                                                        ]
-                                         }
-                                     ]
-                     },
-                     {
-                         "machineId":  "切割机",
-                         "displayName":  "切割机",
-                         "hasFuelSystem":  true,
-                         "fuelItemId":  "能源石",
-                         "fuelPerWood":  300,
-                         "maxFuelUnits":  10,
-                         "recipes":  [
-                                         {
-                                             "recipeId":  "2",
-                                             "outputItemId":  "木板",
-                                             "outputAmount":  1,
-                                             "craftTime":  5,
-                                             "requiresFuel":  true,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "木材",
-                                                                "amount":  1
-                                                            }
-                                                        ]
-                                         },
-                                         {
-                                             "recipeId":  "5",
-                                             "outputItemId":  "铜质板材",
-                                             "outputAmount":  1,
-                                             "craftTime":  3,
-                                             "requiresFuel":  true,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "铜锭",
-                                                                "amount":  1
-                                                            }
-                                                        ]
-                                         },
-                                         {
-                                             "recipeId":  "8",
-                                             "outputItemId":  "铁锅",
-                                             "outputAmount":  1,
-                                             "craftTime":  3,
-                                             "requiresFuel":  true,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "铜锭",
-                                                                "amount":  2
-                                                            }
-                                                        ]
-                                         }
-                                     ]
-                     },
-                     {
-                         "machineId":  "组装台",
-                         "displayName":  "组装台",
-                         "hasFuelSystem":  false,
-                         "fuelItemId":  "",
-                         "fuelPerWood":  300,
-                         "maxFuelUnits":  10,
-                         "recipes":  [
-                                         {
-                                             "recipeId":  "6",
-                                             "outputItemId":  "熔炉",
-                                             "outputAmount":  1,
-                                             "craftTime":  0,
-                                             "requiresFuel":  false,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "木材",
-                                                                "amount":  2
-                                                            },
-                                                            {
-                                                                "itemId":  "石头",
-                                                                "amount":  1
-                                                            }
-                                                        ]
-                                         },
-                                         {
-                                             "recipeId":  "7",
-                                             "outputItemId":  "切割机",
-                                             "outputAmount":  1,
-                                             "craftTime":  0,
-                                             "requiresFuel":  false,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "石砖",
-                                                                "amount":  2
-                                                            },
-                                                            {
-                                                                "itemId":  "铜锭",
-                                                                "amount":  1
-                                                            }
-                                                        ]
-                                         },
-                                         {
-                                             "recipeId":  "10",
-                                             "outputItemId":  "烹饪锅",
-                                             "outputAmount":  1,
-                                             "craftTime":  0,
-                                             "requiresFuel":  false,
-                                             "inputs":  [
-                                                            {
-                                                                "itemId":  "铁锅",
-                                                                "amount":  1
-                                                            },
-                                                            {
-                                                                "itemId":  "石砖",
-                                                                "amount":  2
-                                                            },
-                                                            {
-                                                                "itemId":  "石头",
-                                                                "amount":  6
-                                                            }
-                                                        ]
-                                         }
-                                     ]
-                     },
-                     {
-                         "machineId":  "烹饪锅",
-                         "displayName":  "烹饪锅",
-                         "hasFuelSystem":  false,
-                         "fuelItemId":  "",
-                         "fuelPerWood":  300,
-                         "maxFuelUnits":  10,
-                         "recipes":  [
-
-                                     ]
-                     }
-                 ]
+{
+    "machines": [
+        {
+            "machineId": "熔炉",
+            "displayName": "熔炉",
+            "hasFuelSystem": true,
+            "fuelItemId": "木材",
+            "fuelPerWood": 300.0,
+            "maxFuelUnits": 10,
+            "recipes": [
+                {
+                    "recipeId": "1",
+                    "outputItemId": "石砖",
+                    "outputAmount": 1,
+                    "craftTime": 5.0,
+                    "requiresFuel": true,
+                    "inputs": [
+                        {
+                            "itemId": "石头",
+                            "amount": 1
+                        }
+                    ]
+                },
+                {
+                    "recipeId": "3",
+                    "outputItemId": "铜锭",
+                    "outputAmount": 1,
+                    "craftTime": 3.0,
+                    "requiresFuel": true,
+                    "inputs": [
+                        {
+                            "itemId": "铜矿",
+                            "amount": 1
+                        }
+                    ]
+                },
+                {
+                    "recipeId": "9",
+                    "outputItemId": "青铜锭",
+                    "outputAmount": 1,
+                    "craftTime": 3.0,
+                    "requiresFuel": true,
+                    "inputs": [
+                        {
+                            "itemId": "铜矿",
+                            "amount": 4
+                        },
+                        {
+                            "itemId": "锡矿石",
+                            "amount": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "machineId": "切割机",
+            "displayName": "切割机",
+            "hasFuelSystem": true,
+            "fuelItemId": "能源石",
+            "fuelPerWood": 300.0,
+            "maxFuelUnits": 10,
+            "recipes": [
+                {
+                    "recipeId": "2",
+                    "outputItemId": "木板",
+                    "outputAmount": 1,
+                    "craftTime": 5.0,
+                    "requiresFuel": true,
+                    "inputs": [
+                        {
+                            "itemId": "木材",
+                            "amount": 1
+                        }
+                    ]
+                },
+                {
+                    "recipeId": "5",
+                    "outputItemId": "铜质板材",
+                    "outputAmount": 1,
+                    "craftTime": 3.0,
+                    "requiresFuel": true,
+                    "inputs": [
+                        {
+                            "itemId": "铜锭",
+                            "amount": 1
+                        }
+                    ]
+                },
+                {
+                    "recipeId": "8",
+                    "outputItemId": "铁锅",
+                    "outputAmount": 1,
+                    "craftTime": 3.0,
+                    "requiresFuel": true,
+                    "inputs": [
+                        {
+                            "itemId": "铜锭",
+                            "amount": 2
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "machineId": "组装台",
+            "displayName": "组装台",
+            "hasFuelSystem": false,
+            "fuelItemId": "",
+            "fuelPerWood": 300.0,
+            "maxFuelUnits": 10,
+            "recipes": [
+                {
+                    "recipeId": "6",
+                    "outputItemId": "熔炉",
+                    "outputAmount": 1,
+                    "craftTime": 0.0,
+                    "requiresFuel": false,
+                    "inputs": [
+                        {
+                            "itemId": "木材",
+                            "amount": 2
+                        },
+                        {
+                            "itemId": "石头",
+                            "amount": 1
+                        }
+                    ]
+                },
+                {
+                    "recipeId": "7",
+                    "outputItemId": "切割机",
+                    "outputAmount": 1,
+                    "craftTime": 0.0,
+                    "requiresFuel": false,
+                    "inputs": [
+                        {
+                            "itemId": "石砖",
+                            "amount": 2
+                        },
+                        {
+                            "itemId": "铜锭",
+                            "amount": 1
+                        }
+                    ]
+                },
+                {
+                    "recipeId": "10",
+                    "outputItemId": "烹饪锅",
+                    "outputAmount": 1,
+                    "craftTime": 0.0,
+                    "requiresFuel": false,
+                    "inputs": [
+                        {
+                            "itemId": "铁锅",
+                            "amount": 1
+                        },
+                        {
+                            "itemId": "石砖",
+                            "amount": 2
+                        },
+                        {
+                            "itemId": "石头",
+                            "amount": 6
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "machineId": "烹饪锅",
+            "displayName": "烹饪锅",
+            "hasFuelSystem": false,
+            "fuelItemId": "",
+            "fuelPerWood": 300.0,
+            "maxFuelUnits": 10,
+            "recipes": []
+        }
+    ]
 }
