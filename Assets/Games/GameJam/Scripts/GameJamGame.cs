@@ -354,10 +354,17 @@ public class GameJamGame : MonoBehaviour
         go.GetComponent<Renderer>().material = mat;
 
         var node = go.AddComponent<GameJamResourceNode>();
+<<<<<<< Updated upstream
         node.resourceName = resName;
         node.maxHp = hp;
         node.respawnTime = respawn;
         node.drops = drops;
+=======
+        node.resourceName = string.IsNullOrWhiteSpace(entry.label) ? itemId : entry.label;
+        node.amount = Mathf.Max(1, entry.amount);
+        node.num = Mathf.Max(0, entry.num);
+        node.drops = entry.drops;
+>>>>>>> Stashed changes
     }
 
     void CreatePlacedMachine(string machineId, Vector3 pos)

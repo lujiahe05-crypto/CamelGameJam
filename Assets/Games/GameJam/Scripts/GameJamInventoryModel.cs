@@ -311,6 +311,24 @@ public class GameJamInventoryModel
         return space >= amount;
     }
 
+    public bool CanAddItems(IEnumerable<GameJamHarvestReward> rewards)
+    {
+        if (rewards == null)
+            return true;
+
+        var simulation = CreateSimulationCopy();
+        foreach (var reward in rewards)
+        {
+            if (string.IsNullOrWhiteSpace(reward.itemId) || reward.amount <= 0)
+                continue;
+
+            if (!simulation.AddItem(reward.itemId, reward.amount))
+                return false;
+        }
+
+        return true;
+    }
+
     public void SelectHotbar(int index)
     {
         if (index < 0 || index >= HotbarSlotCount) return;
@@ -323,5 +341,26 @@ public class GameJamInventoryModel
     {
         gold += amount;
         OnGoldChanged?.Invoke();
+    }
+
+    GameJamInventoryModel CreateSimulationCopy()
+    {
+        var copy = new GameJamInventoryModel();
+        CopySlots(hotbarSlots, copy.hotbarSlots);
+        CopySlots(mainSlots, copy.mainSlots);
+        copy.gold = gold;
+        copy.selectedHotbar = selectedHotbar;
+        return copy;
+    }
+
+    static void CopySlots(GameJamInventorySlot[] source, GameJamInventorySlot[] destination)
+    {
+        for (int i = 0; i < source.Length && i < destination.Length; i++)
+        {
+            if (source[i].IsEmpty)
+                destination[i].Clear();
+            else
+                destination[i].Set(source[i].itemId, source[i].count);
+        }
     }
 }

@@ -67,6 +67,23 @@ public static class GameJamMachineDB
 
         Reg(new GameJamMachineDef
         {
+            machineId = "熔炉",
+            displayName = "熔炉",
+            hasFuelSystem = true,
+            fuelItemId = "木材",
+            fuelPerWood = 30f,
+            maxFuelUnits = 10,
+            recipes = new List<GameJamRecipe>
+            {
+                new GameJamRecipe("1", "石砖", 1,
+                    new Dictionary<string, int> { { "石头", 1 } }, 5f, true),
+                new GameJamRecipe("3", "铜锭", 1,
+                    new Dictionary<string, int> { { "铜矿", 1 } }, 3f, true),
+            }
+        });
+
+        Reg(new GameJamMachineDef
+        {
             machineId = "切割机",
             displayName = "切割机",
             hasFuelSystem = false,
@@ -82,6 +99,7 @@ public static class GameJamMachineDB
 
         Reg(new GameJamMachineDef
         {
+<<<<<<< Updated upstream
             machineId = "工作台",
             displayName = "工作台",
             hasFuelSystem = false,
@@ -108,6 +126,20 @@ public static class GameJamMachineDB
                     new Dictionary<string, int> { { "铁锭", 8 }, { "木材", 10 } }, 30f, false),
                 new GameJamRecipe("bench_storage", "储物箱", 1,
                     new Dictionary<string, int> { { "木板", 6 } }, 10f, false),
+=======
+            machineId = "组装台",
+            displayName = "组装台",
+            hasFuelSystem = false,
+            fuelItemId = null,
+            fuelPerWood = 0f,
+            maxFuelUnits = 0,
+            recipes = new List<GameJamRecipe>
+            {
+                new GameJamRecipe("6", "熔炉", 1,
+                    new Dictionary<string, int> { { "木材", 2 }, { "石头", 1 } }, 0f, false),
+                new GameJamRecipe("7", "切割机", 1,
+                    new Dictionary<string, int> { { "石砖", 2 }, { "铜锭", 1 } }, 0f, false),
+>>>>>>> Stashed changes
             }
         });
 
@@ -198,6 +230,45 @@ public static class GameJamMachineDB
     {
         Init();
         return defs.TryGetValue(machineId, out var def) ? def : null;
+    }
+
+    public static List<GameJamRecipe> GetRecipesForMachine(string machineId)
+    {
+        Init();
+        if (defs.TryGetValue(machineId, out var def) && def != null && def.recipes != null && def.recipes.Count > 0)
+            return def.recipes;
+
+        switch (machineId)
+        {
+            case "组装台":
+            case "工作台":
+                return new List<GameJamRecipe>
+                {
+                    new GameJamRecipe("6", "熔炉", 1,
+                        new Dictionary<string, int> { { "木材", 2 }, { "石头", 1 } }, 0f, false),
+                    new GameJamRecipe("7", "切割机", 1,
+                        new Dictionary<string, int> { { "石砖", 2 }, { "铜锭", 1 } }, 0f, false),
+                };
+            case "熔炉":
+            case "民用熔炉":
+                return new List<GameJamRecipe>
+                {
+                    new GameJamRecipe("1", "石砖", 1,
+                        new Dictionary<string, int> { { "石头", 1 } }, 5f, true),
+                    new GameJamRecipe("3", "铜锭", 1,
+                        new Dictionary<string, int> { { "铜矿", 1 } }, 3f, true),
+                };
+            case "切割机":
+                return new List<GameJamRecipe>
+                {
+                    new GameJamRecipe("2", "木板", 1,
+                        new Dictionary<string, int> { { "木材", 1 } }, 5f, true),
+                    new GameJamRecipe("5", "铜质板材", 1,
+                        new Dictionary<string, int> { { "铜锭", 1 } }, 3f, true),
+                };
+            default:
+                return new List<GameJamRecipe>();
+        }
     }
 
     public static bool IsMachine(string itemId)

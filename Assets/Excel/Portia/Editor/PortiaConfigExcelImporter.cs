@@ -130,6 +130,7 @@ public static class PortiaConfigExcelImporter
                 label = row.GetRequired("id"),
                 toolItemId = ResolveItemName(itemLookup, row.GetIntOrDefault("useitem", 0)),
                 attackCount = row.GetIntOrDefault("attacknum", 1),
+                totalAmount = row.GetIntOrDefault("num", 0),
                 respawnSeconds = row.GetFloatOrDefault("time", 0f),
                 drops = dropConfigs
             });
@@ -281,6 +282,7 @@ public static class PortiaConfigExcelImporter
                     label = row.label,
                     itemId = row.drops.Count > 0 ? row.drops[0].itemId : null,
                     amount = Mathf.Max(1, row.attackCount),
+                    num = Mathf.Max(0, row.totalAmount),
                     shape = preset.shape,
                     scale = new PortiaVector3Data { x = preset.scale.x, y = preset.scale.y, z = preset.scale.z },
                     position = new PortiaVector3Data { x = position.x, y = position.y, z = position.z },
@@ -556,6 +558,7 @@ public static class PortiaConfigExcelImporter
         public string label;
         public string toolItemId;
         public int attackCount;
+        public int totalAmount;
         public float respawnSeconds;
         public List<PortiaResourceDropConfig> drops;
     }

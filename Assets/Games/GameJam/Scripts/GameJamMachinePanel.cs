@@ -11,6 +11,7 @@ public class GameJamMachinePanel : MonoBehaviour
     GameObject panelGo;
     Text titleText;
     Transform recipeListParent;
+    RectTransform recipeListRect;
     GameObject fuelSection;
     Text fuelText;
     Button fuelBtn;
@@ -129,19 +130,22 @@ public class GameJamMachinePanel : MonoBehaviour
         contentRect.anchorMax = new Vector2(1, 1);
         contentRect.pivot = new Vector2(0.5f, 1);
         contentRect.sizeDelta = new Vector2(0, 0);
-        var vlg = content.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 4;
-        vlg.padding = new RectOffset(0, 0, 4, 4);
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
-        content.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
         scroll.content = contentRect;
         scroll.viewport = viewport.GetComponent<RectTransform>();
 
         recipeListParent = content.transform;
+        recipeListRect = contentRect;
+
+        var recipeArea = MakeRect("RecipeAreaFallback", panelGo.transform);
+        var recipeAreaRect = recipeArea.GetComponent<RectTransform>();
+        recipeAreaRect.anchorMin = new Vector2(0f, 1f);
+        recipeAreaRect.anchorMax = new Vector2(1f, 1f);
+        recipeAreaRect.pivot = new Vector2(0.5f, 1f);
+        recipeAreaRect.anchoredPosition = new Vector2(0f, -156f);
+        recipeAreaRect.sizeDelta = new Vector2(-24f, 300f);
+        recipeArea.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+        recipeListParent = recipeArea.transform;
+        recipeListRect = recipeAreaRect;
 
         // Hints
         MakeText("Hints", panelGo.transform, 12, TextAnchor.MiddleCenter, new Color(0.5f, 0.5f, 0.55f),
@@ -168,8 +172,8 @@ public class GameJamMachinePanel : MonoBehaviour
 
         fuelSection.SetActive(def != null && def.hasFuelSystem);
 
-        RefreshAll();
         canvasGo.SetActive(true);
+        RefreshAll();
     }
 
     public void Close()
@@ -212,12 +216,36 @@ public class GameJamMachinePanel : MonoBehaviour
         if (currentMachine == null) return;
 
         var def = currentMachine.GetDef();
-        if (def == null || def.recipes == null) return;
+        string machineId = currentMachine.machineId != null ? currentMachine.machineId.Trim() : string.Empty;
+        var recipes = GameJamMachineDB.GetRecipesForMachine(machineId);
+        if ((recipes == null || recipes.Count == 0) && def != null && def.recipes != null)
+            recipes = def.recipes;
+        if (recipes == null || recipes.Count == 0)
+        {
+            statusText.text = "暂无可用配方";
+            statusText.color = TextDim;
+            ForceRecipeLayoutRefresh();
+            return;
+        }
 
-        foreach (var recipe in def.recipes)
+        foreach (var recipe in recipes)
             CreateRecipeRow(recipe);
 
+        if (recipeListRect != null)
+            recipeListRect.sizeDelta = new Vector2(0f, recipes.Count * 94f + 8f);
+
+        ForceRecipeLayoutRefresh();
         RefreshStatus();
+    }
+
+    void ForceRecipeLayoutRefresh()
+    {
+        if (recipeListParent == null)
+            return;
+
+        var rect = recipeListParent as RectTransform;
+        if (rect != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
     }
 
     void RefreshStatus()
@@ -275,7 +303,12 @@ public class GameJamMachinePanel : MonoBehaviour
     void CreateRecipeRow(GameJamRecipe recipe)
     {
         var row = MakeRect("Recipe_" + recipe.id, recipeListParent);
-        row.AddComponent<LayoutElement>().preferredHeight = 90;
+        var rowRect = row.GetComponent<RectTransform>();
+        rowRect.anchorMin = new Vector2(0f, 1f);
+        rowRect.anchorMax = new Vector2(1f, 1f);
+        rowRect.pivot = new Vector2(0.5f, 1f);
+        rowRect.sizeDelta = new Vector2(0f, 90f);
+        rowRect.anchoredPosition = new Vector2(0f, -recipeRows.Count * 94f);
         row.AddComponent<Image>().color = RowNormal;
 
         var outDef = GameJamItemDB.Get(recipe.outputItemId);

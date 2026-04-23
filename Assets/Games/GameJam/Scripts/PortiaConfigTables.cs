@@ -119,6 +119,7 @@ public class PortiaResourceNodeConfig
     public string label;
     public string itemId;
     public int amount = 1;
+    public int num;
     public string shape = nameof(PrimitiveType.Cube);
     public PortiaVector3Data scale;
     public PortiaVector3Data position;

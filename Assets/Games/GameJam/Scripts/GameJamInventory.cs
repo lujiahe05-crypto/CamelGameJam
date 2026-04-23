@@ -40,6 +40,30 @@ public class GameJamInventory : MonoBehaviour
         Toast.ShowToast($"+{amount} {name}");
     }
 
+    public void AddRange(IEnumerable<GameJamHarvestReward> rewards)
+    {
+        if (rewards == null)
+            return;
+
+        var mergedRewards = new Dictionary<string, int>();
+        foreach (var reward in rewards)
+        {
+            if (string.IsNullOrWhiteSpace(reward.itemId) || reward.amount <= 0)
+                continue;
+
+            if (mergedRewards.ContainsKey(reward.itemId))
+                mergedRewards[reward.itemId] += reward.amount;
+            else
+                mergedRewards[reward.itemId] = reward.amount;
+        }
+
+        foreach (var entry in mergedRewards)
+        {
+            if (Model.AddItem(entry.Key, entry.Value))
+                Toast.ShowToast($"+{entry.Value} {entry.Key}");
+        }
+    }
+
     public bool Remove(string name, int amount)
     {
         return Model.RemoveItem(name, amount);

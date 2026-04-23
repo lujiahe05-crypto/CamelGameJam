@@ -25,6 +25,8 @@ public class GameJamMachine : MonoBehaviour
     {
         machineId = id;
         def = GameJamMachineDB.Get(id);
+        if (def == null)
+            Debug.LogWarning($"Missing GameJamMachineDef for machineId={id}");
         State = GameJamMachineState.Idle;
         BuildFloatingUI();
         UpdateFloatingUI();
