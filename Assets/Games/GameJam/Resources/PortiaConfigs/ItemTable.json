@@ -181,6 +181,21 @@
             }
         },
         {
+            "itemId": "烹饪锅",
+            "displayName": "烹饪锅",
+            "description": "烹饪锅 是可放置建筑。",
+            "itemType": "Building",
+            "rarity": "Common",
+            "maxStack": 99,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            }
+        },
+        {
             "itemId": "石砖",
             "displayName": "石砖",
             "description": "石砖 是制作与建造材料。",
@@ -237,6 +252,36 @@
                 "r": 0.8199999928474426,
                 "g": 0.6200000047683716,
                 "b": 0.3199999928474426,
+                "a": 1.0
+            }
+        },
+        {
+            "itemId": "铁锅",
+            "displayName": "铁锅",
+            "description": "铁锅 是制作与建造材料。",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            }
+        },
+        {
+            "itemId": "青铜锭",
+            "displayName": "青铜锭",
+            "description": "青铜锭 是制作与建造材料。",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
                 "a": 1.0
             }
         }

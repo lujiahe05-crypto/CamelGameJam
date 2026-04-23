@@ -17,6 +17,12 @@
             "gridW": 3,
             "gridH": 2,
             "height": 1.5
+        },
+        {
+            "itemId": "烹饪锅",
+            "gridW": 2,
+            "gridH": 2,
+            "height": 1.0
         }
     ]
 }
