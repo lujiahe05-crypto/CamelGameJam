@@ -14,7 +14,14 @@ public class GameJamPickupUI : MonoBehaviour
 
     void BuildUI()
     {
-        canvasGo = new GameObject("PickupPromptCanvas");
+        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("PickupPromptPanel");
+        if (canvasGo != null)
+        {
+            FindReferences();
+            return;
+        }
+
+        canvasGo = new GameObject("PickupPromptPanel");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 55;
@@ -83,6 +90,13 @@ public class GameJamPickupUI : MonoBehaviour
         var ltRect = label.GetComponent<RectTransform>();
         ltRect.sizeDelta = new Vector2(60, 34);
 
+        promptGo.SetActive(false);
+        GameJamUIPrefabHelper.SavePrefab(canvasGo, "PickupPromptPanel");
+    }
+
+    void FindReferences()
+    {
+        promptGo = canvasGo.transform.Find("PickupPrompt").gameObject;
         promptGo.SetActive(false);
     }
 

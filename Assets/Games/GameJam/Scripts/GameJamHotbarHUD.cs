@@ -30,7 +30,14 @@ public class GameJamHotbarHUD : MonoBehaviour
 
     void BuildUI()
     {
-        canvasGo = new GameObject("HotbarCanvas");
+        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("HotbarPanel");
+        if (canvasGo != null)
+        {
+            FindReferences();
+            return;
+        }
+
+        canvasGo = new GameObject("HotbarPanel");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 40;
@@ -68,6 +75,32 @@ public class GameJamHotbarHUD : MonoBehaviour
         }
 
         BuildTooltip(canvasGo.transform);
+        GameJamUIPrefabHelper.SavePrefab(canvasGo, "HotbarPanel");
+    }
+
+    void FindReferences()
+    {
+        int count = GameJamInventoryModel.HotbarSlotCount;
+        slotBGs = new Image[count];
+        slotIcons = new Image[count];
+        slotCounts = new Text[count];
+        slotBorders = new Image[count];
+        slotNumbers = new Text[count];
+
+        var bar = canvasGo.transform.Find("HotbarBar");
+        for (int i = 0; i < count; i++)
+        {
+            var slot = bar.Find("Slot_" + i);
+            slotBorders[i] = slot.GetComponent<Image>();
+            slotBGs[i] = slot.Find("BG").GetComponent<Image>();
+            slotIcons[i] = slot.Find("BG/Icon").GetComponent<Image>();
+            slotCounts[i] = slot.Find("BG/Count").GetComponent<Text>();
+            slotNumbers[i] = slot.Find("Number").GetComponent<Text>();
+        }
+
+        tooltipGo = canvasGo.transform.Find("Tooltip").gameObject;
+        tooltipText = tooltipGo.transform.Find("Text").GetComponent<Text>();
+        tooltipGo.SetActive(false);
     }
 
     void CreateSlot(Transform parent, int index, float x)

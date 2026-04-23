@@ -41,7 +41,14 @@ public class GameJamStoragePanel : MonoBehaviour
 
     void BuildUI()
     {
-        canvasGo = new GameObject("StorageCanvas");
+        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("StoragePanel");
+        if (canvasGo != null)
+        {
+            FindReferences();
+            return;
+        }
+
+        canvasGo = new GameObject("StoragePanel");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 115;
@@ -80,7 +87,7 @@ public class GameJamStoragePanel : MonoBehaviour
             int row = i / StorageCols;
             float x = storageGridLeft + col * (SlotSize + SlotSpacing);
             float y = storageGridTop - row * (SlotSize + SlotSpacing);
-            storageSlotGOs[i] = CreateSlot(panelGo.transform, x, y, i, true);
+            storageSlotGOs[i] = CreateSlot(panelGo.transform, x, y, i, true, "SSlot_" + i);
         }
 
         // Separator line
@@ -107,7 +114,7 @@ public class GameJamStoragePanel : MonoBehaviour
             int row = i / PlayerCols;
             float x = playerGridLeft + col * (SlotSize + SlotSpacing);
             float y = playerGridTop - row * (SlotSize + SlotSpacing);
-            playerSlotGOs[i] = CreateSlot(panelGo.transform, x, y, i, false);
+            playerSlotGOs[i] = CreateSlot(panelGo.transform, x, y, i, false, "PSlot_" + i);
         }
 
         // Bottom buttons
@@ -128,11 +135,56 @@ public class GameJamStoragePanel : MonoBehaviour
             "点击左侧物品取出到背包 | 点击右侧物品存入储物箱 | Esc 关闭";
 
         canvasGo.SetActive(false);
+        GameJamUIPrefabHelper.SavePrefab(canvasGo, "StoragePanel");
     }
 
-    GameObject CreateSlot(Transform parent, float x, float y, int index, bool isStorage)
+    void FindReferences()
     {
-        var slot = MakeRect("Slot_" + index, parent);
+        panelGo = canvasGo.transform.Find("Panel").gameObject;
+        titleText = panelGo.transform.Find("Title").GetComponent<Text>();
+
+        storageSlotGOs = new GameObject[GameJamStorageBox.SlotCount];
+        for (int i = 0; i < storageSlotGOs.Length; i++)
+        {
+            var slot = panelGo.transform.Find("SSlot_" + i);
+            storageSlotGOs[i] = slot.gameObject;
+            var btn = slot.GetComponent<Button>();
+            if (btn != null)
+            {
+                btn.onClick.RemoveAllListeners();
+                int ci = i;
+                btn.onClick.AddListener(() => OnSlotClick(ci, true));
+            }
+        }
+
+        playerSlotGOs = new GameObject[GameJamInventoryModel.MainSlotCount];
+        for (int i = 0; i < playerSlotGOs.Length; i++)
+        {
+            var slot = panelGo.transform.Find("PSlot_" + i);
+            playerSlotGOs[i] = slot.gameObject;
+            var btn = slot.GetComponent<Button>();
+            if (btn != null)
+            {
+                btn.onClick.RemoveAllListeners();
+                int ci = i;
+                btn.onClick.AddListener(() => OnSlotClick(ci, false));
+            }
+        }
+
+        var takeAllBtn = panelGo.transform.Find("TakeAllBtn").GetComponent<Button>();
+        takeAllBtn.onClick.RemoveAllListeners();
+        takeAllBtn.onClick.AddListener(OnTakeAll);
+
+        var closeBtn = panelGo.transform.Find("CloseBtn").GetComponent<Button>();
+        closeBtn.onClick.RemoveAllListeners();
+        closeBtn.onClick.AddListener(Close);
+
+        canvasGo.SetActive(false);
+    }
+
+    GameObject CreateSlot(Transform parent, float x, float y, int index, bool isStorage, string slotName)
+    {
+        var slot = MakeRect(slotName, parent);
         var rect = slot.GetComponent<RectTransform>();
         rect.anchorMin = new Vector2(0, 1);
         rect.anchorMax = new Vector2(0, 1);

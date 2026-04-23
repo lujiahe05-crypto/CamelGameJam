@@ -16,6 +16,7 @@ public class GameJamGame : MonoBehaviour
     GameObject eventSystemGo;
     PortiaSettingsTable settings;
     bool isSceneMain;
+    Vector3 spawnOffset;
 
     void Start()
     {
@@ -26,6 +27,7 @@ public class GameJamGame : MonoBehaviour
 
         settings = PortiaConfigTables.SettingsTableData;
         isSceneMain = SceneManager.GetActiveScene().name == "SceneMain";
+        spawnOffset = isSceneMain ? SceneMainSpawnPoint : Vector3.zero;
         sceneRoot = new GameObject("GameJamScene");
 
         BuildScene();
@@ -338,7 +340,7 @@ public class GameJamGame : MonoBehaviour
         var go = GameObject.CreatePrimitive(shape);
         go.name = resName;
         go.transform.SetParent(sceneRoot.transform);
-        go.transform.position = pos;
+        go.transform.position = OffsetPosition(pos);
         go.transform.localScale = scale;
         go.GetComponent<Renderer>().material = mat;
 
@@ -356,7 +358,7 @@ public class GameJamGame : MonoBehaviour
         var building = GameJamBuildingDB.CreateBuildingMesh(machineId);
         building.name = machineId;
         building.transform.SetParent(sceneRoot.transform);
-        building.transform.position = pos;
+        building.transform.position = OffsetPosition(pos);
 
         var bDef = GameJamBuildingDB.Get(machineId);
         if (bDef != null)
@@ -558,7 +560,7 @@ public class GameJamGame : MonoBehaviour
     {
         var root = new GameObject("GroundPickup_木材");
         root.transform.SetParent(sceneRoot.transform);
-        root.transform.position = pos;
+        root.transform.position = OffsetPosition(pos);
 
         for (int i = 0; i < 3; i++)
         {
@@ -592,7 +594,7 @@ public class GameJamGame : MonoBehaviour
     {
         var root = new GameObject("GroundPickup_石块");
         root.transform.SetParent(sceneRoot.transform);
-        root.transform.position = pos;
+        root.transform.position = OffsetPosition(pos);
 
         var stone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         stone.name = "StoneModel";
@@ -628,7 +630,7 @@ public class GameJamGame : MonoBehaviour
     {
         var root = new GameObject("GroundPickup_铁矿");
         root.transform.SetParent(sceneRoot.transform);
-        root.transform.position = pos;
+        root.transform.position = OffsetPosition(pos);
 
         var ore = GameObject.CreatePrimitive(PrimitiveType.Cube);
         ore.name = "OreModel";
@@ -666,7 +668,7 @@ public class GameJamGame : MonoBehaviour
     {
         var root = new GameObject("GroundPickup_铜矿");
         root.transform.SetParent(sceneRoot.transform);
-        root.transform.position = pos;
+        root.transform.position = OffsetPosition(pos);
 
         var ore = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         ore.name = "CopperModel";
@@ -696,5 +698,15 @@ public class GameJamGame : MonoBehaviour
         pickup.respawnTime = 100f;
 
         root.AddComponent<GameJamPickupFX>();
+    }
+
+    Vector3 OffsetPosition(Vector3 localPos)
+    {
+        float wx = localPos.x + spawnOffset.x;
+        float wz = localPos.z + spawnOffset.z;
+        var origin = new Vector3(wx, spawnOffset.y + 500f, wz);
+        if (Physics.Raycast(origin, Vector3.down, out var hit, 1000f))
+            return new Vector3(wx, hit.point.y + localPos.y, wz);
+        return new Vector3(wx, localPos.y + spawnOffset.y, wz);
     }
 }

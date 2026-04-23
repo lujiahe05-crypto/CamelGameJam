@@ -68,7 +68,14 @@ public class GameJamInventoryPanel : MonoBehaviour
 
     void BuildUI()
     {
-        canvasGo = new GameObject("InventoryCanvas");
+        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("InventoryPanel");
+        if (canvasGo != null)
+        {
+            FindReferences();
+            return;
+        }
+
+        canvasGo = new GameObject("InventoryPanel");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 100;
@@ -128,6 +135,89 @@ public class GameJamInventoryPanel : MonoBehaviour
             esGo.AddComponent<EventSystem>();
             esGo.AddComponent<StandaloneInputModule>();
         }
+
+        canvasGo.SetActive(false);
+        GameJamUIPrefabHelper.SavePrefab(canvasGo, "InventoryPanel");
+        canvasGo.SetActive(true);
+    }
+
+    void FindReferences()
+    {
+        panelGo = canvasGo.transform.Find("Panel").gameObject;
+
+        // Detail panel
+        detailGo = panelGo.transform.Find("Detail").gameObject;
+        detailIcon = detailGo.transform.Find("Icon").GetComponent<Image>();
+        detailName = detailGo.transform.Find("Name").GetComponent<Text>();
+        detailRarityBar = detailGo.transform.Find("RarityBar").GetComponent<Image>();
+        detailType = detailGo.transform.Find("RarityBar/TypeText").GetComponent<Text>();
+        detailDesc = detailGo.transform.Find("Desc").GetComponent<Text>();
+        detailPrice = detailGo.transform.Find("Price").GetComponent<Text>();
+        detailGo.SetActive(false);
+
+        // Main grid
+        int mCount = GameJamInventoryModel.MainSlotCount;
+        mainSlotBGs = new Image[mCount];
+        mainSlotIcons = new Image[mCount];
+        mainSlotCounts = new Text[mCount];
+        mainSlotBorders = new Image[mCount];
+        var mainGrid = panelGo.transform.Find("MainGrid");
+        for (int i = 0; i < mCount; i++)
+        {
+            var slot = mainGrid.Find("MSlot_" + i);
+            mainSlotBorders[i] = slot.GetComponent<Image>();
+            mainSlotBGs[i] = slot.Find("Inner").GetComponent<Image>();
+            mainSlotIcons[i] = slot.Find("Inner/Icon").GetComponent<Image>();
+            mainSlotCounts[i] = slot.Find("Inner/Count").GetComponent<Text>();
+            var handler = slot.GetComponent<GameJamSlotDragHandler>();
+            if (handler != null) handler.panel = this;
+        }
+
+        // Hotbar row
+        int hCount = GameJamInventoryModel.HotbarSlotCount;
+        hotbarSlotBGs = new Image[hCount];
+        hotbarSlotIcons = new Image[hCount];
+        hotbarSlotCounts = new Text[hCount];
+        hotbarSlotBorders = new Image[hCount];
+        hotbarSlotNumbers = new Text[hCount];
+        var hotbarRow = panelGo.transform.Find("HotbarRow");
+        for (int i = 0; i < hCount; i++)
+        {
+            var slot = hotbarRow.Find("HSlot_" + i);
+            hotbarSlotBorders[i] = slot.GetComponent<Image>();
+            hotbarSlotBGs[i] = slot.Find("Inner").GetComponent<Image>();
+            hotbarSlotIcons[i] = slot.Find("Inner/Icon").GetComponent<Image>();
+            hotbarSlotCounts[i] = slot.Find("Inner/Count").GetComponent<Text>();
+            hotbarSlotNumbers[i] = slot.Find("Num").GetComponent<Text>();
+            var handler = slot.GetComponent<GameJamSlotDragHandler>();
+            if (handler != null) handler.panel = this;
+        }
+
+        // Bottom bar
+        goldText = panelGo.transform.Find("BottomBar/Gold").GetComponent<Text>();
+        var sortBtn = panelGo.transform.Find("BottomBar/SortBtn").GetComponent<Button>();
+        sortBtn.onClick.RemoveAllListeners();
+        sortBtn.onClick.AddListener(OnSortClicked);
+        var discardBtn = panelGo.transform.Find("BottomBar/DiscardBtn").GetComponent<Button>();
+        discardBtn.onClick.RemoveAllListeners();
+        discardBtn.onClick.AddListener(OnDiscardClicked);
+
+        // Split dialog
+        splitDialogGo = canvasGo.transform.Find("SplitDialog").gameObject;
+        splitInput = splitDialogGo.transform.Find("Input").GetComponent<InputField>();
+        splitInput.textComponent = splitDialogGo.transform.Find("Input/Text").GetComponent<Text>();
+        var splitOK = splitDialogGo.transform.Find("SplitOK").GetComponent<Button>();
+        splitOK.onClick.RemoveAllListeners();
+        splitOK.onClick.AddListener(OnSplitConfirm);
+        var splitCancel = splitDialogGo.transform.Find("SplitCancel").GetComponent<Button>();
+        splitCancel.onClick.RemoveAllListeners();
+        splitCancel.onClick.AddListener(() => splitDialogGo.SetActive(false));
+        splitDialogGo.SetActive(false);
+
+        // Tooltip
+        tooltipGo = canvasGo.transform.Find("SlotTooltip").gameObject;
+        tooltipNameText = tooltipGo.transform.Find("TName").GetComponent<Text>();
+        tooltipGo.SetActive(false);
     }
 
     void BuildDetailPanel(Transform parent, float top, float width)

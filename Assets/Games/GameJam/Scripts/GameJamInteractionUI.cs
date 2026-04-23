@@ -9,7 +9,14 @@ public class GameJamInteractionUI : MonoBehaviour
 
     void Start()
     {
-        canvasGo = new GameObject("InteractionCanvas");
+        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("InteractionPanel");
+        if (canvasGo != null)
+        {
+            FindReferences();
+            return;
+        }
+
+        canvasGo = new GameObject("InteractionPanel");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 50;
@@ -42,6 +49,14 @@ public class GameJamInteractionUI : MonoBehaviour
         txtRect.anchorMax = Vector2.one;
         txtRect.sizeDelta = Vector2.zero;
 
+        promptGo.SetActive(false);
+        GameJamUIPrefabHelper.SavePrefab(canvasGo, "InteractionPanel");
+    }
+
+    void FindReferences()
+    {
+        promptGo = canvasGo.transform.Find("Prompt").gameObject;
+        promptText = promptGo.transform.Find("Text").GetComponent<Text>();
         promptGo.SetActive(false);
     }
 

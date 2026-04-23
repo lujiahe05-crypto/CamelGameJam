@@ -44,7 +44,14 @@ public class GameJamMachinePanel : MonoBehaviour
 
     void BuildUI()
     {
-        canvasGo = new GameObject("MachineCanvas");
+        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("MachinePanel");
+        if (canvasGo != null)
+        {
+            FindReferences();
+            return;
+        }
+
+        canvasGo = new GameObject("MachinePanel");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 110;
@@ -151,6 +158,36 @@ public class GameJamMachinePanel : MonoBehaviour
         MakeText("Hints", panelGo.transform, 12, TextAnchor.MiddleCenter, new Color(0.5f, 0.5f, 0.55f),
             new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0),
             new Vector2(0, 6), new Vector2(0, 20)).text = "Esc 关闭  |  选择配方开始制作";
+
+        canvasGo.SetActive(false);
+        GameJamUIPrefabHelper.SavePrefab(canvasGo, "MachinePanel");
+    }
+
+    void FindReferences()
+    {
+        panelGo = canvasGo.transform.Find("Panel").gameObject;
+        titleText = panelGo.transform.Find("Title").GetComponent<Text>();
+        statusText = panelGo.transform.Find("Status").GetComponent<Text>();
+
+        collectBtn = panelGo.transform.Find("CollectBtn").GetComponent<Button>();
+        collectBtn.onClick.RemoveAllListeners();
+        collectBtn.onClick.AddListener(OnCollect);
+        collectBtn.gameObject.SetActive(false);
+
+        fuelSection = panelGo.transform.Find("FuelSection").gameObject;
+        fuelText = fuelSection.transform.Find("FuelText").GetComponent<Text>();
+        fuelBtn = fuelSection.transform.Find("FuelBtn").GetComponent<Button>();
+        fuelBtn.onClick.RemoveAllListeners();
+        fuelBtn.onClick.AddListener(OnAddFuel);
+        fuelSection.SetActive(false);
+
+        var recipeArea = panelGo.transform.Find("RecipeAreaFallback");
+        recipeListParent = recipeArea;
+        recipeListRect = recipeArea.GetComponent<RectTransform>();
+
+        var closeBtn = panelGo.transform.Find("CloseBtn").GetComponent<Button>();
+        closeBtn.onClick.RemoveAllListeners();
+        closeBtn.onClick.AddListener(Close);
 
         canvasGo.SetActive(false);
     }

@@ -14,7 +14,14 @@ public class GameJamBuildPlaceUI : MonoBehaviour
 
     void BuildUI()
     {
-        canvasGo = new GameObject("BuildPlaceCanvas");
+        canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("BuildPlacePanel");
+        if (canvasGo != null)
+        {
+            FindReferences();
+            return;
+        }
+
+        canvasGo = new GameObject("BuildPlacePanel");
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 45;
@@ -32,6 +39,12 @@ public class GameJamBuildPlaceUI : MonoBehaviour
 
         CreateHintRow(panelGo.transform, 50f, "T", "旋转");
         CreateHintRow(panelGo.transform, 6f, "LMB", "放下");
+        GameJamUIPrefabHelper.SavePrefab(canvasGo, "BuildPlacePanel");
+    }
+
+    void FindReferences()
+    {
+        panelGo = canvasGo.transform.Find("HintPanel").gameObject;
     }
 
     void CreateHintRow(Transform parent, float y, string keyLabel, string actionLabel)
