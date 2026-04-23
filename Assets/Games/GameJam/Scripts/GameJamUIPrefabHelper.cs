@@ -3,10 +3,13 @@ using UnityEngine;
 public static class GameJamUIPrefabHelper
 {
     const string PrefabFolder = "GameJamUI";
+    const string LegacyPrefabFolder = "UI";
 
     public static GameObject TryLoadPrefab(string canvasName)
     {
         var prefab = Resources.Load<GameObject>(PrefabFolder + "/" + canvasName);
+        if (prefab == null)
+            prefab = Resources.Load<GameObject>(LegacyPrefabFolder + "/" + canvasName);
         return prefab != null ? Object.Instantiate(prefab) : null;
     }
 

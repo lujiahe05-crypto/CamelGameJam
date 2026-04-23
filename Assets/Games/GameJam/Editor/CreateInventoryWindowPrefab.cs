@@ -4,23 +4,46 @@ using UnityEngine.UI;
 
 public static class CreateInventoryWindowPrefab
 {
-    const string PrefabPath = "Assets/Games/GameJam/Resources/UI/InventoryWindow.prefab";
-    const string UiFolder = "Assets/Games/GameJam/Resources/UI";
+    const string PrefabPath = "Assets/Games/GameJam/Resources/GameJamUI/InventoryWindow.prefab";
+    const string UiFolder = "Assets/Games/GameJam/Resources/GameJamUI";
+    const string LegacyPrefabPath = "Assets/Games/GameJam/Resources/UI/Inventory Window Prefab.prefab";
 
     [InitializeOnLoadMethod]
     static void AutoCreate()
     {
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) == null)
-            Create();
+        EditorApplication.delayCall += TryForceRebuildAfterCompile;
+    }
+
+    static void TryForceRebuildAfterCompile()
+    {
+        EditorApplication.delayCall -= TryForceRebuildAfterCompile;
+
+        if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+            return;
+
+        Create();
     }
 
     [MenuItem("GameJam/UI/Create Inventory Window Prefab")]
     public static void Create()
     {
         EnsureFolder();
+        RemoveLegacyPrefab();
+
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) != null)
+            AssetDatabase.DeleteAsset(PrefabPath);
 
         var root = CreateUIObject("InventoryWindow", null);
         Stretch(root);
+        var canvas = root.gameObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
+        var scaler = root.gameObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+        root.gameObject.AddComponent<GraphicRaycaster>();
         root.gameObject.AddComponent<CanvasGroup>();
         root.gameObject.SetActive(false);
 
@@ -43,6 +66,12 @@ public static class CreateInventoryWindowPrefab
         Debug.Log("InventoryWindow prefab created at " + PrefabPath);
     }
 
+    static void RemoveLegacyPrefab()
+    {
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(LegacyPrefabPath) != null)
+            AssetDatabase.DeleteAsset(LegacyPrefabPath);
+    }
+
     static void CreateTopBar(Transform parent)
     {
         var topBar = CreateUIObject("TopBar", parent);
@@ -54,7 +83,12 @@ public static class CreateInventoryWindowPrefab
 
         var topBarBg = CreateUIObject("TopBarBg", topBar.transform);
         Stretch(topBarBg);
-        AddImage(topBarBg.gameObject, new Color(0.32f, 0.78f, 0.92f, 0.92f));
+        var topBarBgImage = AddImage(
+            topBarBg.gameObject,
+            new Color(1f, 1f, 1f, 0.98f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/uititle_bg.png"));
+        topBarBgImage.type = Image.Type.Sliced;
 
         var title = CreateUIObject("Title_Backpack", topBar.transform);
         title.anchorMin = new Vector2(0f, 0.5f);
@@ -74,10 +108,21 @@ public static class CreateInventoryWindowPrefab
 
         string[] names = { "Backpack", "Role", "Task", "Handbook", "Social", "Map", "Calendar", "Album" };
         string[] labels = { "Bag", "Role", "Task", "Guide", "Social", "Map", "Date", "Album" };
+        Sprite[] icons =
+        {
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_1.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_4.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_3.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_8.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_5.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_2.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_6.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/menu_9.png")
+        };
 
         for (int i = 0; i < names.Length; i++)
         {
-            var tab = CreateTab(tabs.transform, "Tab_" + names[i], labels[i], i == 0);
+            var tab = CreateTab(tabs.transform, "Tab_" + names[i], labels[i], i == 0, icons[i]);
             var rect = tab.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0f, 0.5f);
             rect.anchorMax = new Vector2(0f, 0.5f);
@@ -87,10 +132,11 @@ public static class CreateInventoryWindowPrefab
 
         var close = CreateButton(topBar.transform, "Btn_Close", new Vector2(1f, 0.5f),
             new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-26f, 0f), new Vector2(62f, 62f),
-            string.Empty, new Color(0.94f, 0.5f, 0.45f, 0.98f));
+            string.Empty, new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_red.png"));
         var icon = CreateUIObject("Icon_X", close.transform);
         Stretch(icon);
-        AddText(icon.gameObject, "X", 26, Color.white, TextAnchor.MiddleCenter);
+        var closeIcon = AddImage(icon.gameObject, Color.white, false, LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/close_select.png"));
+        closeIcon.preserveAspect = true;
     }
 
     static void CreateBody(Transform parent)
@@ -109,7 +155,12 @@ public static class CreateInventoryWindowPrefab
         leftPanel.anchoredPosition = new Vector2(0f, 0f);
         var leftPanelBg = CreateUIObject("LeftPanelBg", leftPanel.transform);
         Stretch(leftPanelBg);
-        AddImage(leftPanelBg.gameObject, new Color(0.67f, 0.45f, 0.28f, 0.36f));
+        var leftPanelBgImage = AddImage(
+            leftPanelBg.gameObject,
+            new Color(1f, 1f, 1f, 0.92f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/new_bg.png"));
+        leftPanelBgImage.type = Image.Type.Sliced;
 
         var characterName = CreateUIObject("CharacterName", leftPanel.transform);
         characterName.anchorMin = new Vector2(0f, 1f);
@@ -131,7 +182,12 @@ public static class CreateInventoryWindowPrefab
         rightPanel.offsetMax = new Vector2(-12f, -26f);
         var rightPanelBg = CreateUIObject("RightPanelBg", rightPanel.transform);
         Stretch(rightPanelBg);
-        AddImage(rightPanelBg.gameObject, new Color(0.24f, 0.72f, 0.92f, 0.88f));
+        var rightPanelBgImage = AddImage(
+            rightPanelBg.gameObject,
+            new Color(1f, 1f, 1f, 0.92f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/new_bg.png"));
+        rightPanelBgImage.type = Image.Type.Sliced;
 
         CreateItemDetailPanel(rightPanel.transform);
         CreateBagPanel(rightPanel.transform);
@@ -154,7 +210,12 @@ public static class CreateInventoryWindowPrefab
         frame.pivot = new Vector2(0.5f, 0.5f);
         frame.sizeDelta = new Vector2(220f, 470f);
         frame.anchoredPosition = new Vector2(-20f, -10f);
-        AddImage(frame.gameObject, new Color(1f, 1f, 1f, 0f));
+        var previewFrameImage = AddImage(
+            frame.gameObject,
+            new Color(1f, 1f, 1f, 0.68f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/texture3d/windows/windows001_2.png"));
+        previewFrameImage.type = Image.Type.Sliced;
 
         var shadow = CreateUIObject("PreviewShadow", previewRoot.transform);
         shadow.anchorMin = new Vector2(0.5f, 0f);
@@ -164,15 +225,20 @@ public static class CreateInventoryWindowPrefab
         shadow.anchoredPosition = new Vector2(-20f, 60f);
         AddImage(shadow.gameObject, new Color(0f, 0f, 0f, 0.18f));
 
-        var raw = CreateUIObject("PreviewRawImage", previewRoot.transform);
-        raw.anchorMin = new Vector2(0.5f, 0.5f);
-        raw.anchorMax = new Vector2(0.5f, 0.5f);
-        raw.pivot = new Vector2(0.5f, 0.5f);
-        raw.sizeDelta = new Vector2(220f, 470f);
-        raw.anchoredPosition = new Vector2(-20f, -20f);
-        raw.gameObject.AddComponent<CanvasRenderer>();
-        var rawImage = raw.gameObject.AddComponent<RawImage>();
-        rawImage.color = new Color(1f, 1f, 1f, 0.96f);
+        var portrait = CreateUIObject("PreviewRawImage", previewRoot.transform);
+        portrait.anchorMin = new Vector2(0.5f, 0.5f);
+        portrait.anchorMax = new Vector2(0.5f, 0.5f);
+        portrait.pivot = new Vector2(0.5f, 0.5f);
+        portrait.sizeDelta = new Vector2(220f, 470f);
+        portrait.anchoredPosition = new Vector2(-20f, -20f);
+        var portraitImage = AddImage(
+            portrait.gameObject,
+            new Color(1f, 1f, 1f, 0.96f),
+            false,
+            LoadSprite(
+                "Assets/Games/GameJam/assets/UI/headicon/Oaks.png",
+                "Assets/Games/GameJam/assets/UI/minihead/Oaks.png"));
+        portraitImage.preserveAspect = true;
     }
 
     static void CreateEquipSlots(Transform parent)
@@ -185,9 +251,18 @@ public static class CreateInventoryWindowPrefab
         equipGroup.anchoredPosition = new Vector2(456f, -14f);
 
         string[] equipNames = { "Head", "Body", "Legs", "Weapon", "Accessory1", "Accessory2" };
+        Sprite[] equipIcons =
+        {
+            LoadSprite("Assets/Games/GameJam/assets/UI/mapicon/player2.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/mapicon/cloth.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/mapicon/cloth.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/mapicon/weapon.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/mapicon/partner.png"),
+            LoadSprite("Assets/Games/GameJam/assets/UI/mapicon/company.png")
+        };
         for (int i = 0; i < equipNames.Length; i++)
         {
-            var slot = CreateEquipSlot(equipGroup.transform, "EquipSlot_" + equipNames[i]);
+            var slot = CreateEquipSlot(equipGroup.transform, "EquipSlot_" + equipNames[i], equipIcons[i]);
             var rect = slot.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0.5f, 1f);
             rect.anchorMax = new Vector2(0.5f, 1f);
@@ -206,7 +281,12 @@ public static class CreateInventoryWindowPrefab
         stats.anchoredPosition = new Vector2(0f, 20f);
         var statsBg = CreateUIObject("StatsBg", stats.transform);
         Stretch(statsBg);
-        AddImage(statsBg.gameObject, new Color(1f, 1f, 1f, 0.12f));
+        var statsBgImage = AddImage(
+            statsBg.gameObject,
+            new Color(1f, 1f, 1f, 0.8f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/new_bg.png"));
+        statsBgImage.type = Image.Type.Sliced;
 
         var title = CreateUIObject("StatTitle", stats.transform);
         title.anchorMin = new Vector2(0f, 1f);
@@ -246,7 +326,12 @@ public static class CreateInventoryWindowPrefab
 
         var bg = CreateUIObject("DetailBg", detail.transform);
         Stretch(bg);
-        AddImage(bg.gameObject, new Color(0.29f, 0.61f, 0.78f, 0.62f));
+        var detailBgImage = AddImage(
+            bg.gameObject,
+            new Color(1f, 1f, 1f, 0.86f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/new_bg.png"));
+        detailBgImage.type = Image.Type.Sliced;
 
         var previewBg = CreateUIObject("ItemPreviewBg", detail.transform);
         previewBg.anchorMin = new Vector2(0.5f, 1f);
@@ -293,7 +378,12 @@ public static class CreateInventoryWindowPrefab
 
         var frame = CreateUIObject("BagFrame", bagPanel.transform);
         Stretch(frame);
-        AddImage(frame.gameObject, new Color(0.9f, 0.94f, 0.98f, 0.82f));
+        var bagFrameImage = AddImage(
+            frame.gameObject,
+            new Color(1f, 1f, 1f, 0.95f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/new_bg.png"));
+        bagFrameImage.type = Image.Type.Sliced;
 
         var pageLeft = CreatePageButton(bagPanel.transform, "Btn_PageLeft", new Vector2(0f, 0.5f), new Vector2(-18f, 0f), "<");
         var pageRight = CreatePageButton(bagPanel.transform, "Btn_PageRight", new Vector2(1f, 0.5f), new Vector2(18f, 0f), ">");
@@ -337,7 +427,12 @@ public static class CreateInventoryWindowPrefab
 
         var hotbarFrame = CreateUIObject("HotbarFrame", hotbarPanel.transform);
         Stretch(hotbarFrame);
-        AddImage(hotbarFrame.gameObject, new Color(0.79f, 0.83f, 0.88f, 0.76f));
+        var hotbarFrameImage = AddImage(
+            hotbarFrame.gameObject,
+            new Color(1f, 1f, 1f, 0.95f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/new_bg.png"));
+        hotbarFrameImage.type = Image.Type.Sliced;
 
         var hotbarContent = CreateUIObject("HotbarContent", hotbarPanel.transform);
         hotbarContent.anchorMin = new Vector2(0.5f, 0.5f);
@@ -382,10 +477,11 @@ public static class CreateInventoryWindowPrefab
 
         CreateTextLine(currency.transform, "MoneyText", new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(-44f, 26f), "0", 18, Color.white, TextAnchor.MiddleRight);
 
-        CreateButton(bottomBar.transform, "Btn_Sort", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(270f, 0f), new Vector2(110f, 44f), "Sort", new Color(0.53f, 0.83f, 0.34f));
-        CreateButton(bottomBar.transform, "Btn_Discard", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(396f, 0f), new Vector2(110f, 44f), "Drop", new Color(0.95f, 0.68f, 0.18f));
-        CreateButton(bottomBar.transform, "Btn_Use", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(18f, 0f), new Vector2(110f, 44f), "Use", new Color(0.26f, 0.71f, 0.94f));
-        CreateButton(bottomBar.transform, "Btn_Split", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(144f, 0f), new Vector2(110f, 44f), "Split", new Color(0.35f, 0.59f, 0.86f));
+        CreateButton(bottomBar.transform, "Btn_Use", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(18f, 0f), new Vector2(110f, 44f), "Sell", new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_blue.png"));
+        CreateButton(bottomBar.transform, "Btn_Split", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(144f, 0f), new Vector2(110f, 44f), "Split", new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_white.png"));
+        CreateButton(bottomBar.transform, "Btn_Sort", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(270f, 0f), new Vector2(110f, 44f), "Sort", new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_green.png"));
+        CreateButton(bottomBar.transform, "Btn_Discard", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(396f, 0f), new Vector2(110f, 44f), "Drop", new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_red.png"));
+        CreateButton(bottomBar.transform, "Btn_Unlock", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(522f, 0f), new Vector2(160f, 44f), "Unlock", new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_white.png"));
     }
 
     static void CreateHintBar(Transform parent)
@@ -465,8 +561,8 @@ public static class CreateInventoryWindowPrefab
         field.textComponent = text;
         field.text = "1";
 
-        CreateButton(dialog.transform, "Btn_Confirm", new Vector2(0.3f, 0f), new Vector2(0.3f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(90f, 34f), "Confirm", new Color(0.31f, 0.74f, 0.4f));
-        CreateButton(dialog.transform, "Btn_Cancel", new Vector2(0.7f, 0f), new Vector2(0.7f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(90f, 34f), "Cancel", new Color(0.56f, 0.63f, 0.72f));
+        CreateButton(dialog.transform, "Btn_Confirm", new Vector2(0.3f, 0f), new Vector2(0.3f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(90f, 34f), "Confirm", new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_green.png"));
+        CreateButton(dialog.transform, "Btn_Cancel", new Vector2(0.7f, 0f), new Vector2(0.7f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(90f, 34f), "Cancel", new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_white.png"));
     }
 
     static void CreateDragLayer(Transform parent)
@@ -485,7 +581,7 @@ public static class CreateInventoryWindowPrefab
         dragIcon.gameObject.SetActive(false);
     }
 
-    static GameObject CreateTab(Transform parent, string name, string label, bool selected)
+    static GameObject CreateTab(Transform parent, string name, string label, bool selected, Sprite iconSprite)
     {
         var tab = CreateUIObject(name, parent);
         tab.sizeDelta = new Vector2(100f, 92f);
@@ -497,14 +593,24 @@ public static class CreateInventoryWindowPrefab
         bgNormal.anchorMax = new Vector2(0.5f, 0.5f);
         bgNormal.pivot = new Vector2(0.5f, 0.5f);
         bgNormal.sizeDelta = new Vector2(80f, 80f);
-        AddImage(bgNormal.gameObject, new Color(0.84f, 0.93f, 0.99f, selected ? 0.4f : 0.82f));
+        var normalImage = AddImage(
+            bgNormal.gameObject,
+            new Color(1f, 1f, 1f, selected ? 0f : 1f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/uimenu_bg.png"));
+        normalImage.preserveAspect = true;
 
         var bgSelected = CreateUIObject("Bg_Selected", tab.transform);
         bgSelected.anchorMin = new Vector2(0.5f, 0.5f);
         bgSelected.anchorMax = new Vector2(0.5f, 0.5f);
         bgSelected.pivot = new Vector2(0.5f, 0.5f);
         bgSelected.sizeDelta = new Vector2(92f, 92f);
-        AddImage(bgSelected.gameObject, new Color(1f, 0.93f, 0.55f, selected ? 0.75f : 0f));
+        var selectedImage = AddImage(
+            bgSelected.gameObject,
+            new Color(1f, 1f, 1f, selected ? 1f : 0f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/uimenu_bg_select.png"));
+        selectedImage.preserveAspect = true;
 
         var icon = CreateUIObject("Icon", tab.transform);
         icon.anchorMin = new Vector2(0.5f, 0.5f);
@@ -512,7 +618,8 @@ public static class CreateInventoryWindowPrefab
         icon.pivot = new Vector2(0.5f, 0.5f);
         icon.sizeDelta = new Vector2(48f, 48f);
         icon.anchoredPosition = new Vector2(0f, 0f);
-        AddImage(icon.gameObject, new Color(1f, 1f, 1f, 0.65f));
+        var iconImage = AddImage(icon.gameObject, new Color(1f, 1f, 1f, 0.85f), false, iconSprite);
+        iconImage.preserveAspect = true;
 
         var labelRect = CreateUIObject("Label", tab.transform);
         labelRect.anchorMin = new Vector2(0.5f, 0f);
@@ -529,25 +636,31 @@ public static class CreateInventoryWindowPrefab
         arrow.pivot = new Vector2(0.5f, 0f);
         arrow.sizeDelta = new Vector2(18f, 14f);
         arrow.anchoredPosition = new Vector2(0f, -10f);
-        AddImage(arrow.gameObject, new Color(1f, 0.88f, 0.42f, selected ? 0.9f : 0f));
+        AddImage(arrow.gameObject, new Color(1f, 0.88f, 0.42f, 0f));
 
         return tab.gameObject;
     }
 
-    static GameObject CreateEquipSlot(Transform parent, string name)
+    static GameObject CreateEquipSlot(Transform parent, string name, Sprite slotIcon)
     {
         var slot = CreateUIObject(name, parent);
         slot.sizeDelta = new Vector2(62f, 62f);
         var bg = CreateUIObject("Bg", slot.transform);
         Stretch(bg);
-        AddImage(bg.gameObject, new Color(0.88f, 0.91f, 0.95f, 0.9f));
+        var bgImage = AddImage(
+            bg.gameObject,
+            new Color(1f, 1f, 1f, 1f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/equip_bg.png"));
+        bgImage.preserveAspect = true;
 
         var icon = CreateUIObject("Icon", slot.transform);
         icon.anchorMin = new Vector2(0.5f, 0.5f);
         icon.anchorMax = new Vector2(0.5f, 0.5f);
         icon.pivot = new Vector2(0.5f, 0.5f);
         icon.sizeDelta = new Vector2(22f, 22f);
-        AddImage(icon.gameObject, new Color(0.36f, 0.66f, 0.84f, 0.65f));
+        var hintIcon = AddImage(icon.gameObject, new Color(0.36f, 0.66f, 0.84f, 0.82f), false, slotIcon);
+        hintIcon.preserveAspect = true;
 
         var itemIcon = CreateUIObject("ItemIcon", slot.transform);
         Stretch(itemIcon, new Vector2(10f, 10f), new Vector2(-10f, -10f));
@@ -555,7 +668,12 @@ public static class CreateInventoryWindowPrefab
 
         var selected = CreateUIObject("Selected", slot.transform);
         Stretch(selected);
-        AddImage(selected.gameObject, new Color(1f, 0.9f, 0.42f, 0f), false);
+        var selectedImage = AddImage(
+            selected.gameObject,
+            new Color(1f, 1f, 1f, 0f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/equip_bg_select.png"));
+        selectedImage.preserveAspect = true;
         var lockNode = CreateUIObject("Lock", slot.transform);
         Stretch(lockNode);
         AddImage(lockNode.gameObject, new Color(0.2f, 0.2f, 0.2f, 0f), false);
@@ -614,11 +732,16 @@ public static class CreateInventoryWindowPrefab
 
         var bg = CreateUIObject("Bg", slot.transform);
         Stretch(bg);
-        AddImage(bg.gameObject, new Color(0.67f, 0.64f, 0.62f, 0.95f));
+        var bgImage = AddImage(
+            bg.gameObject,
+            new Color(1f, 1f, 1f, 1f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/bg_item.png"));
+        bgImage.preserveAspect = true;
 
         var frame = CreateUIObject("QualityFrame", slot.transform);
         Stretch(frame, new Vector2(2f, 2f), new Vector2(-2f, -2f));
-        AddImage(frame.gameObject, new Color(1f, 1f, 1f, 0.18f), false);
+        AddImage(frame.gameObject, new Color(1f, 1f, 1f, 0f), false);
 
         var icon = CreateUIObject("Icon", slot.transform);
         Stretch(icon, new Vector2(10f, 10f), new Vector2(-10f, -10f));
@@ -634,11 +757,21 @@ public static class CreateInventoryWindowPrefab
 
         var lockNode = CreateUIObject("Lock", slot.transform);
         Stretch(lockNode, new Vector2(18f, 18f), new Vector2(-18f, -18f));
-        AddImage(lockNode.gameObject, new Color(0.45f, 0.42f, 0.4f, locked ? 0.85f : 0f));
+        var lockImage = AddImage(
+            lockNode.gameObject,
+            new Color(1f, 1f, 1f, locked ? 1f : 0f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/bg_item_lock.png"));
+        lockImage.preserveAspect = true;
 
         var selected = CreateUIObject("Selected", slot.transform);
         Stretch(selected);
-        AddImage(selected.gameObject, new Color(1f, 0.92f, 0.45f, 0f), false);
+        var selectedImage = AddImage(
+            selected.gameObject,
+            new Color(1f, 1f, 1f, 0f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/bg_item_select.png"));
+        selectedImage.preserveAspect = true;
 
         var hitArea = CreateUIObject("HitArea", slot.transform);
         Stretch(hitArea);
@@ -656,10 +789,15 @@ public static class CreateInventoryWindowPrefab
 
         var bg = CreateUIObject("Bg", slot.transform);
         Stretch(bg);
-        AddImage(bg.gameObject, new Color(0.33f, 0.72f, 0.9f, 0.92f));
+        var bgImage = AddImage(
+            bg.gameObject,
+            new Color(1f, 1f, 1f, 1f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/equip_bg.png"));
+        bgImage.preserveAspect = true;
         var frame = CreateUIObject("QualityFrame", slot.transform);
         Stretch(frame, new Vector2(2f, 2f), new Vector2(-2f, -2f));
-        AddImage(frame.gameObject, new Color(1f, 1f, 1f, 0.18f), false);
+        AddImage(frame.gameObject, new Color(1f, 1f, 1f, 0f), false);
 
         var icon = CreateUIObject("Icon", slot.transform);
         Stretch(icon, new Vector2(10f, 10f), new Vector2(-10f, -10f));
@@ -683,11 +821,21 @@ public static class CreateInventoryWindowPrefab
 
         var selected = CreateUIObject("Selected", slot.transform);
         Stretch(selected);
-        AddImage(selected.gameObject, new Color(1f, 0.92f, 0.45f, keyIndex == 1 ? 0.35f : 0f), false);
+        var selectedImage = AddImage(
+            selected.gameObject,
+            new Color(1f, 1f, 1f, keyIndex == 1 ? 1f : 0f),
+            false,
+            LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/equip_bg_select.png"));
+        selectedImage.preserveAspect = true;
+
+        var hitArea = CreateUIObject("HitArea", slot.transform);
+        Stretch(hitArea);
+        var button = hitArea.gameObject.AddComponent<Button>();
+        button.targetGraphic = AddImage(hitArea.gameObject, new Color(1f, 1f, 1f, 0f));
     }
 
     static GameObject CreateButton(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax,
-        Vector2 pivot, Vector2 anchoredPosition, Vector2 size, string label, Color color)
+        Vector2 pivot, Vector2 anchoredPosition, Vector2 size, string label, Color color, Sprite backgroundSprite = null)
     {
         var rect = CreateUIObject(name, parent);
         rect.anchorMin = anchorMin;
@@ -698,7 +846,8 @@ public static class CreateInventoryWindowPrefab
 
         var bg = CreateUIObject("Bg", rect.transform);
         Stretch(bg);
-        var image = AddImage(bg.gameObject, color);
+        var image = AddImage(bg.gameObject, color, true, backgroundSprite);
+        image.preserveAspect = backgroundSprite != null;
 
         var button = rect.gameObject.AddComponent<Button>();
         button.targetGraphic = image;
@@ -721,7 +870,7 @@ public static class CreateInventoryWindowPrefab
 
     static GameObject CreatePageButton(Transform parent, string name, Vector2 anchor, Vector2 anchoredPosition, string arrowText)
     {
-        var button = CreateButton(parent, name, anchor, anchor, new Vector2(0.5f, 0.5f), anchoredPosition, new Vector2(36f, 36f), string.Empty, new Color(0.88f, 0.95f, 0.98f, 0.92f));
+        var button = CreateButton(parent, name, anchor, anchor, new Vector2(0.5f, 0.5f), anchoredPosition, new Vector2(36f, 36f), string.Empty, new Color(1f, 1f, 1f, 1f), LoadSprite("Assets/Games/GameJam/assets/UI/Texture2D/button_white.png"));
         var arrow = CreateUIObject("Arrow", button.transform);
         Stretch(arrow);
         AddText(arrow.gameObject, arrowText, 20, new Color(0.52f, 0.84f, 0.25f), TextAnchor.MiddleCenter);
@@ -746,7 +895,7 @@ public static class CreateInventoryWindowPrefab
             AssetDatabase.CreateFolder("Assets/Games/GameJam", "Resources");
 
         if (!AssetDatabase.IsValidFolder(UiFolder))
-            AssetDatabase.CreateFolder("Assets/Games/GameJam/Resources", "UI");
+            AssetDatabase.CreateFolder("Assets/Games/GameJam/Resources", "GameJamUI");
     }
 
     static RectTransform CreateUIObject(string name, Transform parent)

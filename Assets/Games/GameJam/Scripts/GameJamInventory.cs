@@ -25,6 +25,7 @@ public class GameJamInventory : MonoBehaviour
 
         inventoryPanel = gameObject.AddComponent<GameJamInventoryPanel>();
         inventoryPanel.Init(Model);
+        inventoryPanel.CloseRequested += ClosePanel;
         inventoryPanel.Hide();
 
         buildingPlacer = GetComponent<GameJamBuildingPlacer>();
@@ -161,6 +162,7 @@ public class GameJamInventory : MonoBehaviour
     {
         panelOpen = true;
         inventoryPanel.Show();
+        if (hotbarHUD != null) hotbarHUD.SetVisible(false);
         if (playerController != null) playerController.enabled = false;
         UpdateCursorState();
     }
@@ -169,6 +171,7 @@ public class GameJamInventory : MonoBehaviour
     {
         panelOpen = false;
         inventoryPanel.Hide();
+        if (hotbarHUD != null) hotbarHUD.SetVisible(true);
         if (playerController != null) playerController.enabled = true;
         UpdateCursorState();
     }
