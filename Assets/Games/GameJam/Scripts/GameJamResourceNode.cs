@@ -1,57 +1,108 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+[System.Serializable]
+public struct GameJamDrop
+{
+    public string itemId;
+    public int amount;
+    [Range(0f, 1f)]
+    public float chance;
+}
 
 public class GameJamResourceNode : MonoBehaviour
 {
+    [Header("基础配置")]
     public string resourceName = "石块";
-    public int amount = 1;
-    public PortiaResourceDropConfig[] drops;
+    public int maxHp = 3;
 
-    public (string name, int amount) Harvest()
+    [Header("掉落配置")]
+    public GameJamDrop[] drops;
+
+    [Header("刷新配置 (-1 = 不刷新)")]
+    public float respawnTime = -1f;
+
+    int hp;
+    bool alive = true;
+    Vector3 originalScale;
+
+    void Start()
     {
-        var result = RollDrop();
-        Destroy(gameObject);
+        hp = maxHp;
+        originalScale = transform.localScale;
+    }
+
+    public bool IsAlive => alive;
+    public int Hp => hp;
+    public int MaxHp => maxHp;
+
+    public bool Hit()
+    {
+        if (!alive) return false;
+        hp--;
+        StartCoroutine(HitFeedback());
+        if (hp <= 0)
+        {
+            alive = false;
+            return true;
+        }
+        return false;
+    }
+
+    public List<(string itemId, int amount)> GetDrops()
+    {
+        var result = new List<(string, int)>();
+        if (drops == null) return result;
+        foreach (var drop in drops)
+        {
+            if (Random.value <= drop.chance)
+                result.Add((drop.itemId, drop.amount));
+        }
+        if (result.Count == 0 && drops.Length > 0)
+            result.Add((drops[0].itemId, drops[0].amount));
         return result;
     }
 
-    (string name, int amount) RollDrop()
+    public void OnDepleted()
     {
-        if (drops == null || drops.Length == 0)
-            return (resourceName, amount);
-
-        float totalWeight = 0f;
-        foreach (var drop in drops)
+        if (respawnTime >= 0)
         {
-            if (drop == null || string.IsNullOrWhiteSpace(drop.itemId))
-                continue;
-
-            totalWeight += Mathf.Max(0f, drop.weight);
+            SetVisible(false);
+            StartCoroutine(RespawnRoutine());
         }
-
-        if (totalWeight <= 0f)
+        else
         {
-            foreach (var drop in drops)
-            {
-                if (drop != null && !string.IsNullOrWhiteSpace(drop.itemId))
-                    return (drop.itemId, Mathf.Max(1, drop.amount));
-            }
-
-            return (resourceName, amount);
+            Destroy(gameObject);
         }
+    }
 
-        float roll = Random.value * totalWeight;
-        foreach (var drop in drops)
+    IEnumerator HitFeedback()
+    {
+        float t = 0;
+        while (t < 0.2f)
         {
-            if (drop == null || string.IsNullOrWhiteSpace(drop.itemId))
-                continue;
-
-            roll -= Mathf.Max(0f, drop.weight);
-            if (roll <= 0f)
-                return (drop.itemId, Mathf.Max(1, drop.amount));
+            t += Time.deltaTime;
+            float shake = Mathf.Sin(t * 60f) * 0.05f * (1f - t / 0.2f);
+            transform.localScale = originalScale * (1f + shake);
+            yield return null;
         }
+        transform.localScale = originalScale;
+    }
 
-        var last = drops[drops.Length - 1];
-        return last != null && !string.IsNullOrWhiteSpace(last.itemId)
-            ? (last.itemId, Mathf.Max(1, last.amount))
-            : (resourceName, amount);
+    IEnumerator RespawnRoutine()
+    {
+        yield return new WaitForSeconds(respawnTime);
+        hp = maxHp;
+        alive = true;
+        SetVisible(true);
+    }
+
+    void SetVisible(bool visible)
+    {
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            r.enabled = visible;
+        foreach (var c in GetComponentsInChildren<Collider>())
+            c.enabled = visible;
     }
 }

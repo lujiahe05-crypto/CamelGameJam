@@ -260,6 +260,9 @@ public class GameJamBuildingPlacer : MonoBehaviour
         if (GameJamMachineDB.IsMachine(currentItemId))
             building.AddComponent<GameJamMachine>().Init(currentItemId);
 
+        if (currentItemId == "储物箱")
+            building.AddComponent<GameJamStorageBox>();
+
         string placedItemId = currentItemId;
         ExitPlaceMode(true);
 

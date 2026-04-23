@@ -110,6 +110,30 @@ public static class GameJamItemDB
             GameJamItemType.Building, GameJamRarity.Common, 99, 10,
             new Color(0.5f, 0.38f, 0.2f)));
 
+        Reg(new GameJamItemDef("铜锭", "铜锭", "铜矿冶炼而成的金属锭，用于制作基础工具和建筑。",
+            GameJamItemType.Material, GameJamRarity.Common, 999, 8,
+            new Color(0.78f, 0.5f, 0.2f)));
+
+        Reg(new GameJamItemDef("铁锭", "铁锭", "铁矿冶炼而成的金属锭，坚固耐用，高级制作材料。",
+            GameJamItemType.Material, GameJamRarity.Uncommon, 999, 12,
+            new Color(0.55f, 0.55f, 0.6f)));
+
+        Reg(new GameJamItemDef("青铜锭", "青铜锭", "铜锭与铁锭合金冶炼的高级材料，兼具韧性与硬度。",
+            GameJamItemType.Material, GameJamRarity.Uncommon, 999, 15,
+            new Color(0.7f, 0.55f, 0.25f)));
+
+        Reg(new GameJamItemDef("铜镐", "铜镐", "铜制采矿工具，比石镐更高效。",
+            GameJamItemType.Tool, GameJamRarity.Common, 1, 20,
+            new Color(0.75f, 0.48f, 0.18f)));
+
+        Reg(new GameJamItemDef("铜斧", "铜斧", "铜制伐木工具，比徒手伐木快得多。",
+            GameJamItemType.Tool, GameJamRarity.Common, 1, 25,
+            new Color(0.73f, 0.46f, 0.16f)));
+
+        Reg(new GameJamItemDef("绷带", "绷带", "用草药制成的简易绷带，可恢复少量生命值。",
+            GameJamItemType.Consumable, GameJamRarity.Common, 99, 5,
+            new Color(0.9f, 0.88f, 0.8f)));
+
         ApplyConfigOverrides();
     }
 

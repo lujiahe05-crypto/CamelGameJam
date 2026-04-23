@@ -52,6 +52,12 @@ public static class GameJamMachineDB
             maxFuelUnits = 40,
             recipes = new List<GameJamRecipe>
             {
+                new GameJamRecipe("furnace_copper_ingot", "铜锭", 1,
+                    new Dictionary<string, int> { { "铜矿", 2 } }, 25f, true),
+                new GameJamRecipe("furnace_iron_ingot", "铁锭", 1,
+                    new Dictionary<string, int> { { "铁矿", 2 } }, 30f, true),
+                new GameJamRecipe("furnace_bronze_ingot", "青铜锭", 1,
+                    new Dictionary<string, int> { { "铜锭", 1 }, { "铁锭", 1 } }, 35f, true),
                 new GameJamRecipe("furnace_glass", "玻璃", 25,
                     new Dictionary<string, int> { { "沙子", 8 } }, 45f, true),
                 new GameJamRecipe("furnace_charcoal", "木炭", 1,
@@ -71,6 +77,37 @@ public static class GameJamMachineDB
             {
                 new GameJamRecipe("cutter_plank", "木板", 1,
                     new Dictionary<string, int> { { "木材", 2 } }, 15f, false),
+            }
+        });
+
+        Reg(new GameJamMachineDef
+        {
+            machineId = "工作台",
+            displayName = "工作台",
+            hasFuelSystem = false,
+            fuelItemId = null,
+            fuelPerWood = 0,
+            maxFuelUnits = 0,
+            recipes = new List<GameJamRecipe>
+            {
+                new GameJamRecipe("bench_stone_pick", "石镐", 1,
+                    new Dictionary<string, int> { { "石块", 10 }, { "木材", 5 } }, 10f, false),
+                new GameJamRecipe("bench_copper_pick", "铜镐", 1,
+                    new Dictionary<string, int> { { "铜锭", 3 }, { "木材", 5 } }, 15f, false),
+                new GameJamRecipe("bench_copper_axe", "铜斧", 1,
+                    new Dictionary<string, int> { { "铜锭", 3 }, { "木材", 8 } }, 15f, false),
+                new GameJamRecipe("bench_iron_axe", "铁斧", 1,
+                    new Dictionary<string, int> { { "铁锭", 3 }, { "木材", 8 } }, 20f, false),
+                new GameJamRecipe("bench_leather", "皮甲", 1,
+                    new Dictionary<string, int> { { "青铜锭", 5 }, { "木材", 3 } }, 25f, false),
+                new GameJamRecipe("bench_bandage", "绷带", 2,
+                    new Dictionary<string, int> { { "草药", 3 } }, 8f, false),
+                new GameJamRecipe("bench_furnace", "民用熔炉", 1,
+                    new Dictionary<string, int> { { "石块", 10 }, { "铜锭", 5 } }, 30f, false),
+                new GameJamRecipe("bench_cutter", "切割机", 1,
+                    new Dictionary<string, int> { { "铁锭", 8 }, { "木材", 10 } }, 30f, false),
+                new GameJamRecipe("bench_storage", "储物箱", 1,
+                    new Dictionary<string, int> { { "木板", 6 } }, 10f, false),
             }
         });
 
