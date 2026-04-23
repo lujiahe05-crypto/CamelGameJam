@@ -160,7 +160,7 @@ public class GameJamGame : MonoBehaviour
     {
 #if UNITY_EDITOR
         var stonePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/Games/GameJam/Model/interactive/stone/stone_interactive_01.prefab");
+            "Assets/Games/GameJam/assets/Model/interactive/stone/stone_interactive_01.prefab");
         if (stonePrefab != null)
         {
             SpawnDecor(stonePrefab, new Vector3(15, 0, 12));
@@ -168,7 +168,7 @@ public class GameJamGame : MonoBehaviour
         }
 
         var boxPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/Games/GameJam/Model/itembox/objects_box_baoxiang01_Anim_Play.prefab");
+            "Assets/Games/GameJam/assets/Model/itembox/objects_box_baoxiang01_Anim_Play.prefab");
         if (boxPrefab != null)
             SpawnDecor(boxPrefab, new Vector3(-15, 0, 5));
 #endif
@@ -377,7 +377,7 @@ public class GameJamGame : MonoBehaviour
 
 #if UNITY_EDITOR
         prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/Games/GameJam/Model/actor/Npc_Oaks.prefab");
+            "Assets/Games/GameJam/assets/Model/actor/Npc_Oaks.prefab");
 #endif
 
         Vector3 spawnPos = isSceneMain ? SceneMainSpawnPoint : Vector3.zero;
@@ -419,7 +419,7 @@ public class GameJamGame : MonoBehaviour
 
 #if UNITY_EDITOR
         var animCtrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
-            "Assets/Games/GameJam/gamemodules/animation/animator/Anim_Medium_Oaks.controller");
+            "Assets/Games/GameJam/assets/gamemodules/animation/animator/Anim_Medium_Oaks.controller");
         if (animCtrl != null)
         {
             var animator = player.GetComponentInChildren<Animator>();
