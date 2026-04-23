@@ -248,8 +248,7 @@ public class GameJamMachine : MonoBehaviour
 
             case GameJamMachineState.Crafting:
                 floatingGo.SetActive(true);
-                var outDef = GameJamItemDB.Get(ProductItemId);
-                floatingIcon.color = outDef != null ? outDef.iconColor : Color.gray;
+                GameJamArtLoader.ApplyItemIcon(floatingIcon, ProductItemId, Color.gray);
                 if (FuelPaused)
                     floatingText.text = "燃料不足";
                 else if (CraftCount > 1)
@@ -260,8 +259,7 @@ public class GameJamMachine : MonoBehaviour
 
             case GameJamMachineState.Complete:
                 floatingGo.SetActive(true);
-                var pDef = GameJamItemDB.Get(ProductItemId);
-                floatingIcon.color = pDef != null ? pDef.iconColor : Color.gray;
+                GameJamArtLoader.ApplyItemIcon(floatingIcon, ProductItemId, Color.gray);
                 floatingText.text = "合成完毕";
                 break;
         }

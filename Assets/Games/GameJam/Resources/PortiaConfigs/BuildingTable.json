@@ -1,28 +1,32 @@
-{
-    "buildings": [
-        {
-            "itemId": "熔炉",
-            "gridW": 2,
-            "gridH": 2,
-            "height": 1.7999999523162842
-        },
-        {
-            "itemId": "切割机",
-            "gridW": 3,
-            "gridH": 2,
-            "height": 1.399999976158142
-        },
-        {
-            "itemId": "组装台",
-            "gridW": 3,
-            "gridH": 2,
-            "height": 1.5
-        },
-        {
-            "itemId": "烹饪锅",
-            "gridW": 2,
-            "gridH": 2,
-            "height": 1.0
-        }
-    ]
+﻿{
+    "buildings":  [
+                      {
+                          "itemId":  "熔炉",
+                          "gridW":  2,
+                          "gridH":  2,
+                          "height":  1.8,
+                          "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\home\\HomeItem_Grinder1.prefab"
+                      },
+                      {
+                          "itemId":  "切割机",
+                          "gridW":  3,
+                          "gridH":  2,
+                          "height":  1.4,
+                          "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\home\\HomeItem_Cutting2.prefab"
+                      },
+                      {
+                          "itemId":  "组装台",
+                          "gridW":  3,
+                          "gridH":  2,
+                          "height":  1.5,
+                          "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\home\\Factory_lv1.prefab"
+                      },
+                      {
+                          "itemId":  "烹饪锅",
+                          "gridW":  2,
+                          "gridH":  2,
+                          "height":  1,
+                          "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\home\\HomeItem_CookMachine.prefab"
+                      }
+                  ]
 }

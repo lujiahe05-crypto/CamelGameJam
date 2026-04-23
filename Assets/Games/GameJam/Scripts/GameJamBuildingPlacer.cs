@@ -179,6 +179,8 @@ public class GameJamBuildingPlacer : MonoBehaviour
 
             previewGo.transform.position = snapped;
             previewGo.transform.rotation = Quaternion.Euler(0, rotationStep * 90f, 0);
+            if (GameJamBuildingDB.HasConfiguredPrefab(currentItemId))
+                GameJamArtLoader.AlignObjectBaseToWorldY(previewGo, snapped.y);
 
             gridMarkersGo.transform.position = snapped;
             gridMarkersGo.transform.rotation = Quaternion.Euler(0, rotationStep * 90f, 0);
@@ -282,6 +284,8 @@ public class GameJamBuildingPlacer : MonoBehaviour
         building.transform.SetParent(sceneRoot);
         building.transform.position = pos;
         building.transform.rotation = rot;
+        if (GameJamBuildingDB.HasConfiguredPrefab(currentItemId))
+            GameJamArtLoader.AlignObjectBaseToWorldY(building, pos.y);
 
         int gw = currentDef.gridW;
         int gh = currentDef.gridH;

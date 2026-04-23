@@ -7,6 +7,7 @@ public class GameJamBuildingDef
     public int gridW;
     public int gridH;
     public float height;
+    public string prefabPath;
 }
 
 public static class GameJamBuildingDB
@@ -48,7 +49,8 @@ public static class GameJamBuildingDB
                 itemId = entry.itemId,
                 gridW = entry.gridW > 0 ? entry.gridW : existing != null ? existing.gridW : 1,
                 gridH = entry.gridH > 0 ? entry.gridH : existing != null ? existing.gridH : 1,
-                height = entry.height > 0f ? entry.height : existing != null ? existing.height : 1f
+                height = entry.height > 0f ? entry.height : existing != null ? existing.height : 1f,
+                prefabPath = !string.IsNullOrWhiteSpace(entry.prefabPath) ? entry.prefabPath : existing != null ? existing.prefabPath : null
             });
         }
     }
@@ -65,12 +67,34 @@ public static class GameJamBuildingDB
         return defs.ContainsKey(itemId);
     }
 
+    public static bool HasConfiguredPrefab(string itemId)
+    {
+        Init();
+        if (defs.TryGetValue(itemId, out var buildingDef) && !string.IsNullOrWhiteSpace(buildingDef.prefabPath))
+            return true;
+
+        var itemDef = GameJamItemDB.Get(itemId);
+        return itemDef != null && !string.IsNullOrWhiteSpace(itemDef.prefabPath);
+    }
+
     public static GameObject CreateBuildingMesh(string itemId)
     {
         string displayName = itemId;
+        var buildingDef = Get(itemId);
         var itemDef = GameJamItemDB.Get(itemId);
         if (itemDef != null && !string.IsNullOrWhiteSpace(itemDef.name))
             displayName = itemDef.name;
+
+        string prefabPath = buildingDef != null && !string.IsNullOrWhiteSpace(buildingDef.prefabPath)
+            ? buildingDef.prefabPath
+            : itemDef != null ? itemDef.prefabPath : null;
+        var configuredPrefab = GameJamArtLoader.InstantiatePrefab(prefabPath);
+        if (configuredPrefab != null)
+        {
+            configuredPrefab.name = displayName;
+            RemoveAllColliders(configuredPrefab);
+            return configuredPrefab;
+        }
 
         switch (displayName)
         {

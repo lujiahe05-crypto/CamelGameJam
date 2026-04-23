@@ -351,13 +351,12 @@ public class GameJamStoragePanel : MonoBehaviour
 
         if (slot == null || slot.IsEmpty)
         {
-            icon.color = Color.clear;
+            GameJamArtLoader.ClearIcon(icon);
             count.text = "";
         }
         else
         {
-            var def = GameJamItemDB.Get(slot.itemId);
-            icon.color = def != null ? def.iconColor : Color.gray;
+            GameJamArtLoader.ApplyItemIcon(icon, slot.itemId, Color.gray);
             count.text = slot.count > 1 ? slot.count.ToString() : "";
         }
     }

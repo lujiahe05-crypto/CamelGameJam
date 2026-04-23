@@ -363,8 +363,6 @@ public class GameJamMachinePanel : MonoBehaviour
 
         var outDef = GameJamItemDB.Get(recipe.outputItemId);
         string outName = outDef != null ? outDef.name : recipe.outputItemId;
-        Color outColor = outDef != null ? outDef.iconColor : Color.gray;
-
         // Output icon
         var iconGo = MakeRect("Icon", row.transform);
         var iconRect = iconGo.GetComponent<RectTransform>();
@@ -373,7 +371,8 @@ public class GameJamMachinePanel : MonoBehaviour
         iconRect.pivot = new Vector2(0, 0.5f);
         iconRect.anchoredPosition = new Vector2(12, 8);
         iconRect.sizeDelta = new Vector2(48, 48);
-        iconGo.AddComponent<Image>().color = outColor;
+        var outputIcon = iconGo.AddComponent<Image>();
+        GameJamArtLoader.ApplyItemIcon(outputIcon, recipe.outputItemId, outDef != null ? outDef.iconColor : Color.gray);
 
         // Output name + amount
         MakeText("Name", row.transform, 16, TextAnchor.MiddleLeft, TextBright,
@@ -411,7 +410,8 @@ public class GameJamMachinePanel : MonoBehaviour
             miRect.pivot = new Vector2(0, 0.5f);
             miRect.anchoredPosition = Vector2.zero;
             miRect.sizeDelta = new Vector2(18, 0);
-            matIcon.AddComponent<Image>().color = matDef != null ? matDef.iconColor : Color.gray;
+            var materialIcon = matIcon.AddComponent<Image>();
+            GameJamArtLoader.ApplyItemIcon(materialIcon, kv.Key, matDef != null ? matDef.iconColor : Color.gray);
 
             // Mat text
             var matText = MakeText("MText", matGo.transform, 12, TextAnchor.MiddleLeft,

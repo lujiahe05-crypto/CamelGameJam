@@ -14,9 +14,12 @@ public class GameJamItemDef
     public int maxStack;
     public int sellPrice;
     public Color iconColor;
+    public string iconPath;
+    public string prefabPath;
 
     public GameJamItemDef(string id, string name, string desc, GameJamItemType type,
-        GameJamRarity rarity, int maxStack, int sellPrice, Color iconColor)
+        GameJamRarity rarity, int maxStack, int sellPrice, Color iconColor,
+        string iconPath = null, string prefabPath = null)
     {
         this.id = id;
         this.name = name;
@@ -26,6 +29,8 @@ public class GameJamItemDef
         this.maxStack = maxStack;
         this.sellPrice = sellPrice;
         this.iconColor = iconColor;
+        this.iconPath = iconPath;
+        this.prefabPath = prefabPath;
     }
 }
 
@@ -197,7 +202,9 @@ public static class GameJamItemDB
                 rarity,
                 maxStack,
                 sellPrice,
-                iconColor));
+                iconColor,
+                entry.iconPath,
+                entry.prefabPath));
         }
     }
 

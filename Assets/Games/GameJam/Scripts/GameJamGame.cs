@@ -222,7 +222,8 @@ public class GameJamGame : MonoBehaviour
                 int hp = Mathf.Max(1, entry.amount);
                 float respawn = (entry.amount <= 1 && entry.num <= 1) ? -1f : 120f;
                 bool useAbsoluteWorldPosition = isSceneMain && entry.position != null;
-                CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops, Mathf.Max(0, entry.num), InferGatherAnim(itemId), useAbsoluteWorldPosition);
+                CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops,
+                    Mathf.Max(0, entry.num), InferGatherAnim(itemId), useAbsoluteWorldPosition, entry.prefabPath);
             }
         }
         else
@@ -337,14 +338,27 @@ public class GameJamGame : MonoBehaviour
 
     void CreateResourceNode(string resName, Material mat, PrimitiveType shape,
         Vector3 scale, Vector3 pos, int hp, float respawn, PortiaResourceDropConfig[] drops,
-        int num = 0, GameJamGatherAnim gatherAnim = GameJamGatherAnim.Mine, bool useAbsoluteWorldPosition = false)
+        int num = 0, GameJamGatherAnim gatherAnim = GameJamGatherAnim.Mine,
+        bool useAbsoluteWorldPosition = false, string prefabPath = null)
     {
-        var go = GameObject.CreatePrimitive(shape);
+        var go = GameJamArtLoader.InstantiatePrefab(prefabPath);
+        bool hasCustomPrefab = go != null;
+        if (!hasCustomPrefab)
+        {
+            go = GameObject.CreatePrimitive(shape);
+            go.GetComponent<Renderer>().material = mat;
+            go.transform.localScale = scale;
+        }
+
         go.name = resName;
         go.transform.SetParent(sceneRoot.transform);
-        go.transform.position = useAbsoluteWorldPosition ? pos : OffsetPosition(pos);
-        go.transform.localScale = scale;
-        go.GetComponent<Renderer>().material = mat;
+        Vector3 targetPosition = useAbsoluteWorldPosition ? pos : OffsetPosition(pos);
+        go.transform.position = targetPosition;
+        if (hasCustomPrefab)
+        {
+            GameJamArtLoader.AlignObjectBaseToWorldY(go, targetPosition.y);
+            EnsurePrefabCollider(go);
+        }
 
         var node = go.AddComponent<GameJamResourceNode>();
         node.resourceName = resName;
@@ -356,12 +370,33 @@ public class GameJamGame : MonoBehaviour
         node.gatherAnim = gatherAnim;
     }
 
+    void EnsurePrefabCollider(GameObject go)
+    {
+        if (go == null || go.GetComponentInChildren<Collider>() != null)
+            return;
+
+        var renderers = go.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+            return;
+
+        var bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        var collider = go.AddComponent<BoxCollider>();
+        collider.center = go.transform.InverseTransformPoint(bounds.center);
+        collider.size = bounds.size;
+    }
+
     void CreatePlacedMachine(string machineId, Vector3 pos)
     {
         var building = GameJamBuildingDB.CreateBuildingMesh(machineId);
         building.name = machineId;
         building.transform.SetParent(sceneRoot.transform);
-        building.transform.position = OffsetPosition(pos);
+        Vector3 targetPosition = OffsetPosition(pos);
+        building.transform.position = targetPosition;
+        if (GameJamBuildingDB.HasConfiguredPrefab(machineId))
+            GameJamArtLoader.AlignObjectBaseToWorldY(building, targetPosition.y);
 
         var bDef = GameJamBuildingDB.Get(machineId);
         if (bDef != null)

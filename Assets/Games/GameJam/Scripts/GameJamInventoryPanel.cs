@@ -636,7 +636,7 @@ public class GameJamInventoryPanel : MonoBehaviour
         if (slot.IsEmpty)
         {
             bg.color = selected ? SlotSelected : SlotEmpty;
-            icon.color = Color.clear;
+            GameJamArtLoader.ClearIcon(icon);
             count.text = "";
             border.color = selected ? GameJamItemDB.GetRarityColor(GameJamRarity.Common) : BorderDefault;
         }
@@ -644,7 +644,7 @@ public class GameJamInventoryPanel : MonoBehaviour
         {
             var def = GameJamItemDB.Get(slot.itemId);
             bg.color = selected ? SlotSelected : SlotFilled;
-            icon.color = def != null ? def.iconColor : Color.gray;
+            GameJamArtLoader.ApplyItemIcon(icon, slot.itemId, Color.gray);
             count.text = slot.count > 1 ? slot.count.ToString() : "";
             if (selected && def != null)
                 border.color = GameJamItemDB.GetRarityColor(def.rarity);
@@ -732,7 +732,7 @@ public class GameJamInventoryPanel : MonoBehaviour
         }
 
         detailGo.SetActive(true);
-        detailIcon.color = def.iconColor;
+        GameJamArtLoader.ApplyItemIcon(detailIcon, slot.itemId, def.iconColor);
         detailName.text = def.name;
         var rarityColor = GameJamItemDB.GetRarityColor(def.rarity);
         detailType.text = $"{GameJamItemDB.GetTypeName(def.type)} · {GameJamItemDB.GetRarityName(def.rarity)}";

@@ -39,6 +39,8 @@ public class PortiaItemConfig
     public int maxStack = 99;
     public int sellPrice;
     public PortiaColorData iconColor;
+    public string iconPath;
+    public string prefabPath;
 }
 
 [Serializable]
@@ -54,6 +56,7 @@ public class PortiaBuildingConfig
     public int gridW = 1;
     public int gridH = 1;
     public float height = 1f;
+    public string prefabPath;
 }
 
 [Serializable]
@@ -125,6 +128,7 @@ public class PortiaResourceNodeConfig
     public PortiaVector3Data position;
     public PortiaColorData color;
     public PortiaResourceDropConfig[] drops;
+    public string prefabPath;
 }
 
 [Serializable]

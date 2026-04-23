@@ -223,13 +223,12 @@ public class GameJamHotbarHUD : MonoBehaviour
         var slot = model.hotbarSlots[index];
         if (slot.IsEmpty)
         {
-            slotIcons[index].color = Color.clear;
+            GameJamArtLoader.ClearIcon(slotIcons[index]);
             slotCounts[index].text = "";
         }
         else
         {
-            var def = GameJamItemDB.Get(slot.itemId);
-            slotIcons[index].color = def != null ? def.iconColor : Color.gray;
+            GameJamArtLoader.ApplyItemIcon(slotIcons[index], slot.itemId, Color.gray);
             slotCounts[index].text = slot.count > 1 ? slot.count.ToString() : "";
         }
     }

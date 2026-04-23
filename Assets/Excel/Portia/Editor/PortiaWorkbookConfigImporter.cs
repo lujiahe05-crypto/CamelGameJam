@@ -64,7 +64,9 @@ public static class PortiaWorkbookConfigImporter
                 DisplayName = row.GetRequired("displayName"),
                 RawType = row.GetInt("Type"),
                 FoodValue = row.GetIntOrDefault("FoodValue", 0),
-                Energy = row.GetIntOrDefault("Energy", 0)
+                Energy = row.GetIntOrDefault("Energy", 0),
+                IconPath = row.GetOrDefault("iconPath", string.Empty),
+                PrefabPath = row.GetOrDefault("prefabPath", string.Empty)
             });
         }
 
@@ -83,7 +85,8 @@ public static class PortiaWorkbookConfigImporter
                 FuelItemTypeId = row.GetIntOrDefault("Fuel_Id", 0),
                 FuelMax = row.GetIntOrDefault("Fuel_Max", 0),
                 FuelMinutes = row.GetFloatOrDefault("Minutes", 0f),
-                OutputItemTypeId = row.GetIntOrDefault("item", 0)
+                OutputItemTypeId = row.GetIntOrDefault("item", 0),
+                PrefabPath = row.GetOrDefault("prefabPath", row.GetOrDefault("cityLevel_Open", string.Empty))
             });
         }
 
@@ -136,7 +139,8 @@ public static class PortiaWorkbookConfigImporter
                 Label = row.GetRequired("name"),
                 AttackCount = row.GetIntOrDefault("attacknum", 1),
                 TotalAmount = row.GetIntOrDefault("num", 0),
-                Drops = drops
+                Drops = drops,
+                PrefabPath = row.GetOrDefault("prefabPath", string.Empty)
             });
         }
 
@@ -184,7 +188,9 @@ public static class PortiaWorkbookConfigImporter
                     rarity = "Common",
                     maxStack = GetDefaultMaxStack(row.RawType),
                     sellPrice = 0,
-                    iconColor = GetColorByItemTypeId(row.ItemTypeId)
+                    iconColor = GetColorByItemTypeId(row.ItemTypeId),
+                    iconPath = row.IconPath,
+                    prefabPath = row.PrefabPath
                 })
                 .ToArray()
         };
@@ -203,7 +209,8 @@ public static class PortiaWorkbookConfigImporter
                         itemId = row.Type,
                         gridW = size.gridW,
                         gridH = size.gridH,
-                        height = size.height
+                        height = size.height,
+                        prefabPath = row.PrefabPath
                     };
                 })
                 .ToArray()
@@ -314,10 +321,16 @@ public static class PortiaWorkbookConfigImporter
                     amount = Mathf.Max(1, row.AttackCount),
                     num = Mathf.Max(0, row.TotalAmount),
                     shape = preset.Shape,
-                    scale = new PortiaVector3Data { x = preset.Scale.x, y = preset.Scale.y, z = preset.Scale.z },
+                    scale = new PortiaVector3Data
+                    {
+                        x = string.IsNullOrWhiteSpace(row.PrefabPath) ? preset.Scale.x : 1f,
+                        y = string.IsNullOrWhiteSpace(row.PrefabPath) ? preset.Scale.y : 1f,
+                        z = string.IsNullOrWhiteSpace(row.PrefabPath) ? preset.Scale.z : 1f
+                    },
                     position = new PortiaVector3Data { x = position.x, y = position.y, z = position.z },
                     color = preset.Color,
-                    drops = row.Drops.ToArray()
+                    drops = row.Drops.ToArray(),
+                    prefabPath = row.PrefabPath
                 });
             }
         }
@@ -582,6 +595,8 @@ public static class PortiaWorkbookConfigImporter
         public int RawType;
         public int FoodValue;
         public int Energy;
+        public string IconPath;
+        public string PrefabPath;
     }
 
     sealed class MachineRow
@@ -592,6 +607,7 @@ public static class PortiaWorkbookConfigImporter
         public int FuelMax;
         public float FuelMinutes;
         public int OutputItemTypeId;
+        public string PrefabPath;
     }
 
     sealed class RecipeRow
@@ -612,6 +628,7 @@ public static class PortiaWorkbookConfigImporter
         public int AttackCount;
         public int TotalAmount;
         public List<PortiaResourceDropConfig> Drops;
+        public string PrefabPath;
     }
 
     sealed class ResourcePositionRow

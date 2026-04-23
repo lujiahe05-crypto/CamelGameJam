@@ -1,232 +1,242 @@
-{
-    "groundScaleX": 5.0,
-    "groundScaleZ": 5.0,
-    "boundaryHalfSize": 25.0,
-    "boundaryWallHeight": 2.0,
-    "boundaryWallThickness": 0.5,
-    "playerMoveSpeed": 6.0,
-    "playerJumpHeight": 1.2000000476837159,
-    "playerGravity": -20.0,
-    "playerTurnSmoothTime": 0.10000000149011612,
-    "interactRadius": 2.5,
-    "initialInventory": [
-        {
-            "itemId": "斧头",
-            "amount": 1
-        },
-        {
-            "itemId": "矿稿",
-            "amount": 1
-        },
-        {
-            "itemId": "木材",
-            "amount": 20
-        },
-        {
-            "itemId": "石头",
-            "amount": 10
-        }
-    ],
-    "resourceNodes": [
-        {
-            "label": "树",
-            "itemId": "木材",
-            "amount": 3,
-            "num": 20,
-            "shape": "Cylinder",
-            "scale": {
-                "x": 0.30000001192092898,
-                "y": 0.800000011920929,
-                "z": 0.30000001192092898
-            },
-            "position": {
-                "x": 234.26699829101563,
-                "y": 44.599998474121097,
-                "z": -121.24500274658203
-            },
-            "color": {
-                "r": 0.5,
-                "g": 0.33000001311302187,
-                "b": 0.15000000596046449,
-                "a": 1.0
-            },
-            "drops": [
-                {
-                    "itemId": "木材",
-                    "amount": 1,
-                    "weight": 100.0
-                }
-            ]
-        },
-        {
-            "label": "石头",
-            "itemId": "石头",
-            "amount": 3,
-            "num": 20,
-            "shape": "Sphere",
-            "scale": {
-                "x": 1.100000023841858,
-                "y": 0.75,
-                "z": 1.0
-            },
-            "position": {
-                "x": 239.03700256347657,
-                "y": 45.51599884033203,
-                "z": -125.48200225830078
-            },
-            "color": {
-                "r": 0.6000000238418579,
-                "g": 0.6000000238418579,
-                "b": 0.5799999833106995,
-                "a": 1.0
-            },
-            "drops": [
-                {
-                    "itemId": "石头",
-                    "amount": 1,
-                    "weight": 50.0
-                },
-                {
-                    "itemId": "能源石",
-                    "amount": 1,
-                    "weight": 50.0
-                }
-            ]
-        },
-        {
-            "label": "矿脉",
-            "itemId": "锡矿石",
-            "amount": 3,
-            "num": 20,
-            "shape": "Sphere",
-            "scale": {
-                "x": 0.8500000238418579,
-                "y": 0.8500000238418579,
-                "z": 0.8500000238418579
-            },
-            "position": {
-                "x": 243.5570068359375,
-                "y": 43.6879997253418,
-                "z": -129.95799255371095
-            },
-            "color": {
-                "r": 0.6499999761581421,
-                "g": 0.46000000834465029,
-                "b": 0.25999999046325686,
-                "a": 1.0
-            },
-            "drops": [
-                {
-                    "itemId": "锡矿石",
-                    "amount": 1,
-                    "weight": 50.0
-                },
-                {
-                    "itemId": "铜矿",
-                    "amount": 1,
-                    "weight": 50.0
-                }
-            ]
-        },
-        {
-            "label": "采集物树枝u",
-            "itemId": "木材",
-            "amount": 1,
-            "num": 1,
-            "shape": "Cylinder",
-            "scale": {
-                "x": 0.18000000715255738,
-                "y": 0.25,
-                "z": 0.18000000715255738
-            },
-            "position": {
-                "x": 226.3459930419922,
-                "y": 42.86199951171875,
-                "z": -140.96099853515626
-            },
-            "color": {
-                "r": 0.5600000023841858,
-                "g": 0.36000001430511477,
-                "b": 0.18000000715255738,
-                "a": 1.0
-            },
-            "drops": [
-                {
-                    "itemId": "木材",
-                    "amount": 1,
-                    "weight": 100.0
-                }
-            ]
-        },
-        {
-            "label": "采集物石块",
-            "itemId": "石头",
-            "amount": 1,
-            "num": 1,
-            "shape": "Sphere",
-            "scale": {
-                "x": 0.4000000059604645,
-                "y": 0.25,
-                "z": 0.3499999940395355
-            },
-            "position": {
-                "x": 219.2519989013672,
-                "y": 43.84000015258789,
-                "z": -138.31500244140626
-            },
-            "color": {
-                "r": 0.6200000047683716,
-                "g": 0.6200000047683716,
-                "b": 0.6000000238418579,
-                "a": 1.0
-            },
-            "drops": [
-                {
-                    "itemId": "石头",
-                    "amount": 1,
-                    "weight": 100.0
-                }
-            ]
-        },
-        {
-            "label": "采集物蘑菇",
-            "itemId": "蘑菇",
-            "amount": 1,
-            "num": 1,
-            "shape": "Capsule",
-            "scale": {
-                "x": 0.20000000298023225,
-                "y": 0.25,
-                "z": 0.20000000298023225
-            },
-            "position": {
-                "x": 229.98599243164063,
-                "y": 42.18299865722656,
-                "z": -143.83700561523438
-            },
-            "color": {
-                "r": 0.7799999713897705,
-                "g": 0.2199999988079071,
-                "b": 0.20000000298023225,
-                "a": 1.0
-            },
-            "drops": [
-                {
-                    "itemId": "蘑菇",
-                    "amount": 1,
-                    "weight": 100.0
-                }
-            ]
-        }
-    ],
-    "placedMachines": [
-        {
-            "machineId": "组装台",
-            "position": {
-                "x": -2.0,
-                "y": 0.0,
-                "z": -5.0
-            }
-        }
-    ]
+﻿{
+    "groundScaleX":  5,
+    "groundScaleZ":  5,
+    "boundaryHalfSize":  25,
+    "boundaryWallHeight":  2,
+    "boundaryWallThickness":  0.5,
+    "playerMoveSpeed":  6,
+    "playerJumpHeight":  1.2,
+    "playerGravity":  -20,
+    "playerTurnSmoothTime":  0.1,
+    "interactRadius":  2.5,
+    "initialInventory":  [
+                             {
+                                 "itemId":  "斧头",
+                                 "amount":  1
+                             },
+                             {
+                                 "itemId":  "矿稿",
+                                 "amount":  1
+                             },
+                             {
+                                 "itemId":  "木材",
+                                 "amount":  20
+                             },
+                             {
+                                 "itemId":  "石头",
+                                 "amount":  10
+                             },
+                             {
+                                 "itemId":  "组装台",
+                                 "amount":  1
+                             }
+                         ],
+    "resourceNodes":  [
+                          {
+                              "label":  "树",
+                              "itemId":  "木材",
+                              "amount":  3,
+                              "num":  20,
+                              "shape":  "Cylinder",
+                              "scale":  {
+                                            "x":  1,
+                                            "y":  1,
+                                            "z":  1
+                                        },
+                              "position":  {
+                                               "x":  234.267,
+                                               "y":  44.6,
+                                               "z":  -121.245
+                                           },
+                              "color":  {
+                                            "r":  0.5,
+                                            "g":  0.33,
+                                            "b":  0.15,
+                                            "a":  1
+                                        },
+                              "drops":  [
+                                            {
+                                                "itemId":  "木材",
+                                                "amount":  1,
+                                                "weight":  100
+                                            }
+                                        ],
+                              "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\GameObject\\tree007_7"
+                          },
+                          {
+                              "label":  "石头",
+                              "itemId":  "石头",
+                              "amount":  3,
+                              "num":  20,
+                              "shape":  "Sphere",
+                              "scale":  {
+                                            "x":  1,
+                                            "y":  1,
+                                            "z":  1
+                                        },
+                              "position":  {
+                                               "x":  239.037,
+                                               "y":  45.516,
+                                               "z":  -125.482
+                                           },
+                              "color":  {
+                                            "r":  0.6,
+                                            "g":  0.6,
+                                            "b":  0.58,
+                                            "a":  1
+                                        },
+                              "drops":  [
+                                            {
+                                                "itemId":  "石头",
+                                                "amount":  1,
+                                                "weight":  50
+                                            },
+                                            {
+                                                "itemId":  "能源石",
+                                                "amount":  1,
+                                                "weight":  50
+                                            }
+                                        ],
+                              "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\interactive\\stone\\stone_interactive_01"
+                          },
+                          {
+                              "label":  "矿脉",
+                              "itemId":  "锡矿石",
+                              "amount":  3,
+                              "num":  20,
+                              "shape":  "Sphere",
+                              "scale":  {
+                                            "x":  1,
+                                            "y":  1,
+                                            "z":  1
+                                        },
+                              "position":  {
+                                               "x":  243.557,
+                                               "y":  43.688,
+                                               "z":  -129.958
+                                           },
+                              "color":  {
+                                            "r":  0.65,
+                                            "g":  0.46,
+                                            "b":  0.26,
+                                            "a":  1
+                                        },
+                              "drops":  [
+                                            {
+                                                "itemId":  "锡矿石",
+                                                "amount":  1,
+                                                "weight":  50
+                                            },
+                                            {
+                                                "itemId":  "铜矿",
+                                                "amount":  1,
+                                                "weight":  50
+                                            }
+                                        ],
+                              "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\interactive\\stone\\stone_interactive_color_01"
+                          },
+                          {
+                              "label":  "采集物树枝u",
+                              "itemId":  "木材",
+                              "amount":  1,
+                              "num":  1,
+                              "shape":  "Cylinder",
+                              "scale":  {
+                                            "x":  0.18,
+                                            "y":  0.25,
+                                            "z":  0.18
+                                        },
+                              "position":  {
+                                               "x":  226.346,
+                                               "y":  42.862,
+                                               "z":  -140.961
+                                           },
+                              "color":  {
+                                            "r":  0.56,
+                                            "g":  0.36,
+                                            "b":  0.18,
+                                            "a":  1
+                                        },
+                              "drops":  [
+                                            {
+                                                "itemId":  "木材",
+                                                "amount":  1,
+                                                "weight":  100
+                                            }
+                                        ],
+                              "prefabPath":  ""
+                          },
+                          {
+                              "label":  "采集物石块",
+                              "itemId":  "石头",
+                              "amount":  1,
+                              "num":  1,
+                              "shape":  "Sphere",
+                              "scale":  {
+                                            "x":  1,
+                                            "y":  1,
+                                            "z":  1
+                                        },
+                              "position":  {
+                                               "x":  219.252,
+                                               "y":  43.84,
+                                               "z":  -138.315
+                                           },
+                              "color":  {
+                                            "r":  0.62,
+                                            "g":  0.62,
+                                            "b":  0.6,
+                                            "a":  1
+                                        },
+                              "drops":  [
+                                            {
+                                                "itemId":  "石头",
+                                                "amount":  1,
+                                                "weight":  100
+                                            }
+                                        ],
+                              "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\plant\\stone_mini"
+                          },
+                          {
+                              "label":  "采集物蘑菇",
+                              "itemId":  "蘑菇",
+                              "amount":  1,
+                              "num":  1,
+                              "shape":  "Capsule",
+                              "scale":  {
+                                            "x":  1,
+                                            "y":  1,
+                                            "z":  1
+                                        },
+                              "position":  {
+                                               "x":  229.986,
+                                               "y":  42.183,
+                                               "z":  -143.837
+                                           },
+                              "color":  {
+                                            "r":  0.78,
+                                            "g":  0.22,
+                                            "b":  0.2,
+                                            "a":  1
+                                        },
+                              "drops":  [
+                                            {
+                                                "itemId":  "蘑菇",
+                                                "amount":  1,
+                                                "weight":  100
+                                            }
+                                        ],
+                              "prefabPath":  "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\ItemMall_mushroom"
+                          }
+                      ],
+    "placedMachines":  [
+                           {
+                               "machineId":  "组装台",
+                               "position":  {
+                                                "x":  -2,
+                                                "y":  0,
+                                                "z":  -5
+                                            }
+                           }
+                       ]
 }

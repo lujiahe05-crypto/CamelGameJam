@@ -33,7 +33,7 @@ public class GameJamSlotDragHandler : MonoBehaviour,
         var rect = dragIcon.AddComponent<RectTransform>();
         rect.sizeDelta = new Vector2(50, 50);
         var img = dragIcon.AddComponent<Image>();
-        img.color = def != null ? def.iconColor : Color.gray;
+        GameJamArtLoader.ApplyItemIcon(img, slots[slotIndex].itemId, def != null ? def.iconColor : Color.gray);
         img.raycastTarget = false;
         var cg = dragIcon.AddComponent<CanvasGroup>();
         cg.blocksRaycasts = false;
