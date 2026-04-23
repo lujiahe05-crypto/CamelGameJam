@@ -420,8 +420,9 @@ public class GameJamGame : MonoBehaviour
             "Assets/Games/GameJam/gamemodules/animation/animator/Anim_Medium_Oaks.controller");
         if (animCtrl != null)
         {
-            var animator = player.GetComponent<Animator>();
-            if (animator == null) animator = player.AddComponent<Animator>();
+            var animator = player.GetComponentInChildren<Animator>();
+            if (animator == null)
+                animator = player.AddComponent<Animator>();
             animator.runtimeAnimatorController = animCtrl;
         }
 #endif

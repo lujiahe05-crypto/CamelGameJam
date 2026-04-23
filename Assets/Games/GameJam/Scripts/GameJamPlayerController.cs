@@ -25,11 +25,13 @@ public class GameJamPlayerController : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         var input = new Vector3(h, 0, v).normalized;
+        float planarSpeed = input.magnitude * moveSpeed;
+        bool jumpPressed = cc.isGrounded && Input.GetButtonDown("Jump");
 
         if (cc.isGrounded && verticalVelocity < 0f)
             verticalVelocity = -2f;
 
-        if (cc.isGrounded && Input.GetButtonDown("Jump"))
+        if (jumpPressed)
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
         verticalVelocity += gravity * Time.deltaTime;
@@ -37,6 +39,8 @@ public class GameJamPlayerController : MonoBehaviour
         var move = input * moveSpeed;
         move.y = verticalVelocity;
         cc.Move(move * Time.deltaTime);
+        bool isGrounded = cc.isGrounded;
+        bool animOnGround = isGrounded && !jumpPressed && verticalVelocity <= 0.05f;
 
         if (input.magnitude > 0.01f)
         {
@@ -47,9 +51,20 @@ public class GameJamPlayerController : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetFloat("Speed", input.magnitude);
-            animator.SetBool("OnGround", cc.isGrounded);
+            // This controller's locomotion blend tree expects world-speed-like values (2/6/8),
+            // not a normalized 0..1 input magnitude.
+            animator.SetFloat("Speed", planarSpeed);
+            // The Oaks controller uses left/right "rotate" clips here rather than strafe locomotion.
+            // Since we already rotate the character toward movement input in code, keep locomotion
+            // centered on the forward run/walk clip for all move directions.
+            animator.SetFloat("Direction", 0f);
+            animator.SetBool("OnGround", animOnGround);
             animator.SetFloat("VY", verticalVelocity);
+            if (jumpPressed)
+            {
+                animator.ResetTrigger("Jump");
+                animator.SetTrigger("Jump");
+            }
         }
     }
 }
