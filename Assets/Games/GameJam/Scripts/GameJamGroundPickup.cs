@@ -14,6 +14,9 @@ public class GameJamGroundPickup : MonoBehaviour
     [Header("刷新配置 (-1 = 永不刷新)")]
     public float respawnTime = 30f;
 
+    [Header("自动消失 (秒, <=0 不消失)")]
+    public float autoDestroyTime = -1f;
+
     [Header("反馈 (可选)")]
     public AudioClip pickupSound;
 
@@ -23,6 +26,12 @@ public class GameJamGroundPickup : MonoBehaviour
     void Awake()
     {
         modelRoot = gameObject;
+    }
+
+    void Start()
+    {
+        if (autoDestroyTime > 0f)
+            StartCoroutine(AutoDestroyRoutine());
     }
 
     public bool CanPickup() => available;
@@ -53,6 +62,13 @@ public class GameJamGroundPickup : MonoBehaviour
         yield return new WaitForSeconds(respawnTime);
         available = true;
         SetModelVisible(true);
+    }
+
+    IEnumerator AutoDestroyRoutine()
+    {
+        yield return new WaitForSeconds(autoDestroyTime);
+        if (available)
+            Destroy(gameObject);
     }
 
     void SetModelVisible(bool visible)

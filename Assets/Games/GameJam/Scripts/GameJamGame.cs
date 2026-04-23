@@ -222,7 +222,7 @@ public class GameJamGame : MonoBehaviour
                 int hp = Mathf.Max(1, entry.amount);
                 float respawn = (entry.amount <= 1 && entry.num <= 1) ? -1f : 120f;
                 bool useAbsoluteWorldPosition = isSceneMain && entry.position != null;
-                CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops, Mathf.Max(0, entry.num), useAbsoluteWorldPosition);
+                CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops, Mathf.Max(0, entry.num), InferGatherAnim(itemId), useAbsoluteWorldPosition);
             }
         }
         else
@@ -272,11 +272,11 @@ public class GameJamGame : MonoBehaviour
             new PortiaResourceDropConfig { itemId = "木材", amount = 1, weight = 100f },
         };
         CreateResourceNode("木材", woodMat, PrimitiveType.Cylinder, new Vector3(0.3f, 0.8f, 0.3f),
-            new Vector3(10, 0.8f, 3), 2, 90f, woodDrops, 3);
+            new Vector3(10, 0.8f, 3), 2, 90f, woodDrops, 3, GameJamGatherAnim.CutTree);
         CreateResourceNode("木材", woodMat, PrimitiveType.Cylinder, new Vector3(0.35f, 0.9f, 0.35f),
-            new Vector3(-9, 0.9f, 7), 2, 90f, woodDrops, 3);
+            new Vector3(-9, 0.9f, 7), 2, 90f, woodDrops, 3, GameJamGatherAnim.CutTree);
         CreateResourceNode("木材", woodMat, PrimitiveType.Cylinder, new Vector3(0.25f, 0.7f, 0.25f),
-            new Vector3(2, 0.7f, -18), 2, 90f, woodDrops, 3);
+            new Vector3(2, 0.7f, -18), 2, 90f, woodDrops, 3, GameJamGatherAnim.CutTree);
 
         var ironDrops = new PortiaResourceDropConfig[] {
             new PortiaResourceDropConfig { itemId = "铁矿", amount = 1, weight = 70f },
@@ -304,17 +304,17 @@ public class GameJamGame : MonoBehaviour
             new PortiaResourceDropConfig { itemId = "沙子", amount = 3, weight = 100f },
         };
         CreateResourceNode("沙子", sandMat, PrimitiveType.Cube, new Vector3(1.2f, 0.3f, 1f),
-            new Vector3(20, 0.15f, 3), 1, 60f, sandDrops);
+            new Vector3(20, 0.15f, 3), 1, 60f, sandDrops, 0, GameJamGatherAnim.Dig);
         CreateResourceNode("沙子", sandMat, PrimitiveType.Cube, new Vector3(1f, 0.25f, 1.1f),
-            new Vector3(-20, 0.12f, -12), 1, 60f, sandDrops);
+            new Vector3(-20, 0.12f, -12), 1, 60f, sandDrops, 0, GameJamGatherAnim.Dig);
 
         var herbDrops = new PortiaResourceDropConfig[] {
             new PortiaResourceDropConfig { itemId = "草药", amount = 2, weight = 100f },
         };
         CreateResourceNode("草药", herbMat, PrimitiveType.Sphere, new Vector3(0.4f, 0.5f, 0.4f),
-            new Vector3(5, 0.25f, 16), 1, 45f, herbDrops);
+            new Vector3(5, 0.25f, 16), 1, 45f, herbDrops, 0, GameJamGatherAnim.Gather);
         CreateResourceNode("草药", herbMat, PrimitiveType.Sphere, new Vector3(0.35f, 0.45f, 0.35f),
-            new Vector3(-6, 0.22f, -18), 1, 45f, herbDrops);
+            new Vector3(-6, 0.22f, -18), 1, 45f, herbDrops, 0, GameJamGatherAnim.Gather);
 
         var buildDrops = new PortiaResourceDropConfig[] {
             new PortiaResourceDropConfig { itemId = "工作台", amount = 1, weight = 100f },
@@ -336,7 +336,8 @@ public class GameJamGame : MonoBehaviour
     }
 
     void CreateResourceNode(string resName, Material mat, PrimitiveType shape,
-        Vector3 scale, Vector3 pos, int hp, float respawn, PortiaResourceDropConfig[] drops, int num = 0, bool useAbsoluteWorldPosition = false)
+        Vector3 scale, Vector3 pos, int hp, float respawn, PortiaResourceDropConfig[] drops,
+        int num = 0, GameJamGatherAnim gatherAnim = GameJamGatherAnim.Mine, bool useAbsoluteWorldPosition = false)
     {
         var go = GameObject.CreatePrimitive(shape);
         go.name = resName;
@@ -352,6 +353,7 @@ public class GameJamGame : MonoBehaviour
         node.num = num;
         node.respawnTime = respawn;
         node.drops = drops;
+        node.gatherAnim = gatherAnim;
     }
 
     void CreatePlacedMachine(string machineId, Vector3 pos)
@@ -442,6 +444,17 @@ public class GameJamGame : MonoBehaviour
         return ProceduralMeshUtil.CreateMaterial(color);
     }
 
+    static GameJamGatherAnim InferGatherAnim(string itemId)
+    {
+        if (itemId.Contains("木") || itemId.Contains("树"))
+            return GameJamGatherAnim.CutTree;
+        if (itemId.Contains("沙"))
+            return GameJamGatherAnim.Dig;
+        if (itemId.Contains("草") || itemId.Contains("药"))
+            return GameJamGatherAnim.Gather;
+        return GameJamGatherAnim.Mine;
+    }
+
     Color GetDefaultResourceColor(string itemId)
     {
         var itemDef = GameJamItemDB.Get(itemId);
@@ -506,7 +519,6 @@ public class GameJamGame : MonoBehaviour
     void Cleanup()
     {
         if (sceneRoot != null) Destroy(sceneRoot);
-        if (eventSystemGo != null) Destroy(eventSystemGo);
 
         var cam = Camera.main;
         if (cam != null)

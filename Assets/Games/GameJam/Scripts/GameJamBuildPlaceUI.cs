@@ -8,8 +8,15 @@ public class GameJamBuildPlaceUI : MonoBehaviour
 
     public void Init()
     {
-        BuildUI();
-        panelGo.SetActive(false);
+    }
+
+    void EnsureUI()
+    {
+        if (canvasGo == null)
+        {
+            BuildUI();
+            panelGo.SetActive(false);
+        }
     }
 
     void BuildUI()
@@ -112,7 +119,8 @@ public class GameJamBuildPlaceUI : MonoBehaviour
 
     public void Show()
     {
-        if (panelGo != null) panelGo.SetActive(true);
+        EnsureUI();
+        panelGo.SetActive(true);
     }
 
     public void Hide()
@@ -124,6 +132,8 @@ public class GameJamBuildPlaceUI : MonoBehaviour
     {
         if (canvasGo != null) Destroy(canvasGo);
     }
+
+    void OnDestroy() => Cleanup();
 
     static GameObject MakeRect(string name, Transform parent)
     {

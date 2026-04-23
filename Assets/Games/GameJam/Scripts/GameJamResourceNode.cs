@@ -14,6 +14,8 @@ public struct GameJamHarvestReward
     }
 }
 
+public enum GameJamGatherAnim { CutTree, Mine, Saw, Drill, Dig, Gather }
+
 public class GameJamResourceNode : MonoBehaviour
 {
     [Header("基础配置")]
@@ -22,6 +24,7 @@ public class GameJamResourceNode : MonoBehaviour
     public int amount = 1;
     public int num;
     public PortiaResourceDropConfig[] drops;
+    public GameJamGatherAnim gatherAnim = GameJamGatherAnim.Mine;
 
     [Header("刷新配置 (-1 = 不刷新)")]
     public float respawnTime = -1f;

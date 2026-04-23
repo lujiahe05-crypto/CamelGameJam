@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class GameJamInteraction : MonoBehaviour
 {
@@ -10,10 +11,18 @@ public class GameJamInteraction : MonoBehaviour
     GameJamStoragePanel storagePanel;
     GameJamPickupUI pickupUI;
     Animator animator;
+    GameJamPlayerController playerController;
     GameJamResourceNode currentTarget;
     GameJamMachine currentMachine;
     GameJamGroundPickup currentPickup;
     GameJamStorageBox currentStorage;
+
+    bool isGathering;
+    Coroutine gatherCoroutine;
+    GameJamResourceNode gatherTarget;
+    string currentGatherTrigger;
+
+    static readonly string[] SequenceTriggers = { "Cuttree", "Stone", "Saw" };
 
     void Start()
     {
@@ -22,14 +31,47 @@ public class GameJamInteraction : MonoBehaviour
         machinePanel = gameObject.AddComponent<GameJamMachinePanel>();
         storagePanel = gameObject.AddComponent<GameJamStoragePanel>();
         pickupUI = GetComponent<GameJamPickupUI>();
-        var pc = GetComponent<GameJamPlayerController>();
-        if (pc != null) animator = pc.Animator;
+        playerController = GetComponent<GameJamPlayerController>();
+        if (playerController != null) animator = playerController.Animator;
     }
+
+    bool wasPanelOpen;
 
     void Update()
     {
-        if (machinePanel.IsOpen || storagePanel.IsOpen)
+        bool panelOpen = machinePanel.IsOpen || storagePanel.IsOpen;
+        if (panelOpen)
+        {
+            wasPanelOpen = true;
             return;
+        }
+        if (wasPanelOpen)
+        {
+            wasPanelOpen = false;
+            ClearTargets();
+            FindNearest();
+        }
+
+        if (isGathering)
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                StopGathering();
+                return;
+            }
+            if (gatherTarget == null || !gatherTarget.IsAlive)
+            {
+                StopGathering();
+                return;
+            }
+            float dist = Vector3.Distance(transform.position, gatherTarget.transform.position);
+            if (dist > interactRadius * 1.5f)
+            {
+                StopGathering();
+                return;
+            }
+            return;
+        }
 
         FindNearest();
 
@@ -70,34 +112,144 @@ public class GameJamInteraction : MonoBehaviour
         }
         else if (currentTarget != null)
         {
-            if (animator != null)
+            StartGathering(currentTarget);
+        }
+    }
+
+    void StartGathering(GameJamResourceNode target)
+    {
+        isGathering = true;
+        gatherTarget = target;
+
+        FaceTarget(target.transform.position);
+
+        string trigger = GetAnimTrigger(target.gatherAnim);
+        currentGatherTrigger = trigger;
+        if (animator != null)
+        {
+            animator.SetTrigger(trigger);
+            if (IsSequenceAnim(trigger))
+                animator.SetBool("IsWorkingLoop", true);
+        }
+
+        if (playerController != null)
+            playerController.enabled = false;
+
+        gatherCoroutine = StartCoroutine(GatherRoutine(target, trigger));
+    }
+
+    void StopGathering()
+    {
+        isGathering = false;
+        gatherTarget = null;
+
+        if (gatherCoroutine != null)
+        {
+            StopCoroutine(gatherCoroutine);
+            gatherCoroutine = null;
+        }
+
+        if (animator != null)
+        {
+            animator.SetBool("IsWorkingLoop", false);
+            if (currentGatherTrigger != null)
             {
-                string rn = currentTarget.resourceName;
-                if (rn.Contains("树") || rn.Contains("木材"))
-                    animator.SetTrigger("Cuttree");
-                else
-                    animator.SetTrigger("Drilling");
+                animator.ResetTrigger(currentGatherTrigger);
+                currentGatherTrigger = null;
+            }
+            animator.CrossFade("Idle", 0.15f, 0);
+        }
+
+        if (playerController != null)
+            playerController.enabled = true;
+    }
+
+    IEnumerator GatherRoutine(GameJamResourceNode target, string trigger)
+    {
+        bool isSeq = IsSequenceAnim(trigger);
+        float baseInterval = isSeq ? 0.8f : 0.6f;
+        float speedMult = GetToolSpeedMultiplier(target.gatherAnim);
+        float hitInterval = baseInterval / speedMult;
+
+        yield return new WaitForSeconds(isSeq ? 0.5f : 0.3f);
+
+        while (target != null && target.IsAlive)
+        {
+            var rewards = target.PeekHarvestRewards();
+            if (!inventory.Model.CanAddItems(rewards))
+            {
+                Toast.ShowToast("背包空间不足，无法采集！");
+                break;
             }
 
-            bool destroyed = currentTarget.Hit();
+            bool destroyed = target.Hit();
             if (destroyed)
             {
-                var rewards = currentTarget.PeekHarvestRewards();
-                if (!inventory.Model.CanAddItems(rewards))
-                {
-                    Toast.ShowToast("背包空间不足，无法采集！");
-                    return;
-                }
+                inventory.AddRange(target.Harvest());
+                break;
+            }
 
-                inventory.AddRange(currentTarget.Harvest());
-                currentTarget = null;
-                ui.Hide();
-            }
-            else
-            {
-                ui.Show($"[E] 采集 {currentTarget.resourceName} ({currentTarget.Hp}/{currentTarget.MaxHp})", true);
-            }
+            string speedLabel = speedMult > 1f ? $" (x{speedMult:F1})" : "";
+            ui.Show($"采集 {target.resourceName} ({target.Hp}/{target.MaxHp}){speedLabel}", true);
+
+            if (!isSeq)
+                break;
+
+            yield return new WaitForSeconds(hitInterval);
         }
+
+        StopGathering();
+        ui.Hide();
+    }
+
+    void FaceTarget(Vector3 targetPos)
+    {
+        Vector3 dir = targetPos - transform.position;
+        dir.y = 0;
+        if (dir.sqrMagnitude > 0.01f)
+            transform.rotation = Quaternion.LookRotation(dir);
+    }
+
+    static string GetAnimTrigger(GameJamGatherAnim anim)
+    {
+        switch (anim)
+        {
+            case GameJamGatherAnim.CutTree: return "Cuttree";
+            case GameJamGatherAnim.Mine:    return "Stone";
+            case GameJamGatherAnim.Saw:     return "Saw";
+            case GameJamGatherAnim.Drill:   return "Drill";
+            case GameJamGatherAnim.Dig:     return "Dig";
+            case GameJamGatherAnim.Gather:  return "Sow";
+            default:                        return "Stone";
+        }
+    }
+
+    static bool IsSequenceAnim(string trigger)
+    {
+        for (int i = 0; i < SequenceTriggers.Length; i++)
+            if (SequenceTriggers[i] == trigger) return true;
+        return false;
+    }
+
+    float GetToolSpeedMultiplier(GameJamGatherAnim gatherAnim)
+    {
+        if (inventory == null) return 1f;
+        var slot = inventory.Model.hotbarSlots[inventory.Model.selectedHotbar];
+        if (slot.IsEmpty) return 1f;
+        string toolId = slot.itemId;
+
+        switch (gatherAnim)
+        {
+            case GameJamGatherAnim.Mine:
+                if (toolId == "铜镐") return 2.0f;
+                if (toolId == "石镐") return 1.5f;
+                break;
+            case GameJamGatherAnim.CutTree:
+                if (toolId == "铁斧") return 2.0f;
+                if (toolId == "铜斧") return 1.5f;
+                break;
+        }
+        return 1f;
     }
 
     void HandleDismantle()
@@ -131,6 +283,14 @@ public class GameJamInteraction : MonoBehaviour
         }
     }
 
+    void ClearTargets()
+    {
+        currentTarget = null;
+        currentMachine = null;
+        currentPickup = null;
+        currentStorage = null;
+    }
+
     void FindNearest()
     {
         float searchRadius = Mathf.Max(interactRadius, 5f);
@@ -143,7 +303,6 @@ public class GameJamInteraction : MonoBehaviour
 
         foreach (var col in cols)
         {
-            // Machine
             var machine = col.GetComponent<GameJamMachine>();
             if (machine == null) machine = col.GetComponentInParent<GameJamMachine>();
             if (machine != null)
@@ -160,7 +319,6 @@ public class GameJamInteraction : MonoBehaviour
                 continue;
             }
 
-            // Storage box
             var storage = col.GetComponent<GameJamStorageBox>();
             if (storage == null) storage = col.GetComponentInParent<GameJamStorageBox>();
             if (storage != null)
@@ -177,7 +335,6 @@ public class GameJamInteraction : MonoBehaviour
                 continue;
             }
 
-            // Ground pickup
             var pickup = col.GetComponent<GameJamGroundPickup>();
             if (pickup == null) pickup = col.GetComponentInParent<GameJamGroundPickup>();
             if (pickup != null && pickup.CanPickup())
@@ -194,7 +351,6 @@ public class GameJamInteraction : MonoBehaviour
                 continue;
             }
 
-            // Resource node
             var node = col.GetComponent<GameJamResourceNode>();
             if (node == null) node = col.GetComponentInParent<GameJamResourceNode>();
             if (node != null && node.IsAlive)

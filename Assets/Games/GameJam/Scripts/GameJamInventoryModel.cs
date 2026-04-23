@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GameJamInventorySlot
 {
@@ -23,28 +24,55 @@ public class GameJamInventorySlot
 
 public class GameJamInventoryModel
 {
-    public const int MainSlotCount = 24;
+    public const int MainSlotCount = 32;
     public const int HotbarSlotCount = 8;
+    public const int InitialUnlockedSlots = 16;
+    public const int SlotsPerRow = 8;
+    public const int BaseUnlockCost = 200;
 
     public GameJamInventorySlot[] mainSlots;
     public GameJamInventorySlot[] hotbarSlots;
     public int gold;
     public int selectedHotbar;
+    public int unlockedMainSlots;
 
     public event Action<int> OnMainSlotChanged;
     public event Action<int> OnHotbarSlotChanged;
     public event Action OnGoldChanged;
     public event Action<int> OnSelectedHotbarChanged;
+    public event Action OnSlotsUnlocked;
 
     public GameJamInventoryModel()
     {
         mainSlots = new GameJamInventorySlot[MainSlotCount];
         hotbarSlots = new GameJamInventorySlot[HotbarSlotCount];
+        unlockedMainSlots = InitialUnlockedSlots;
         for (int i = 0; i < MainSlotCount; i++)
             mainSlots[i] = new GameJamInventorySlot();
         for (int i = 0; i < HotbarSlotCount; i++)
             hotbarSlots[i] = new GameJamInventorySlot();
     }
+
+    public int GetUnlockCost()
+    {
+        if (unlockedMainSlots >= MainSlotCount) return -1;
+        int rowsUnlocked = unlockedMainSlots / SlotsPerRow;
+        return Mathf.RoundToInt(BaseUnlockCost * Mathf.Pow(1.5f, rowsUnlocked - 2));
+    }
+
+    public bool UnlockRow()
+    {
+        if (unlockedMainSlots >= MainSlotCount) return false;
+        int cost = GetUnlockCost();
+        if (cost < 0 || gold < cost) return false;
+        gold -= cost;
+        unlockedMainSlots = Mathf.Min(unlockedMainSlots + SlotsPerRow, MainSlotCount);
+        OnGoldChanged?.Invoke();
+        OnSlotsUnlocked?.Invoke();
+        return true;
+    }
+
+    public bool IsSlotUnlocked(int mainIndex) => mainIndex < unlockedMainSlots;
 
     public bool AddItem(string itemId, int amount)
     {
@@ -52,13 +80,14 @@ public class GameJamInventoryModel
         if (def == null) return false;
 
         int remaining = amount;
+        int mainLimit = unlockedMainSlots;
 
         remaining = FillExisting(hotbarSlots, itemId, def.maxStack, remaining,
             i => OnHotbarSlotChanged?.Invoke(i));
         if (remaining <= 0) return true;
 
         remaining = FillExisting(mainSlots, itemId, def.maxStack, remaining,
-            i => OnMainSlotChanged?.Invoke(i));
+            i => OnMainSlotChanged?.Invoke(i), mainLimit);
         if (remaining <= 0) return true;
 
         remaining = FillEmpty(hotbarSlots, itemId, def.maxStack, remaining,
@@ -66,15 +95,16 @@ public class GameJamInventoryModel
         if (remaining <= 0) return true;
 
         remaining = FillEmpty(mainSlots, itemId, def.maxStack, remaining,
-            i => OnMainSlotChanged?.Invoke(i));
+            i => OnMainSlotChanged?.Invoke(i), mainLimit);
 
         return remaining <= 0;
     }
 
     int FillExisting(GameJamInventorySlot[] slots, string itemId, int maxStack,
-        int remaining, Action<int> notify)
+        int remaining, Action<int> notify, int limit = -1)
     {
-        for (int i = 0; i < slots.Length && remaining > 0; i++)
+        if (limit < 0) limit = slots.Length;
+        for (int i = 0; i < limit && i < slots.Length && remaining > 0; i++)
         {
             if (slots[i].itemId != itemId) continue;
             int space = maxStack - slots[i].count;
@@ -88,9 +118,10 @@ public class GameJamInventoryModel
     }
 
     int FillEmpty(GameJamInventorySlot[] slots, string itemId, int maxStack,
-        int remaining, Action<int> notify)
+        int remaining, Action<int> notify, int limit = -1)
     {
-        for (int i = 0; i < slots.Length && remaining > 0; i++)
+        if (limit < 0) limit = slots.Length;
+        for (int i = 0; i < limit && i < slots.Length && remaining > 0; i++)
         {
             if (!slots[i].IsEmpty) continue;
             int add = Math.Min(maxStack, remaining);
@@ -303,8 +334,9 @@ public class GameJamInventoryModel
             if (s.itemId == itemId) space += def.maxStack - s.count;
             else if (s.IsEmpty) space += def.maxStack;
         }
-        foreach (var s in mainSlots)
+        for (int i = 0; i < unlockedMainSlots && i < mainSlots.Length; i++)
         {
+            var s = mainSlots[i];
             if (s.itemId == itemId) space += def.maxStack - s.count;
             else if (s.IsEmpty) space += def.maxStack;
         }

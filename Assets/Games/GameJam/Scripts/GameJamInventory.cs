@@ -69,6 +69,19 @@ public class GameJamInventory : MonoBehaviour
         return Model.RemoveItem(name, amount);
     }
 
+    public bool SellItem(string itemId, int amount)
+    {
+        var def = GameJamItemDB.Get(itemId);
+        if (def == null || def.sellPrice <= 0) return false;
+        if (Model.GetTotalCount(itemId) < amount) return false;
+
+        Model.RemoveItem(itemId, amount);
+        int totalGold = def.sellPrice * amount;
+        Model.AddGold(totalGold);
+        Toast.ShowToast($"售出 {def.name} x{amount}，获得 {totalGold} 金币");
+        return true;
+    }
+
     public Dictionary<string, int> GetAll()
     {
         var result = new Dictionary<string, int>();

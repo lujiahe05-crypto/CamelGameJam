@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameJamPlayerController : MonoBehaviour
 {
     public float moveSpeed = 6f;
+    public float sprintSpeed = 10f;
     public float jumpHeight = 1.2f;
     public float gravity = -20f;
     public float turnSmoothTime = 0.1f;
@@ -24,8 +25,24 @@ public class GameJamPlayerController : MonoBehaviour
     {
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-        var input = new Vector3(h, 0, v).normalized;
-        float planarSpeed = input.magnitude * moveSpeed;
+        var raw = new Vector3(h, 0, v).normalized;
+
+        var cam = Camera.main;
+        Vector3 input;
+        if (cam != null && raw.magnitude > 0.01f)
+        {
+            float camYaw = cam.transform.eulerAngles.y;
+            input = Quaternion.Euler(0, camYaw, 0) * raw;
+            input.y = 0f;
+            input.Normalize();
+        }
+        else
+        {
+            input = raw;
+        }
+        bool sprinting = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        float currentSpeed = sprinting ? sprintSpeed : moveSpeed;
+        float planarSpeed = input.magnitude * currentSpeed;
         bool jumpPressed = cc.isGrounded && Input.GetButtonDown("Jump");
 
         if (cc.isGrounded && verticalVelocity < 0f)
@@ -36,7 +53,7 @@ public class GameJamPlayerController : MonoBehaviour
 
         verticalVelocity += gravity * Time.deltaTime;
 
-        var move = input * moveSpeed;
+        var move = input * currentSpeed;
         move.y = verticalVelocity;
         cc.Move(move * Time.deltaTime);
         bool isGrounded = cc.isGrounded;

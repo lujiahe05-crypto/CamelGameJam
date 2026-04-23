@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public enum GameJamMachineState { Idle, Crafting, Complete }
 
@@ -14,6 +15,11 @@ public class GameJamMachine : MonoBehaviour
     public string ProductItemId { get; private set; }
     public int ProductAmount { get; private set; }
     public bool FuelPaused { get; private set; }
+    public int CraftCount { get; private set; }
+    public int CraftIndex { get; private set; }
+
+    Queue<(GameJamRecipe recipe, int count)> craftQueue = new Queue<(GameJamRecipe, int)>();
+    public int QueueCount => craftQueue.Count;
 
     GameJamMachineDef def;
     GameObject floatingGo;
@@ -49,6 +55,12 @@ public class GameJamMachine : MonoBehaviour
                 if (def.hasFuelSystem)
                     FuelTime = Mathf.Max(0, FuelTime - Time.deltaTime);
 
+                if (CraftCount > 1 && CurrentRecipe != null)
+                {
+                    float elapsed = CraftTotal - CraftTimer;
+                    CraftIndex = Mathf.Clamp(Mathf.FloorToInt(elapsed / CurrentRecipe.craftTime) + 1, 1, CraftCount);
+                }
+
                 if (CraftTimer <= 0)
                 {
                     State = GameJamMachineState.Complete;
@@ -66,30 +78,56 @@ public class GameJamMachine : MonoBehaviour
         }
     }
 
-    public bool CanStartCraft(GameJamRecipe recipe, GameJamInventory inv)
+    public bool CanStartCraft(GameJamRecipe recipe, GameJamInventory inv, int count = 1)
     {
         if (State != GameJamMachineState.Idle) return false;
+        count = Mathf.Max(1, count);
         foreach (var kv in recipe.materials)
         {
-            if (inv.Model.GetTotalCount(kv.Key) < kv.Value) return false;
+            if (inv.Model.GetTotalCount(kv.Key) < kv.Value * count) return false;
         }
         if (recipe.requiresFuel && def.hasFuelSystem && FuelTime <= 0) return false;
         return true;
     }
 
-    public void StartCraft(GameJamRecipe recipe, GameJamInventory inv)
+    public int GetMaxCraftCount(GameJamRecipe recipe, GameJamInventory inv)
     {
+        int max = 999;
         foreach (var kv in recipe.materials)
-            inv.Remove(kv.Key, kv.Value);
+        {
+            int owned = inv.Model.GetTotalCount(kv.Key);
+            int perCraft = kv.Value;
+            if (perCraft <= 0) continue;
+            max = Mathf.Min(max, owned / perCraft);
+        }
+        return Mathf.Max(0, max);
+    }
+
+    public void StartCraft(GameJamRecipe recipe, GameJamInventory inv, int count = 1)
+    {
+        count = Mathf.Max(1, count);
+        foreach (var kv in recipe.materials)
+            inv.Remove(kv.Key, kv.Value * count);
 
         CurrentRecipe = recipe;
         ProductItemId = recipe.outputItemId;
-        ProductAmount = recipe.outputAmount;
-        CraftTotal = recipe.craftTime;
-        CraftTimer = recipe.craftTime;
+        ProductAmount = recipe.outputAmount * count;
+        CraftCount = count;
+        CraftIndex = 1;
+        CraftTotal = recipe.craftTime * count;
+        CraftTimer = CraftTotal;
         State = GameJamMachineState.Crafting;
         FuelPaused = false;
         UpdateFloatingUI();
+    }
+
+    public void EnqueueCraft(GameJamRecipe recipe, GameJamInventory inv, int count = 1)
+    {
+        count = Mathf.Max(1, count);
+        foreach (var kv in recipe.materials)
+            inv.Remove(kv.Key, kv.Value * count);
+
+        craftQueue.Enqueue((recipe, count));
     }
 
     public (string itemId, int amount) CollectProducts()
@@ -99,7 +137,24 @@ public class GameJamMachine : MonoBehaviour
         ProductItemId = null;
         ProductAmount = 0;
         CurrentRecipe = null;
+        CraftCount = 0;
+        CraftIndex = 0;
         State = GameJamMachineState.Idle;
+
+        if (craftQueue.Count > 0)
+        {
+            var (recipe, count) = craftQueue.Dequeue();
+            CurrentRecipe = recipe;
+            ProductItemId = recipe.outputItemId;
+            ProductAmount = recipe.outputAmount * count;
+            CraftCount = count;
+            CraftIndex = 1;
+            CraftTotal = recipe.craftTime * count;
+            CraftTimer = CraftTotal;
+            State = GameJamMachineState.Crafting;
+            FuelPaused = false;
+        }
+
         UpdateFloatingUI();
         return result;
     }
@@ -197,6 +252,8 @@ public class GameJamMachine : MonoBehaviour
                 floatingIcon.color = outDef != null ? outDef.iconColor : Color.gray;
                 if (FuelPaused)
                     floatingText.text = "燃料不足";
+                else if (CraftCount > 1)
+                    floatingText.text = $"{CraftIndex}/{CraftCount} {FormatTime(CraftTimer)}";
                 else
                     floatingText.text = FormatTime(CraftTimer);
                 break;

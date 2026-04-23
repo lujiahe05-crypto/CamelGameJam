@@ -7,7 +7,7 @@ public class GameJamInteractionUI : MonoBehaviour
     GameObject promptGo;
     Text promptText;
 
-    void Start()
+    void BuildUI()
     {
         canvasGo = GameJamUIPrefabHelper.TryLoadPrefab("InteractionPanel");
         if (canvasGo != null)
@@ -53,6 +53,11 @@ public class GameJamInteractionUI : MonoBehaviour
         GameJamUIPrefabHelper.SavePrefab(canvasGo, "InteractionPanel");
     }
 
+    void EnsureUI()
+    {
+        if (canvasGo == null) BuildUI();
+    }
+
     void FindReferences()
     {
         promptGo = canvasGo.transform.Find("Prompt").gameObject;
@@ -62,6 +67,7 @@ public class GameJamInteractionUI : MonoBehaviour
 
     public void Show(string message, bool raw = false)
     {
+        EnsureUI();
         promptText.text = raw ? message : $"[E] 采集 {message}";
         promptGo.SetActive(true);
     }

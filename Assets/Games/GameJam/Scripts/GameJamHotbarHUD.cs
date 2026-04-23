@@ -275,6 +275,8 @@ public class GameJamHotbarHUD : MonoBehaviour
         if (canvasGo != null) Destroy(canvasGo);
     }
 
+    void OnDestroy() => Cleanup();
+
     static GameObject CreateRect(string name, Transform parent)
     {
         var go = new GameObject(name);

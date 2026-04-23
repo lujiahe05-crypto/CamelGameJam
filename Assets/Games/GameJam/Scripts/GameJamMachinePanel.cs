@@ -33,13 +33,19 @@ public class GameJamMachinePanel : MonoBehaviour
     static readonly Color OrangeText = new Color(1f, 0.7f, 0.25f);
 
     List<GameObject> recipeRows = new List<GameObject>();
+    Dictionary<string, int> recipeCounts = new Dictionary<string, int>();
+    Dictionary<string, Text> recipeCountTexts = new Dictionary<string, Text>();
 
     public bool IsOpen => isOpen;
 
     void Start()
     {
         inventory = GetComponent<GameJamInventory>();
-        BuildUI();
+    }
+
+    void EnsureUI()
+    {
+        if (canvasGo == null) BuildUI();
     }
 
     void BuildUI()
@@ -195,6 +201,7 @@ public class GameJamMachinePanel : MonoBehaviour
     public void Open(GameJamMachine machine)
     {
         if (isOpen) Close();
+        EnsureUI();
         currentMachine = machine;
         isOpen = true;
 
@@ -301,11 +308,18 @@ public class GameJamMachinePanel : MonoBehaviour
                     statusText.text = $"制作暂停 — 燃料不足 ({Mathf.RoundToInt(progress * 100)}%)";
                     statusText.color = RedText;
                 }
+                else if (currentMachine.CraftCount > 1)
+                {
+                    statusText.text = $"制作中 {currentMachine.CraftIndex}/{currentMachine.CraftCount}  {Mathf.RoundToInt(progress * 100)}%  剩余 {timeLeft}";
+                    statusText.color = OrangeText;
+                }
                 else
                 {
                     statusText.text = $"制作中... {Mathf.RoundToInt(progress * 100)}%  剩余 {timeLeft}";
                     statusText.color = OrangeText;
                 }
+                if (currentMachine.QueueCount > 0)
+                    statusText.text += $"  (队列: {currentMachine.QueueCount})";
                 collectBtn.gameObject.SetActive(false);
                 break;
             case GameJamMachineState.Complete:
@@ -328,7 +342,11 @@ public class GameJamMachinePanel : MonoBehaviour
         {
             var btn = row.GetComponentInChildren<Button>();
             if (btn != null && btn.name == "CraftBtn")
-                btn.interactable = currentMachine.State == GameJamMachineState.Idle;
+            {
+                var label = btn.GetComponentInChildren<Text>();
+                if (label != null)
+                    label.text = currentMachine.State == GameJamMachineState.Idle ? "制作" : "排队";
+            }
         }
     }
 
@@ -410,13 +428,34 @@ public class GameJamMachinePanel : MonoBehaviour
             }
         }
 
+        // Quantity selector [-] count [+]
+        if (!recipeCounts.ContainsKey(recipe.id))
+            recipeCounts[recipe.id] = 1;
+
+        var minusBtn = MakeButton("MinusBtn", row.transform,
+            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
+            new Vector2(-96, -18), new Vector2(24, 24), "-", () => AdjustCount(recipe, -1));
+
+        var countText = MakeText("CountText", row.transform, 14, TextAnchor.MiddleCenter, TextBright,
+            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
+            new Vector2(-72, -18), new Vector2(24, 24));
+        countText.text = recipeCounts[recipe.id].ToString();
+        recipeCountTexts[recipe.id] = countText;
+
+        var plusBtn = MakeButton("PlusBtn", row.transform,
+            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
+            new Vector2(-48, -18), new Vector2(24, 24), "+", () => AdjustCount(recipe, 1));
+
         // Craft button
+        bool isBusy = currentMachine.State != GameJamMachineState.Idle;
+        string craftLabel = isBusy ? "排队" : "制作";
         var craftBtn = MakeButton("CraftBtn", row.transform,
             new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
-            new Vector2(-10, 8), new Vector2(80, 32), "制作", () => OnCraft(recipe));
+            new Vector2(-10, 8), new Vector2(80, 32), craftLabel, () => OnCraft(recipe));
 
-        bool canCraft = currentMachine.CanStartCraft(recipe, inventory);
-        craftBtn.interactable = canCraft && currentMachine.State == GameJamMachineState.Idle;
+        int count = recipeCounts[recipe.id];
+        bool canCraft = currentMachine.GetMaxCraftCount(recipe, inventory) >= count;
+        craftBtn.interactable = canCraft;
 
         recipeRows.Add(row);
     }
@@ -426,14 +465,34 @@ public class GameJamMachinePanel : MonoBehaviour
         foreach (var row in recipeRows)
             if (row != null) Destroy(row);
         recipeRows.Clear();
+        recipeCountTexts.Clear();
+    }
+
+    void AdjustCount(GameJamRecipe recipe, int delta)
+    {
+        if (!recipeCounts.ContainsKey(recipe.id))
+            recipeCounts[recipe.id] = 1;
+
+        int maxCount = currentMachine != null ? currentMachine.GetMaxCraftCount(recipe, inventory) : 1;
+        recipeCounts[recipe.id] = Mathf.Clamp(recipeCounts[recipe.id] + delta, 1, Mathf.Max(1, maxCount));
+
+        if (recipeCountTexts.TryGetValue(recipe.id, out var txt))
+            txt.text = recipeCounts[recipe.id].ToString();
     }
 
     void OnCraft(GameJamRecipe recipe)
     {
         if (currentMachine == null || inventory == null) return;
-        if (!currentMachine.CanStartCraft(recipe, inventory)) return;
 
-        currentMachine.StartCraft(recipe, inventory);
+        int count = recipeCounts.ContainsKey(recipe.id) ? recipeCounts[recipe.id] : 1;
+        if (currentMachine.GetMaxCraftCount(recipe, inventory) < count) return;
+
+        if (currentMachine.State == GameJamMachineState.Idle)
+            currentMachine.StartCraft(recipe, inventory, count);
+        else
+            currentMachine.EnqueueCraft(recipe, inventory, count);
+
+        recipeCounts[recipe.id] = 1;
         RefreshAll();
     }
 

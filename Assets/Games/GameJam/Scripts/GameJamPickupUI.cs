@@ -7,9 +7,9 @@ public class GameJamPickupUI : MonoBehaviour
     GameObject promptGo;
     bool isShowing;
 
-    void Start()
+    void EnsureUI()
     {
-        BuildUI();
+        if (canvasGo == null) BuildUI();
     }
 
     void BuildUI()
@@ -102,7 +102,8 @@ public class GameJamPickupUI : MonoBehaviour
 
     public void Show()
     {
-        if (!isShowing && promptGo != null)
+        EnsureUI();
+        if (!isShowing)
         {
             promptGo.SetActive(true);
             isShowing = true;

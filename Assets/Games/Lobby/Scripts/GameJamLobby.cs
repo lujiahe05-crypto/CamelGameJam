@@ -52,6 +52,7 @@ public class GameJamLobby : MonoBehaviour
             var esGo = new GameObject("EventSystem");
             esGo.AddComponent<EventSystem>();
             esGo.AddComponent<StandaloneInputModule>();
+            DontDestroyOnLoad(esGo);
         }
 
         var btnGo = new GameObject("GameJamButton");

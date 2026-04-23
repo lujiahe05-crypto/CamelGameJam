@@ -22,12 +22,15 @@ public class GameJamBuildingPlacer : MonoBehaviour
     Material greenMarkerMat;
     Material redMarkerMat;
     Mesh chevronMesh;
+    Renderer frontArrowRenderer;
 
     int rotationStep;
     bool canPlace;
+    string placementWarning;
 
     const int GroundLayer = 8;
     const float CellSize = 1f;
+    const float MaxPlaceDistance = 10f;
 
     public void Init(Transform sceneRoot, Transform player)
     {
@@ -70,6 +73,7 @@ public class GameJamBuildingPlacer : MonoBehaviour
         if (gridMarkersGo != null) { Destroy(gridMarkersGo); gridMarkersGo = null; }
         previewRenderers = null;
         markerRenderers.Clear();
+        frontArrowRenderer = null;
 
         placeUI.Hide();
         OnPlacementEnd?.Invoke();
@@ -86,8 +90,13 @@ public class GameJamBuildingPlacer : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T))
             Rotate();
 
-        if (Input.GetMouseButtonDown(0) && canPlace)
-            PlaceBuilding();
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (canPlace)
+                PlaceBuilding();
+            else if (placementWarning != null)
+                Toast.ShowToast(placementWarning);
+        }
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
             ExitPlaceMode(false);
@@ -142,6 +151,18 @@ public class GameJamBuildingPlacer : MonoBehaviour
             mr.receiveShadows = false;
             markerRenderers.Add(mr);
         }
+
+        var frontArrow = new GameObject("FrontArrow");
+        frontArrow.transform.SetParent(gridMarkersGo.transform);
+        frontArrow.transform.localPosition = new Vector3(0, 0.04f, halfH + 0.4f);
+        frontArrow.transform.localRotation = Quaternion.Euler(0, 0, 0);
+        frontArrow.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
+        var fmf = frontArrow.AddComponent<MeshFilter>();
+        fmf.mesh = chevronMesh;
+        frontArrowRenderer = frontArrow.AddComponent<MeshRenderer>();
+        frontArrowRenderer.material = greenMarkerMat;
+        frontArrowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        frontArrowRenderer.receiveShadows = false;
     }
 
     void UpdatePreviewPosition()
@@ -167,11 +188,23 @@ public class GameJamBuildingPlacer : MonoBehaviour
     void ValidatePlacement()
     {
         canPlace = true;
+        placementWarning = null;
 
         if (previewGo == null) { canPlace = false; return; }
 
         var pos = previewGo.transform.position;
         var rot = previewGo.transform.rotation;
+
+        if (playerTransform != null)
+        {
+            float distToPlayer = Vector3.Distance(pos, playerTransform.position);
+            if (distToPlayer > MaxPlaceDistance)
+            {
+                canPlace = false;
+                placementWarning = "距离太远";
+                return;
+            }
+        }
 
         int gw = currentDef.gridW;
         int gh = currentDef.gridH;
@@ -229,6 +262,9 @@ public class GameJamBuildingPlacer : MonoBehaviour
 
         foreach (var r in markerRenderers)
             if (r != null) r.sharedMaterial = markerMat;
+
+        if (frontArrowRenderer != null)
+            frontArrowRenderer.sharedMaterial = markerMat;
     }
 
     void Rotate()

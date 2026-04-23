@@ -34,6 +34,8 @@ public class GameJamInventoryPanel : MonoBehaviour
 
     // Bottom bar
     Text goldText;
+    Button unlockBtn;
+    Text unlockBtnText;
     GameObject splitDialogGo;
     InputField splitInput;
     int splitFromIndex;
@@ -56,14 +58,18 @@ public class GameJamInventoryPanel : MonoBehaviour
     static readonly Color TextBright = new Color(0.95f, 0.95f, 0.97f);
     const float SlotSize = 64f;
     const float SlotGap = 6f;
-    const int Columns = 6;
+    const int Columns = 8;
     const int Rows = 4;
 
     public void Init(GameJamInventoryModel model)
     {
         Model = model;
-        BuildUI();
         BindEvents();
+    }
+
+    void EnsureUI()
+    {
+        if (canvasGo == null) BuildUI();
     }
 
     void BuildUI()
@@ -201,6 +207,19 @@ public class GameJamInventoryPanel : MonoBehaviour
         var discardBtn = panelGo.transform.Find("BottomBar/DiscardBtn").GetComponent<Button>();
         discardBtn.onClick.RemoveAllListeners();
         discardBtn.onClick.AddListener(OnDiscardClicked);
+        var sellBtn = panelGo.transform.Find("BottomBar/SellBtn").GetComponent<Button>();
+        sellBtn.onClick.RemoveAllListeners();
+        sellBtn.onClick.AddListener(OnSellClicked);
+
+        // Unlock button
+        var unlockGo = panelGo.transform.Find("UnlockBtn");
+        if (unlockGo != null)
+        {
+            unlockBtn = unlockGo.GetComponent<Button>();
+            unlockBtn.onClick.RemoveAllListeners();
+            unlockBtn.onClick.AddListener(OnUnlockClicked);
+            unlockBtnText = unlockGo.Find("Text").GetComponent<Text>();
+        }
 
         // Split dialog
         splitDialogGo = canvasGo.transform.Find("SplitDialog").gameObject;
@@ -459,12 +478,46 @@ public class GameJamInventoryPanel : MonoBehaviour
             new Vector2(92f, 0f), new Vector2(80f, 36f),
             "丢弃", OnDiscardClicked);
 
+        // Sell button
+        CreateButton("SellBtn", bar.transform,
+            new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+            new Vector2(180f, 0f), new Vector2(80f, 36f),
+            "售卖", OnSellClicked);
+
         // Gold
         goldText = MakeText("Gold", bar.transform, 16, TextAnchor.MiddleRight,
             new Color(1f, 0.85f, 0.3f),
             new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
             new Vector2(-4f, 0), new Vector2(100f, 30f));
         goldText.text = "金币: 0";
+
+        // Unlock row button (above bottom bar on the right side)
+        var unlockGo = MakeRect("UnlockBtn", parent);
+        var unlockRect = unlockGo.GetComponent<RectTransform>();
+        unlockRect.anchorMin = new Vector2(1f, 0f);
+        unlockRect.anchorMax = new Vector2(1f, 0f);
+        unlockRect.pivot = new Vector2(1f, 0f);
+        unlockRect.sizeDelta = new Vector2(200f, 32f);
+        unlockRect.anchoredPosition = new Vector2(-16f, 62f);
+        unlockGo.AddComponent<Image>().color = new Color(0.22f, 0.22f, 0.28f);
+        unlockBtn = unlockGo.AddComponent<Button>();
+        var uColors = unlockBtn.colors;
+        uColors.highlightedColor = new Color(0.3f, 0.3f, 0.4f);
+        uColors.pressedColor = new Color(0.18f, 0.18f, 0.24f);
+        uColors.disabledColor = new Color(0.15f, 0.15f, 0.18f, 0.6f);
+        unlockBtn.colors = uColors;
+        unlockBtn.onClick.AddListener(OnUnlockClicked);
+
+        var unlockTxtGo = MakeRect("Text", unlockGo.transform);
+        var utRect = unlockTxtGo.GetComponent<RectTransform>();
+        utRect.anchorMin = Vector2.zero;
+        utRect.anchorMax = Vector2.one;
+        utRect.sizeDelta = Vector2.zero;
+        unlockBtnText = unlockTxtGo.AddComponent<Text>();
+        unlockBtnText.font = GetFont();
+        unlockBtnText.fontSize = 14;
+        unlockBtnText.alignment = TextAnchor.MiddleCenter;
+        unlockBtnText.color = TextBright;
 
         // Hints
         var hints = MakeText("Hints", parent,
@@ -548,11 +601,20 @@ public class GameJamInventoryPanel : MonoBehaviour
         Model.OnMainSlotChanged += idx => RefreshMainSlot(idx);
         Model.OnHotbarSlotChanged += idx => RefreshHotbarSlot(idx);
         Model.OnGoldChanged += RefreshGold;
+        Model.OnSlotsUnlocked += OnSlotsUnlocked;
     }
 
     void RefreshMainSlot(int index)
     {
         if (mainSlotBGs == null) return;
+        if (!Model.IsSlotUnlocked(index))
+        {
+            mainSlotBGs[index].color = new Color(0.08f, 0.08f, 0.1f, 0.5f);
+            mainSlotIcons[index].color = new Color(0.3f, 0.3f, 0.35f, 0.4f);
+            mainSlotCounts[index].text = "";
+            mainSlotBorders[index].color = new Color(0.15f, 0.15f, 0.18f, 0.4f);
+            return;
+        }
         var slot = Model.mainSlots[index];
         RefreshSlotVisuals(slot, mainSlotBGs[index], mainSlotIcons[index],
             mainSlotCounts[index], mainSlotBorders[index],
@@ -601,12 +663,14 @@ public class GameJamInventoryPanel : MonoBehaviour
             RefreshHotbarSlot(i);
         RefreshGold();
         RefreshDetail();
+        RefreshUnlockButton();
     }
 
     void RefreshGold()
     {
         if (goldText != null)
             goldText.text = $"金币: {Model.gold}";
+        RefreshUnlockButton();
     }
 
     public void SelectSlot(bool isHotbar, int index)
@@ -746,6 +810,58 @@ public class GameJamInventoryPanel : MonoBehaviour
         ClearSelection();
     }
 
+    void OnSellClicked()
+    {
+        if (selectedIndex < 0) return;
+        var slots = selectedIsHotbar ? Model.hotbarSlots : Model.mainSlots;
+        if (selectedIndex >= slots.Length || slots[selectedIndex].IsEmpty) return;
+
+        var slot = slots[selectedIndex];
+        var def = GameJamItemDB.Get(slot.itemId);
+        if (def == null || def.sellPrice <= 0)
+        {
+            Toast.ShowToast("该物品无法售卖");
+            return;
+        }
+
+        int amount = slot.count;
+        int totalGold = def.sellPrice * amount;
+        Model.RemoveItem(slot.itemId, amount);
+        Model.AddGold(totalGold);
+        Toast.ShowToast($"售出 {def.name} x{amount}，获得 {totalGold} 金币");
+        ClearSelection();
+    }
+
+    void OnUnlockClicked()
+    {
+        if (Model.UnlockRow())
+        {
+            Toast.ShowToast("解锁了新的背包行!");
+        }
+    }
+
+    void RefreshUnlockButton()
+    {
+        if (unlockBtn == null) return;
+
+        int cost = Model.GetUnlockCost();
+        if (cost < 0)
+        {
+            unlockBtnText.text = "已全部解锁";
+            unlockBtn.interactable = false;
+        }
+        else
+        {
+            unlockBtnText.text = $"解锁一行 ({cost} 金币)";
+            unlockBtn.interactable = Model.gold >= cost;
+        }
+    }
+
+    void OnSlotsUnlocked()
+    {
+        RefreshAllSlots();
+    }
+
     public void ShowSlotTooltip(bool isHotbar, int index, RectTransform slotRect)
     {
         var slots = isHotbar ? Model.hotbarSlots : Model.mainSlots;
@@ -773,7 +889,8 @@ public class GameJamInventoryPanel : MonoBehaviour
 
     public void Show()
     {
-        if (canvasGo != null) canvasGo.SetActive(true);
+        EnsureUI();
+        canvasGo.SetActive(true);
         RefreshAllSlots();
     }
 
@@ -788,6 +905,8 @@ public class GameJamInventoryPanel : MonoBehaviour
     {
         if (canvasGo != null) Destroy(canvasGo);
     }
+
+    void OnDestroy() => Cleanup();
 
     // ---------- UI helpers ----------
 

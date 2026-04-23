@@ -36,7 +36,11 @@ public class GameJamStoragePanel : MonoBehaviour
     void Start()
     {
         inventory = GetComponent<GameJamInventory>();
-        BuildUI();
+    }
+
+    void EnsureUI()
+    {
+        if (canvasGo == null) BuildUI();
     }
 
     void BuildUI()
@@ -288,6 +292,7 @@ public class GameJamStoragePanel : MonoBehaviour
     public void Open(GameJamStorageBox box)
     {
         if (isOpen) Close();
+        EnsureUI();
         currentBox = box;
         isOpen = true;
 
