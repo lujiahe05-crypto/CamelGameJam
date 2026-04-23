@@ -55,7 +55,9 @@ public class GameJamGame : MonoBehaviour
         CreateBoundaryWalls();
         CreateObstacles();
         CreateResources();
-        CreateGroundPickups();
+        bool hasConfigNodes = settings.resourceNodes != null && settings.resourceNodes.Length > 0;
+        if (!hasConfigNodes)
+            CreateGroundPickups();
     }
 
     void CreateGround()
@@ -206,7 +208,8 @@ public class GameJamGame : MonoBehaviour
                 var mat = BuildResourceMaterial(entry, itemId);
                 string label = string.IsNullOrWhiteSpace(entry.label) ? itemId : entry.label;
                 int hp = Mathf.Max(1, entry.amount);
-                CreateResourceNode(label, mat, shape, scale, position, hp, 120f, entry.drops, Mathf.Max(0, entry.num));
+                float respawn = (entry.amount <= 1 && entry.num <= 1) ? -1f : 120f;
+                CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops, Mathf.Max(0, entry.num));
             }
         }
         else
