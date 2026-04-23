@@ -70,6 +70,94 @@ public class GameJamInventory : MonoBehaviour
         return Model.RemoveItem(name, amount);
     }
 
+    public string GetSelectedHotbarItemId()
+    {
+        if (Model == null || Model.hotbarSlots == null || Model.hotbarSlots.Length == 0)
+            return null;
+
+        int selectedIndex = Mathf.Clamp(Model.selectedHotbar, 0, Model.hotbarSlots.Length - 1);
+        var slot = Model.hotbarSlots[selectedIndex];
+        return slot != null && !slot.IsEmpty ? slot.itemId : null;
+    }
+
+    public int FindHotbarToolSlotForGather(GameJamGatherAnim gatherAnim)
+    {
+        if (Model == null || Model.hotbarSlots == null)
+            return -1;
+
+        int selectedIndex = Mathf.Clamp(Model.selectedHotbar, 0, Model.hotbarSlots.Length - 1);
+        var selectedSlot = Model.hotbarSlots[selectedIndex];
+        if (selectedSlot != null && !selectedSlot.IsEmpty &&
+            GameJamItemDB.IsToolForGatherAnim(selectedSlot.itemId, gatherAnim))
+        {
+            return selectedIndex;
+        }
+
+        for (int i = 0; i < Model.hotbarSlots.Length; i++)
+        {
+            var slot = Model.hotbarSlots[i];
+            if (slot != null && !slot.IsEmpty && GameJamItemDB.IsToolForGatherAnim(slot.itemId, gatherAnim))
+                return i;
+        }
+
+        return -1;
+    }
+
+    public int FindMainBagToolSlotForGather(GameJamGatherAnim gatherAnim)
+    {
+        if (Model == null || Model.mainSlots == null)
+            return -1;
+
+        int mainLimit = Mathf.Min(Model.unlockedMainSlots, Model.mainSlots.Length);
+        for (int i = 0; i < mainLimit; i++)
+        {
+            var slot = Model.mainSlots[i];
+            if (slot != null && !slot.IsEmpty && GameJamItemDB.IsToolForGatherAnim(slot.itemId, gatherAnim))
+                return i;
+        }
+
+        return -1;
+    }
+
+    public int FindEmptyHotbarSlot()
+    {
+        if (Model == null || Model.hotbarSlots == null)
+            return -1;
+
+        for (int i = 0; i < Model.hotbarSlots.Length; i++)
+        {
+            var slot = Model.hotbarSlots[i];
+            if (slot == null || slot.IsEmpty)
+                return i;
+        }
+
+        return -1;
+    }
+
+    public void MoveMainSlotToHotbar(int mainIndex, int hotbarIndex)
+    {
+        if (Model == null)
+            return;
+
+        Model.MoveSlot(false, mainIndex, true, hotbarIndex);
+    }
+
+    public void MoveHotbarSlotToMain(int hotbarIndex, int mainIndex)
+    {
+        if (Model == null)
+            return;
+
+        Model.MoveSlot(true, hotbarIndex, false, mainIndex);
+    }
+
+    public void SelectHotbarSlot(int index)
+    {
+        if (Model == null)
+            return;
+
+        Model.SelectHotbar(index);
+    }
+
     public bool SellItem(string itemId, int amount)
     {
         var def = GameJamItemDB.Get(itemId);
