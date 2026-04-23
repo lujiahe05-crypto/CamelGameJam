@@ -9,6 +9,7 @@ public class GameJamInteraction : MonoBehaviour
     GameJamMachinePanel machinePanel;
     GameJamStoragePanel storagePanel;
     GameJamPickupUI pickupUI;
+    Animator animator;
     GameJamResourceNode currentTarget;
     GameJamMachine currentMachine;
     GameJamGroundPickup currentPickup;
@@ -21,6 +22,8 @@ public class GameJamInteraction : MonoBehaviour
         machinePanel = gameObject.AddComponent<GameJamMachinePanel>();
         storagePanel = gameObject.AddComponent<GameJamStoragePanel>();
         pickupUI = GetComponent<GameJamPickupUI>();
+        var pc = GetComponent<GameJamPlayerController>();
+        if (pc != null) animator = pc.Animator;
     }
 
     void Update()
@@ -46,6 +49,7 @@ public class GameJamInteraction : MonoBehaviour
         }
         else if (currentStorage != null)
         {
+            if (animator != null) animator.SetTrigger("Treasure");
             storagePanel.Open(currentStorage);
             ui.Hide();
         }
@@ -57,6 +61,7 @@ public class GameJamInteraction : MonoBehaviour
             }
             else
             {
+                if (animator != null) animator.SetTrigger("Collection");
                 var (id, name, amount) = currentPickup.DoPickup();
                 inventory.Add(id, amount);
                 currentPickup = null;
@@ -65,6 +70,15 @@ public class GameJamInteraction : MonoBehaviour
         }
         else if (currentTarget != null)
         {
+            if (animator != null)
+            {
+                string rn = currentTarget.resourceName;
+                if (rn.Contains("树") || rn.Contains("木材"))
+                    animator.SetTrigger("Cuttree");
+                else
+                    animator.SetTrigger("Drilling");
+            }
+
             bool destroyed = currentTarget.Hit();
             if (destroyed)
             {

@@ -60,8 +60,6 @@ public class GameJamBuildingPlacer : MonoBehaviour
         CreateGridMarkers();
         placeUI.Show();
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
     }
 
     public void ExitPlaceMode(bool placed)

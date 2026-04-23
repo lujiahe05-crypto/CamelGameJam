@@ -163,9 +163,6 @@ public class GameJamMachinePanel : MonoBehaviour
 
         var pc = GetComponent<GameJamPlayerController>();
         if (pc != null) pc.enabled = false;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
         var def = machine.GetDef();
         titleText.text = def != null ? def.displayName : machine.machineId;
         UpdateFuelButtonLabel(def);
@@ -192,8 +189,6 @@ public class GameJamMachinePanel : MonoBehaviour
         {
             var pc = GetComponent<GameJamPlayerController>();
             if (pc != null) pc.enabled = true;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
         }
     }
 

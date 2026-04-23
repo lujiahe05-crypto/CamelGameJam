@@ -162,9 +162,6 @@ public class GameJamInventory : MonoBehaviour
 
     void UpdateCursorState()
     {
-        bool needCursor = panelOpen || (buildingPlacer != null && buildingPlacer.IsPlacing);
-        Cursor.lockState = needCursor ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = needCursor;
     }
 
     public bool IsPanelOpen => panelOpen;

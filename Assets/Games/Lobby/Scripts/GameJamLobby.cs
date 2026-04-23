@@ -18,6 +18,7 @@ public class GameJamLobby : MonoBehaviour
 
     void Start()
     {
+        DontDestroyOnLoad(gameObject);
         SetupCamera();
         CreateUI();
     }
@@ -37,6 +38,7 @@ public class GameJamLobby : MonoBehaviour
     void CreateUI()
     {
         canvasGo = new GameObject("GameJamCanvas");
+        DontDestroyOnLoad(canvasGo);
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 100;
@@ -86,7 +88,13 @@ public class GameJamLobby : MonoBehaviour
     void LaunchGame()
     {
         if (canvasGo != null) canvasGo.SetActive(false);
+        SceneManager.sceneLoaded += OnSceneMainLoaded;
+        SceneManager.LoadScene("SceneMain");
+    }
 
+    void OnSceneMainLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneMainLoaded;
         var gameGo = new GameObject("GameJamGame");
         var game = gameGo.AddComponent<GameJamGame>();
         game.OnReturnToLobby = ReturnToLobby;
@@ -94,7 +102,17 @@ public class GameJamLobby : MonoBehaviour
 
     void ReturnToLobby()
     {
+        SceneManager.sceneLoaded += OnLobbyLoaded;
+        SceneManager.LoadScene("GameJam");
+    }
+
+    void OnLobbyLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnLobbyLoaded;
         SetupCamera();
-        if (canvasGo != null) canvasGo.SetActive(true);
+        if (canvasGo != null)
+            canvasGo.SetActive(true);
+        else
+            CreateUI();
     }
 }

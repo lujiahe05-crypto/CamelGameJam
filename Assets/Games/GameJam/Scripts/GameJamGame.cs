@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
 
@@ -8,10 +9,13 @@ public class GameJamGame : MonoBehaviour
 {
     public Action OnReturnToLobby;
 
+    static readonly Vector3 SceneMainSpawnPoint = new Vector3(175.4f, 50.63f, -92.82f);
+
     GameObject sceneRoot;
     GameObject player;
     GameObject eventSystemGo;
     PortiaSettingsTable settings;
+    bool isSceneMain;
 
     void Start()
     {
@@ -21,16 +25,18 @@ public class GameJamGame : MonoBehaviour
         GameJamMachineDB.Reload();
 
         settings = PortiaConfigTables.SettingsTableData;
+        isSceneMain = SceneManager.GetActiveScene().name == "SceneMain";
         sceneRoot = new GameObject("GameJamScene");
+
         BuildScene();
         SpawnPlayer();
         SetupCamera();
-        SetupLight();
+
+        if (!isSceneMain)
+            SetupLight();
+
         SetupEventSystem();
         GiveStartingInventory();
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     void Update()
@@ -51,9 +57,13 @@ public class GameJamGame : MonoBehaviour
 
     void BuildScene()
     {
-        CreateGround();
-        CreateBoundaryWalls();
-        CreateObstacles();
+        if (!isSceneMain)
+        {
+            CreateGround();
+            CreateBoundaryWalls();
+            CreateObstacles();
+        }
+
         CreateResources();
         bool hasConfigNodes = settings.resourceNodes != null && settings.resourceNodes.Length > 0;
         if (!hasConfigNodes)
@@ -368,9 +378,11 @@ public class GameJamGame : MonoBehaviour
             "Assets/Games/GameJam/Model/actor/Npc_Oaks.prefab");
 #endif
 
+        Vector3 spawnPos = isSceneMain ? SceneMainSpawnPoint : Vector3.zero;
+
         if (prefab != null)
         {
-            player = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity, sceneRoot.transform);
+            player = Instantiate(prefab, spawnPos, Quaternion.identity, sceneRoot.transform);
         }
         else
         {
@@ -378,7 +390,7 @@ public class GameJamGame : MonoBehaviour
                 ProceduralMeshUtil.CreateCube(0.6f, 1.6f, 0.6f),
                 ProceduralMeshUtil.CreateMaterial(new Color(0.3f, 0.6f, 0.9f)));
             player.transform.SetParent(sceneRoot.transform);
-            player.transform.position = new Vector3(0, 0.8f, 0);
+            player.transform.position = spawnPos;
         }
 
         player.name = "Player";
@@ -413,6 +425,10 @@ public class GameJamGame : MonoBehaviour
             animator.runtimeAnimatorController = animCtrl;
         }
 #endif
+
+        var anim = player.GetComponentInChildren<Animator>();
+        if (anim != null && anim.GetComponent<GameJamAnimEventReceiver>() == null)
+            anim.gameObject.AddComponent<GameJamAnimEventReceiver>();
     }
 
     Material BuildResourceMaterial(PortiaResourceNodeConfig entry, string itemId)
@@ -484,9 +500,6 @@ public class GameJamGame : MonoBehaviour
 
     void Cleanup()
     {
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
         if (sceneRoot != null) Destroy(sceneRoot);
         if (eventSystemGo != null) Destroy(eventSystemGo);
 

@@ -241,9 +241,6 @@ public class GameJamStoragePanel : MonoBehaviour
 
         var pc = GetComponent<GameJamPlayerController>();
         if (pc != null) pc.enabled = false;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
         RefreshAll();
         canvasGo.SetActive(true);
     }
@@ -264,8 +261,6 @@ public class GameJamStoragePanel : MonoBehaviour
         {
             var pc = GetComponent<GameJamPlayerController>();
             if (pc != null) pc.enabled = true;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
         }
     }
 

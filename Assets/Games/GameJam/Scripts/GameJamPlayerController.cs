@@ -8,12 +8,16 @@ public class GameJamPlayerController : MonoBehaviour
     public float turnSmoothTime = 0.1f;
 
     CharacterController cc;
+    Animator animator;
     float verticalVelocity;
     float turnSmoothVelocity;
+
+    public Animator Animator => animator;
 
     void Start()
     {
         cc = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -39,6 +43,13 @@ public class GameJamPlayerController : MonoBehaviour
             float targetAngle = Mathf.Atan2(input.x, input.z) * Mathf.Rad2Deg;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
             transform.rotation = Quaternion.Euler(0, angle, 0);
+        }
+
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", input.magnitude);
+            animator.SetBool("OnGround", cc.isGrounded);
+            animator.SetFloat("VY", verticalVelocity);
         }
     }
 }
