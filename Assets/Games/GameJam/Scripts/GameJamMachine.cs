@@ -107,15 +107,15 @@ public class GameJamMachine : MonoBehaviour
     public bool AddFuel(GameJamInventory inv)
     {
         if (def == null || !def.hasFuelSystem) return false;
-        if (def.fuelPerWood <= 0f) return false;
+        float fuelPerUnit = def.fuelPerWood > 0f ? def.fuelPerWood : 30f;
 
         string fuelItemId = string.IsNullOrWhiteSpace(def.fuelItemId) ? "木材" : def.fuelItemId;
-        int currentUnits = Mathf.CeilToInt(FuelTime / def.fuelPerWood);
+        int currentUnits = Mathf.CeilToInt(FuelTime / fuelPerUnit);
         if (currentUnits >= def.maxFuelUnits) return false;
         if (inv.Model.GetTotalCount(fuelItemId) <= 0) return false;
 
         inv.Remove(fuelItemId, 1);
-        FuelTime += def.fuelPerWood;
+        FuelTime += fuelPerUnit;
         if (FuelPaused && State == GameJamMachineState.Crafting)
             FuelPaused = false;
         return true;
@@ -124,7 +124,8 @@ public class GameJamMachine : MonoBehaviour
     public int GetFuelUnits()
     {
         if (def == null || !def.hasFuelSystem) return 0;
-        return Mathf.CeilToInt(FuelTime / Mathf.Max(def.fuelPerWood, 0.01f));
+        float fuelPerUnit = def.fuelPerWood > 0f ? def.fuelPerWood : 30f;
+        return Mathf.CeilToInt(FuelTime / fuelPerUnit);
     }
 
     void BuildFloatingUI()

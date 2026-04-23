@@ -157,7 +157,9 @@ public static class GameJamMachineDB
                 fuelItemId = entry.hasFuelSystem
                     ? (!string.IsNullOrWhiteSpace(entry.fuelItemId) ? entry.fuelItemId : existing != null ? existing.fuelItemId : null)
                     : null,
-                fuelPerWood = entry.hasFuelSystem ? entry.fuelPerWood : 0f,
+                fuelPerWood = entry.hasFuelSystem
+                    ? (entry.fuelPerWood > 0f ? entry.fuelPerWood : existing != null && existing.fuelPerWood > 0f ? existing.fuelPerWood : 30f)
+                    : 0f,
                 maxFuelUnits = entry.hasFuelSystem
                     ? (entry.maxFuelUnits > 0 ? entry.maxFuelUnits : existing != null ? existing.maxFuelUnits : 0)
                     : 0,
