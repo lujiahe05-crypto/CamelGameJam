@@ -158,20 +158,16 @@ public class GameJamGame : MonoBehaviour
 
     void TryLoadDecorativePrefabs()
     {
-#if UNITY_EDITOR
-        var stonePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/Games/GameJam/assets/Model/interactive/stone/stone_interactive_01.prefab");
+        var stonePrefab = Resources.Load<GameObject>("stone_interactive_01");
         if (stonePrefab != null)
         {
             SpawnDecor(stonePrefab, new Vector3(15, 0, 12));
             SpawnDecor(stonePrefab, new Vector3(-12, 0, -15));
         }
 
-        var boxPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/Games/GameJam/assets/Model/itembox/objects_box_baoxiang01_Anim_Play.prefab");
+        var boxPrefab = Resources.Load<GameObject>("objects_box_baoxiang01_Anim_Play");
         if (boxPrefab != null)
             SpawnDecor(boxPrefab, new Vector3(-15, 0, 5));
-#endif
     }
 
     void SpawnDecor(GameObject prefab, Vector3 pos)
@@ -413,10 +409,7 @@ public class GameJamGame : MonoBehaviour
     {
         GameObject prefab = null;
 
-#if UNITY_EDITOR
-        prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/Games/GameJam/assets/Model/actor/Npc_Oaks.prefab");
-#endif
+        prefab = Resources.Load<GameObject>("Npc_Oaks");
 
         Vector3 spawnPos = isSceneMain ? SceneMainSpawnPoint : Vector3.zero;
 
@@ -456,9 +449,7 @@ public class GameJamGame : MonoBehaviour
         var placer = player.AddComponent<GameJamBuildingPlacer>();
         placer.Init(sceneRoot.transform, player.transform);
 
-#if UNITY_EDITOR
-        var animCtrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
-            "Assets/Games/GameJam/assets/gamemodules/animation/animator/Anim_Medium_Oaks.controller");
+        var animCtrl = Resources.Load<RuntimeAnimatorController>("Anim_Medium_Oaks");
         if (animCtrl != null)
         {
             var animator = player.GetComponentInChildren<Animator>();
@@ -466,7 +457,6 @@ public class GameJamGame : MonoBehaviour
                 animator = player.AddComponent<Animator>();
             animator.runtimeAnimatorController = animCtrl;
         }
-#endif
 
         var anim = player.GetComponentInChildren<Animator>();
         if (anim != null && anim.GetComponent<GameJamAnimEventReceiver>() == null)

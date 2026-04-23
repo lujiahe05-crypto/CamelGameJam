@@ -107,6 +107,9 @@ public class GameJamBuildingPlacer : MonoBehaviour
         previewGo = GameJamBuildingDB.CreateBuildingMesh(currentItemId);
         previewGo.name = "BuildingPreview";
 
+        if (GameJamBuildingDB.HasConfiguredPrefab(currentItemId))
+            GameJamArtLoader.AlignObjectBaseToWorldY(previewGo, 0f);
+
         previewRenderers = previewGo.GetComponentsInChildren<Renderer>();
         foreach (var r in previewRenderers)
             r.material = greenTransMat;
@@ -167,24 +170,33 @@ public class GameJamBuildingPlacer : MonoBehaviour
 
     void UpdatePreviewPosition()
     {
-        var cam = Camera.main;
-        if (cam == null) return;
+        if (playerTransform == null) return;
 
-        var ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out var hit, 200f, 1 << GroundLayer))
-        {
-            float x = Mathf.Round(hit.point.x / CellSize) * CellSize;
-            float z = Mathf.Round(hit.point.z / CellSize) * CellSize;
-            var snapped = new Vector3(x, hit.point.y, z);
+        var fwd = playerTransform.forward;
+        fwd.y = 0f;
+        if (fwd.sqrMagnitude < 0.001f) fwd = Vector3.forward;
+        fwd.Normalize();
+        var ahead = playerTransform.position + fwd * 3f;
 
-            previewGo.transform.position = snapped;
-            previewGo.transform.rotation = Quaternion.Euler(0, rotationStep * 90f, 0);
-            if (GameJamBuildingDB.HasConfiguredPrefab(currentItemId))
-                GameJamArtLoader.AlignObjectBaseToWorldY(previewGo, snapped.y);
+        float groundY = playerTransform.position.y;
+        var rayOrigin = new Vector3(ahead.x, groundY + 10f, ahead.z);
+        if (Physics.Raycast(rayOrigin, Vector3.down, out var gHit, 20f))
+            groundY = gHit.point.y;
 
-            gridMarkersGo.transform.position = snapped;
-            gridMarkersGo.transform.rotation = Quaternion.Euler(0, rotationStep * 90f, 0);
-        }
+        var snapped = SnapToGrid(new Vector3(ahead.x, groundY, ahead.z));
+
+        previewGo.transform.position = snapped;
+        previewGo.transform.rotation = Quaternion.Euler(0, rotationStep * 90f, 0);
+
+        gridMarkersGo.transform.position = snapped;
+        gridMarkersGo.transform.rotation = Quaternion.Euler(0, rotationStep * 90f, 0);
+    }
+
+    Vector3 SnapToGrid(Vector3 pos)
+    {
+        float x = Mathf.Round(pos.x / CellSize) * CellSize;
+        float z = Mathf.Round(pos.z / CellSize) * CellSize;
+        return new Vector3(x, pos.y, z);
     }
 
     void ValidatePlacement()
@@ -229,7 +241,7 @@ public class GameJamBuildingPlacer : MonoBehaviour
             {
                 var worldPt = pos + rot * new Vector3(cx, 0, cz);
                 var rayOrigin = worldPt + Vector3.up * 5f;
-                if (!Physics.Raycast(rayOrigin, Vector3.down, 10f, 1 << GroundLayer))
+                if (!Physics.Raycast(rayOrigin, Vector3.down, 10f))
                 {
                     canPlace = false;
                     return;
@@ -281,11 +293,11 @@ public class GameJamBuildingPlacer : MonoBehaviour
 
         var building = GameJamBuildingDB.CreateBuildingMesh(currentItemId);
         building.name = currentItemId;
+        if (GameJamBuildingDB.HasConfiguredPrefab(currentItemId))
+            GameJamArtLoader.AlignObjectBaseToWorldY(building, 0f);
         building.transform.SetParent(sceneRoot);
         building.transform.position = pos;
         building.transform.rotation = rot;
-        if (GameJamBuildingDB.HasConfiguredPrefab(currentItemId))
-            GameJamArtLoader.AlignObjectBaseToWorldY(building, pos.y);
 
         int gw = currentDef.gridW;
         int gh = currentDef.gridH;
