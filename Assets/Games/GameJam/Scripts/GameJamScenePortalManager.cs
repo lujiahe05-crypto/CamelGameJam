@@ -25,6 +25,8 @@ public class GameJamScenePortalManager : MonoBehaviour
     bool isTeleporting;
     GameObject blockedPortal;
     CanvasGroup fadeCanvasGroup;
+    Canvas promptCanvas;
+    Text promptText;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void InstallSceneHook()
@@ -72,16 +74,23 @@ public class GameJamScenePortalManager : MonoBehaviour
         if (portalA == null || portalB == null || playerRoot == null)
         {
             blockedPortal = null;
+            SetPromptVisible(false);
             return;
         }
 
         if (isTeleporting)
+        {
+            SetPromptVisible(false);
             return;
+        }
 
         if (blockedPortal != null)
         {
             if (IsInsidePortalArea(blockedPortal, playerRoot.position))
+            {
+                SetPromptVisible(false);
                 return;
+            }
 
             blockedPortal = null;
         }
@@ -91,12 +100,21 @@ public class GameJamScenePortalManager : MonoBehaviour
 
         if (insidePortalA)
         {
-            StartCoroutine(TeleportWithFade(portalB));
+            SetPromptVisible(true);
+            if (Input.GetKeyDown(KeyCode.E))
+                StartCoroutine(TeleportWithFade(portalB));
             return;
         }
 
         if (insidePortalB)
-            StartCoroutine(TeleportWithFade(portalA));
+        {
+            SetPromptVisible(true);
+            if (Input.GetKeyDown(KeyCode.E))
+                StartCoroutine(TeleportWithFade(portalA));
+            return;
+        }
+
+        SetPromptVisible(false);
     }
 
     void TryResolvePortals()
@@ -220,6 +238,7 @@ public class GameJamScenePortalManager : MonoBehaviour
 
         isTeleporting = true;
         EnsureFadeOverlay();
+        SetPromptVisible(false);
 
         yield return FadeOverlay(0f, 1f, fadeOutDuration);
         yield return WaitForSecondsRealtimeSafe(blackScreenHoldDuration);
@@ -268,7 +287,10 @@ public class GameJamScenePortalManager : MonoBehaviour
     void EnsureFadeOverlay()
     {
         if (fadeCanvasGroup != null)
+        {
+            EnsurePromptOverlay();
             return;
+        }
 
         var canvasGo = new GameObject("PortalFadeCanvas");
         canvasGo.transform.SetParent(transform, false);
@@ -298,6 +320,50 @@ public class GameJamScenePortalManager : MonoBehaviour
         rect.offsetMax = Vector2.zero;
 
         fadeCanvasGroup = group;
+        EnsurePromptOverlay();
+    }
+
+    void EnsurePromptOverlay()
+    {
+        if (promptCanvas != null && promptText != null)
+            return;
+
+        var promptCanvasGo = new GameObject("PortalPromptCanvas");
+        promptCanvasGo.transform.SetParent(transform, false);
+
+        promptCanvas = promptCanvasGo.AddComponent<Canvas>();
+        promptCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        promptCanvas.sortingOrder = 5001;
+
+        promptCanvasGo.AddComponent<GraphicRaycaster>();
+
+        var promptGo = new GameObject("PromptText");
+        promptGo.transform.SetParent(promptCanvasGo.transform, false);
+
+        promptText = promptGo.AddComponent<Text>();
+        promptText.text = "\u6309E\u5f00\u95e8";
+        promptText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        promptText.fontSize = 36;
+        promptText.alignment = TextAnchor.MiddleCenter;
+        promptText.color = Color.white;
+        promptText.raycastTarget = false;
+        promptText.enabled = false;
+
+        var promptRect = promptText.rectTransform;
+        promptRect.anchorMin = new Vector2(0.5f, 0f);
+        promptRect.anchorMax = new Vector2(0.5f, 0f);
+        promptRect.pivot = new Vector2(0.5f, 0f);
+        promptRect.anchoredPosition = new Vector2(0f, 120f);
+        promptRect.sizeDelta = new Vector2(320f, 60f);
+    }
+
+    void SetPromptVisible(bool visible)
+    {
+        EnsurePromptOverlay();
+        if (promptText == null)
+            return;
+
+        promptText.enabled = visible;
     }
 
     System.Collections.IEnumerator FadeOverlay(float from, float to, float duration)
