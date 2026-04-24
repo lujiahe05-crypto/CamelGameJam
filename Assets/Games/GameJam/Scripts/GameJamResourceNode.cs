@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public struct GameJamHarvestReward
@@ -33,11 +34,65 @@ public class GameJamResourceNode : MonoBehaviour
     bool alive = true;
     Vector3 originalScale;
     List<GameJamHarvestReward> cachedRewards;
+    Canvas labelCanvas;
 
     void Start()
     {
         hp = maxHp;
         originalScale = transform.localScale;
+        CreateNameLabel();
+    }
+
+    float GetRendererTopY()
+    {
+        float maxY = float.MinValue;
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            maxY = Mathf.Max(maxY, r.bounds.max.y);
+        return maxY > float.MinValue ? maxY : transform.position.y + 1.5f;
+    }
+
+    void CreateNameLabel()
+    {
+        float topY = GetRendererTopY();
+
+        var canvasGo = new GameObject("Label");
+        canvasGo.transform.SetParent(transform);
+        canvasGo.transform.position = new Vector3(transform.position.x, topY + 0.3f, transform.position.z);
+        canvasGo.transform.localScale = Vector3.one * 0.02f;
+
+        labelCanvas = canvasGo.AddComponent<Canvas>();
+        labelCanvas.renderMode = RenderMode.WorldSpace;
+        labelCanvas.sortingOrder = 100;
+
+        var rt = canvasGo.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(200, 50);
+
+        var textGo = new GameObject("Text");
+        textGo.transform.SetParent(canvasGo.transform, false);
+        var labelText = textGo.AddComponent<Text>();
+        labelText.font = Font.CreateDynamicFontFromOSFont("Microsoft YaHei", 28);
+        labelText.fontSize = 28;
+        labelText.alignment = TextAnchor.MiddleCenter;
+        labelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        labelText.color = Color.white;
+        labelText.text = resourceName;
+        labelText.fontStyle = FontStyle.Bold;
+
+        var outline = textGo.AddComponent<Outline>();
+        outline.effectColor = new Color(0, 0, 0, 0.9f);
+        outline.effectDistance = new Vector2(1.5f, -1.5f);
+
+        var textRect = textGo.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+    }
+
+    void Update()
+    {
+        if (labelCanvas != null && Camera.main != null)
+            labelCanvas.transform.rotation = Camera.main.transform.rotation;
     }
 
     public bool IsAlive => alive;
@@ -212,5 +267,7 @@ public class GameJamResourceNode : MonoBehaviour
             r.enabled = visible;
         foreach (var c in GetComponentsInChildren<Collider>())
             c.enabled = visible;
+        if (labelCanvas != null)
+            labelCanvas.gameObject.SetActive(visible);
     }
 }

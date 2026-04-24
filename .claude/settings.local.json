@@ -92,7 +92,10 @@
       "Bash(gh auth *)",
       "Bash(git remote *)",
       "Bash(git push *)",
-      "Bash(grep -E \"\\\\.cs$\")"
+      "Bash(grep -E \"\\\\.cs$\")",
+      "Bash(python3 *)",
+      "Bash(xargs grep *)",
+      "Bash(grep -i \"\\\\.cs$\")"
     ]
   }
 }
