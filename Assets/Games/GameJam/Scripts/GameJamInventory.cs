@@ -38,7 +38,7 @@ public class GameJamInventory : MonoBehaviour
     public void Add(string name, int amount)
     {
         Model.AddItem(name, amount);
-        Toast.ShowToast($"+{amount} {name}");
+        GameJamItemGainToast.Show(name, amount);
     }
 
     public void AddRange(IEnumerable<GameJamHarvestReward> rewards)
@@ -61,7 +61,7 @@ public class GameJamInventory : MonoBehaviour
         foreach (var entry in mergedRewards)
         {
             if (Model.AddItem(entry.Key, entry.Value))
-                Toast.ShowToast($"+{entry.Value} {entry.Key}");
+                GameJamItemGainToast.Show(entry.Key, entry.Value);
         }
     }
 

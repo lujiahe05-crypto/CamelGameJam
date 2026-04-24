@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class GameJamBuildPlaceUI : MonoBehaviour
 {
+    const string KeyBgTexturePath = "Assets/Games/GameJam/assets/UI/Texture2D/button_cannot.png";
+
     GameObject canvasGo;
     GameObject panelGo;
 
@@ -25,6 +27,7 @@ public class GameJamBuildPlaceUI : MonoBehaviour
         if (canvasGo != null)
         {
             FindReferences();
+            ApplyKeyBackgrounds();
             return;
         }
 
@@ -54,6 +57,34 @@ public class GameJamBuildPlaceUI : MonoBehaviour
         panelGo = canvasGo.transform.Find("HintPanel").gameObject;
     }
 
+    void ApplyKeyBackgrounds()
+    {
+        if (panelGo == null)
+            return;
+
+        var images = panelGo.GetComponentsInChildren<Image>(true);
+        for (int i = 0; i < images.Length; i++)
+        {
+            var image = images[i];
+            if (image != null && image.gameObject.name == "KeyBG")
+                ApplyKeyBackground(image);
+        }
+    }
+
+    static void ApplyKeyBackground(Image image)
+    {
+        if (image == null)
+            return;
+
+        var sprite = GameJamArtLoader.LoadSprite(KeyBgTexturePath);
+        if (sprite != null)
+            image.sprite = sprite;
+
+        image.color = Color.white;
+        image.type = Image.Type.Simple;
+        image.preserveAspect = false;
+    }
+
     void CreateHintRow(Transform parent, float y, string keyLabel, string actionLabel)
     {
         var row = MakeRect("Row", parent);
@@ -73,7 +104,7 @@ public class GameJamBuildPlaceUI : MonoBehaviour
         kbRect.anchoredPosition = new Vector2(0, 0);
 
         var kbImg = keyBg.AddComponent<Image>();
-        kbImg.color = new Color(0.9f, 0.9f, 0.92f, 0.95f);
+        ApplyKeyBackground(kbImg);
 
         var outline = MakeRect("Outline", keyBg.transform);
         var olRect = outline.GetComponent<RectTransform>();
