@@ -174,7 +174,21 @@
             "fuelItemId": "",
             "fuelPerWood": 300.0,
             "maxFuelUnits": 10,
-            "recipes": []
+            "recipes": [
+                {
+                    "recipeId": "11",
+                    "outputItemId": "蚝油蘑菇",
+                    "outputAmount": 1,
+                    "craftTime": 3.0,
+                    "requiresFuel": false,
+                    "inputs": [
+                        {
+                            "itemId": "蘑菇",
+                            "amount": 1
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

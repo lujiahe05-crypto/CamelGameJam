@@ -7,6 +7,8 @@ using Object = UnityEngine.Object;
 
 public class GameJamGame : MonoBehaviour
 {
+    static readonly Vector3 SceneMainDefaultSpawn = new Vector3(207.857f, 46.668f, -112.925f);
+
     public Action OnReturnToLobby;
 
     GameObject sceneRoot;
@@ -463,10 +465,7 @@ public class GameJamGame : MonoBehaviour
 
     Vector3 GetSceneMainSpawnPoint()
     {
-        if (settings != null && settings.playerSpawnPosition != null)
-            return settings.playerSpawnPosition.ToVector3();
-
-        return new Vector3(207.857f, 46.668f, -112.925f);
+        return SceneMainDefaultSpawn;
     }
 
     Material BuildResourceMaterial(PortiaResourceNodeConfig entry, string itemId)

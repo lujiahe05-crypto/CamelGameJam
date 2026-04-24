@@ -14,7 +14,7 @@
                 "b": 0.6000000238418579,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_Axe.png",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_Axe.png",
             "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\comparegame\\ItemCom_Axe.prefab"
         },
         {
@@ -31,7 +31,7 @@
                 "b": 0.5199999809265137,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_hoe_steel",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_hoe_steel",
             "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\Item_hoe_lv1"
         },
         {
@@ -48,7 +48,7 @@
                 "b": 0.15000000596046449,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_huYangMu",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_huYangMu",
             "prefabPath": ""
         },
         {
@@ -65,7 +65,7 @@
                 "b": 0.5799999833106995,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_009",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_stone_009",
             "prefabPath": ""
         },
         {
@@ -82,7 +82,7 @@
                 "b": 0.20000000298023225,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_007",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_stone_007",
             "prefabPath": ""
         },
         {
@@ -99,7 +99,7 @@
                 "b": 0.949999988079071,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_crystal",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_crystal",
             "prefabPath": ""
         },
         {
@@ -116,12 +116,12 @@
                 "b": 0.25999999046325686,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_011",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_stone_011",
             "prefabPath": ""
         },
         {
-            "itemId": "矿泉水",
-            "displayName": "矿泉水",
+            "itemId": "蚝油蘑菇",
+            "displayName": "蚝油蘑菇",
             "description": "Consumable item.",
             "itemType": "Consumable",
             "rarity": "Common",
@@ -133,7 +133,7 @@
                 "b": 0.949999988079071,
                 "a": 1.0
             },
-            "iconPath": "",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_small_HaoYouShuangGu",
             "prefabPath": ""
         },
         {
@@ -150,7 +150,7 @@
                 "b": 0.20000000298023225,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_mushroom01",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_mushroom01",
             "prefabPath": ""
         },
         {
@@ -184,7 +184,7 @@
                 "b": 0.15000000596046449,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_furnace02",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_machine_furnace02",
             "prefabPath": ""
         },
         {
@@ -201,7 +201,7 @@
                 "b": 0.5,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_sawing",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_machine_sawing",
             "prefabPath": ""
         },
         {
@@ -218,7 +218,7 @@
                 "b": 0.2199999988079071,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_machine_cookingBench",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_machine_cookingBench",
             "prefabPath": ""
         },
         {
@@ -235,7 +235,7 @@
                 "b": 0.6499999761581421,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_stone_002",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_stone_002",
             "prefabPath": ""
         },
         {
@@ -252,7 +252,7 @@
                 "b": 0.25,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_productionLine_WoodCompositeBoard",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_productionLine_WoodCompositeBoard",
             "prefabPath": ""
         },
         {
@@ -269,7 +269,7 @@
                 "b": 0.2800000011920929,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_metal_004",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_metal_004",
             "prefabPath": ""
         },
         {
@@ -286,7 +286,7 @@
                 "b": 0.3199999928474426,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_home_wateredFloor",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_home_wateredFloor",
             "prefabPath": ""
         },
         {
@@ -303,7 +303,7 @@
                 "b": 0.75,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_products_steelPan",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_products_steelPan",
             "prefabPath": ""
         },
         {
@@ -320,7 +320,7 @@
                 "b": 0.30000001192092898,
                 "a": 1.0
             },
-            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\packageItem_metal_006",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_metal_006",
             "prefabPath": ""
         }
     ]
