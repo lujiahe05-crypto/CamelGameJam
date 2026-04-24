@@ -7,7 +7,7 @@ public class GameJamBuildingDef
     public int gridW;
     public int gridH;
     public float height;
-    public string prefabPath;
+    public string prefabName;
 }
 
 public static class GameJamBuildingDB
@@ -50,7 +50,7 @@ public static class GameJamBuildingDB
                 gridW = entry.gridW > 0 ? entry.gridW : existing != null ? existing.gridW : 1,
                 gridH = entry.gridH > 0 ? entry.gridH : existing != null ? existing.gridH : 1,
                 height = entry.height > 0f ? entry.height : existing != null ? existing.height : 1f,
-                prefabPath = !string.IsNullOrWhiteSpace(entry.prefabPath) ? entry.prefabPath : existing != null ? existing.prefabPath : null
+                prefabName = !string.IsNullOrWhiteSpace(entry.prefabName) ? entry.prefabName : existing != null ? existing.prefabName : null
             });
         }
     }
@@ -70,11 +70,11 @@ public static class GameJamBuildingDB
     public static bool HasConfiguredPrefab(string itemId)
     {
         Init();
-        if (defs.TryGetValue(itemId, out var buildingDef) && !string.IsNullOrWhiteSpace(buildingDef.prefabPath))
+        if (defs.TryGetValue(itemId, out var buildingDef) && !string.IsNullOrWhiteSpace(buildingDef.prefabName))
             return true;
 
         var itemDef = GameJamItemDB.Get(itemId);
-        return itemDef != null && !string.IsNullOrWhiteSpace(itemDef.prefabPath);
+        return itemDef != null && !string.IsNullOrWhiteSpace(itemDef.prefabName);
     }
 
     public static GameObject CreateBuildingMesh(string itemId)
@@ -85,10 +85,10 @@ public static class GameJamBuildingDB
         if (itemDef != null && !string.IsNullOrWhiteSpace(itemDef.name))
             displayName = itemDef.name;
 
-        string prefabPath = buildingDef != null && !string.IsNullOrWhiteSpace(buildingDef.prefabPath)
-            ? buildingDef.prefabPath
-            : itemDef != null ? itemDef.prefabPath : null;
-        var configuredPrefab = GameJamArtLoader.InstantiatePrefab(prefabPath);
+        string prefabName = buildingDef != null && !string.IsNullOrWhiteSpace(buildingDef.prefabName)
+            ? buildingDef.prefabName
+            : itemDef != null ? itemDef.prefabName : null;
+        var configuredPrefab = GameJamArtLoader.InstantiatePrefabByName(prefabName);
         if (configuredPrefab != null)
         {
             configuredPrefab.name = displayName;

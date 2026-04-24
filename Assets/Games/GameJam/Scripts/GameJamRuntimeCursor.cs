@@ -86,9 +86,26 @@ public class GameJamRuntimeCursor : MonoBehaviour
 
     static Texture2D LoadCursorTexture()
     {
-        var loadedFromResources = Resources.Load<Texture2D>("GameJamUI/MouseIcon");
-        if (loadedFromResources != null && loadedFromResources.isReadable)
-            return loadedFromResources;
+        var loaded = Resources.Load<Texture2D>("GameJamUI/MouseIcon");
+        if (loaded != null)
+        {
+            if (loaded.isReadable && loaded.format == TextureFormat.RGBA32)
+                return loaded;
+
+            var rt = RenderTexture.GetTemporary(loaded.width, loaded.height, 0, RenderTextureFormat.ARGB32);
+            Graphics.Blit(loaded, rt);
+            var prev = RenderTexture.active;
+            RenderTexture.active = rt;
+            var readable = new Texture2D(loaded.width, loaded.height, TextureFormat.RGBA32, false);
+            readable.ReadPixels(new Rect(0, 0, loaded.width, loaded.height), 0, 0);
+            readable.Apply();
+            RenderTexture.active = prev;
+            RenderTexture.ReleaseTemporary(rt);
+            readable.name = "GameJamRuntimeMouseIcon";
+            readable.filterMode = FilterMode.Bilinear;
+            readable.wrapMode = TextureWrapMode.Clamp;
+            return readable;
+        }
 
         string assetsRoot = Application.dataPath;
         for (int i = 0; i < CursorCandidatePaths.Length; i++)
@@ -114,6 +131,6 @@ public class GameJamRuntimeCursor : MonoBehaviour
             return texture;
         }
 
-        return loadedFromResources;
+        return null;
     }
 }

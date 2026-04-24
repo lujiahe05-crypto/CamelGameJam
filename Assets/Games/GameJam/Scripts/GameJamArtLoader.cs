@@ -30,7 +30,7 @@ public static class GameJamArtLoader
         }
 
         var itemDef = GameJamItemDB.Get(itemId);
-        var sprite = itemDef != null ? LoadSprite(itemDef.iconPath) : null;
+        var sprite = itemDef != null ? LoadSpriteByName(itemDef.iconName, itemDef.iconPath) : null;
         if (sprite != null)
         {
             image.sprite = sprite;
@@ -101,6 +101,101 @@ public static class GameJamArtLoader
         }
 
         prefabCache[rawPath] = null;
+        return null;
+    }
+
+    public static GameObject LoadPrefabByName(string prefabName)
+    {
+        if (string.IsNullOrWhiteSpace(prefabName))
+            return null;
+
+        var prefab = Resources.Load<GameObject>("Prefab/" + prefabName);
+        if (prefab != null)
+            return prefab;
+
+#if UNITY_EDITOR
+        var guids = UnityEditor.AssetDatabase.FindAssets(prefabName + " t:Prefab");
+        foreach (var guid in guids)
+        {
+            string assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            if (!System.IO.Path.GetFileNameWithoutExtension(assetPath)
+                    .Equals(prefabName, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string destDir = "Assets/Games/GameJam/assets/Resources/Prefab";
+            if (!System.IO.Directory.Exists(destDir))
+                System.IO.Directory.CreateDirectory(destDir);
+
+            string destPath = destDir + "/" + System.IO.Path.GetFileName(assetPath);
+            if (!System.IO.File.Exists(destPath))
+            {
+                UnityEditor.AssetDatabase.CopyAsset(assetPath, destPath);
+                UnityEditor.AssetDatabase.Refresh();
+            }
+
+            prefab = Resources.Load<GameObject>("Prefab/" + prefabName);
+            if (prefab != null) return prefab;
+        }
+#endif
+
+        return null;
+    }
+
+    public static GameObject InstantiatePrefabByName(string prefabName)
+    {
+        var prefab = LoadPrefabByName(prefabName);
+        return prefab != null ? Object.Instantiate(prefab) : null;
+    }
+
+    public static Sprite LoadSpriteByName(string iconName, string iconPath = null)
+    {
+        if (string.IsNullOrWhiteSpace(iconName))
+            return null;
+
+        if (spriteCache.TryGetValue(iconName, out var cached))
+            return cached;
+
+        var sprite = Resources.Load<Sprite>("Icon/" + iconName);
+        if (sprite != null)
+        {
+            spriteCache[iconName] = sprite;
+            return sprite;
+        }
+
+#if UNITY_EDITOR
+        if (!string.IsNullOrWhiteSpace(iconPath))
+        {
+            string srcPath = iconPath.Replace('\\', '/');
+            if (!srcPath.StartsWith("Assets/"))
+                srcPath = "Assets/" + srcPath.TrimStart('/');
+            if (string.IsNullOrEmpty(System.IO.Path.GetExtension(srcPath)))
+                srcPath += ".png";
+
+            var srcAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(srcPath);
+            if (srcAsset != null)
+            {
+                string destDir = "Assets/Games/GameJam/assets/Resources/Icon";
+                if (!System.IO.Directory.Exists(destDir))
+                    System.IO.Directory.CreateDirectory(destDir);
+
+                string destPath = destDir + "/" + System.IO.Path.GetFileName(srcPath);
+                if (!System.IO.File.Exists(destPath))
+                {
+                    UnityEditor.AssetDatabase.CopyAsset(srcPath, destPath);
+                    UnityEditor.AssetDatabase.Refresh();
+                }
+
+                sprite = Resources.Load<Sprite>("Icon/" + iconName);
+                if (sprite != null)
+                {
+                    spriteCache[iconName] = sprite;
+                    return sprite;
+                }
+            }
+        }
+#endif
+
+        spriteCache[iconName] = null;
         return null;
     }
 

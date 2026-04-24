@@ -216,10 +216,10 @@ public class GameJamGame : MonoBehaviour
                 var mat = BuildResourceMaterial(entry, itemId);
                 string label = string.IsNullOrWhiteSpace(entry.label) ? itemId : entry.label;
                 int hp = Mathf.Max(1, entry.amount);
-                float respawn = (entry.amount <= 1 && entry.num <= 1) ? -1f : 120f;
+                float respawn = (entry.amount <= 1 && entry.num <= 1) ? -1f : 5f;
                 bool useAbsoluteWorldPosition = isSceneMain && entry.position != null;
                 CreateResourceNode(label, mat, shape, scale, position, hp, respawn, entry.drops,
-                    Mathf.Max(0, entry.num), InferGatherAnim(itemId), useAbsoluteWorldPosition, entry.prefabPath);
+                    Mathf.Max(0, entry.num), InferGatherAnim(itemId), useAbsoluteWorldPosition, entry.prefabName);
             }
         }
         else
@@ -335,9 +335,9 @@ public class GameJamGame : MonoBehaviour
     void CreateResourceNode(string resName, Material mat, PrimitiveType shape,
         Vector3 scale, Vector3 pos, int hp, float respawn, PortiaResourceDropConfig[] drops,
         int num = 0, GameJamGatherAnim gatherAnim = GameJamGatherAnim.Mine,
-        bool useAbsoluteWorldPosition = false, string prefabPath = null)
+        bool useAbsoluteWorldPosition = false, string prefabName = null)
     {
-        var go = GameJamArtLoader.InstantiatePrefab(prefabPath);
+        var go = GameJamArtLoader.InstantiatePrefabByName(prefabName);
         bool hasCustomPrefab = go != null;
         if (!hasCustomPrefab)
         {

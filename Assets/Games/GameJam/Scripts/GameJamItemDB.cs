@@ -15,11 +15,12 @@ public class GameJamItemDef
     public int sellPrice;
     public Color iconColor;
     public string iconPath;
-    public string prefabPath;
+    public string iconName;
+    public string prefabName;
 
     public GameJamItemDef(string id, string name, string desc, GameJamItemType type,
         GameJamRarity rarity, int maxStack, int sellPrice, Color iconColor,
-        string iconPath = null, string prefabPath = null)
+        string iconPath = null, string iconName = null, string prefabName = null)
     {
         this.id = id;
         this.name = name;
@@ -30,7 +31,8 @@ public class GameJamItemDef
         this.sellPrice = sellPrice;
         this.iconColor = iconColor;
         this.iconPath = iconPath;
-        this.prefabPath = prefabPath;
+        this.iconName = iconName;
+        this.prefabName = prefabName;
     }
 }
 
@@ -204,7 +206,8 @@ public static class GameJamItemDB
                 sellPrice,
                 iconColor,
                 entry.iconPath,
-                entry.prefabPath));
+                entry.iconName,
+                entry.prefabName));
         }
     }
 
@@ -253,8 +256,8 @@ public static class GameJamItemDB
             def.id ?? string.Empty, "|",
             def.name ?? string.Empty, "|",
             def.description ?? string.Empty, "|",
-            def.iconPath ?? string.Empty, "|",
-            def.prefabPath ?? string.Empty);
+            def.iconName ?? string.Empty, "|",
+            def.prefabName ?? string.Empty);
 
         for (int i = 0; i < keywords.Length; i++)
         {

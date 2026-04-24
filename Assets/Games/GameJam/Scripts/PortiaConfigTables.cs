@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 
 [Serializable]
@@ -41,6 +42,8 @@ public class PortiaItemConfig
     public PortiaColorData iconColor;
     public string iconPath;
     public string prefabPath;
+    [NonSerialized] public string iconName;
+    [NonSerialized] public string prefabName;
 }
 
 [Serializable]
@@ -57,6 +60,7 @@ public class PortiaBuildingConfig
     public int gridH = 1;
     public float height = 1f;
     public string prefabPath;
+    [NonSerialized] public string prefabName;
 }
 
 [Serializable]
@@ -129,6 +133,7 @@ public class PortiaResourceNodeConfig
     public PortiaColorData color;
     public PortiaResourceDropConfig[] drops;
     public string prefabPath;
+    [NonSerialized] public string prefabName;
 }
 
 [Serializable]
@@ -236,7 +241,36 @@ public static class PortiaConfigTables
             return fallback;
         }
 
+        PostProcessPrefabNames(table);
         return table;
+    }
+
+    static void PostProcessPrefabNames<T>(T table)
+    {
+        if (table is PortiaItemTable itemTable && itemTable.items != null)
+        {
+            foreach (var item in itemTable.items)
+            {
+                item.prefabName = ExtractFileName(item.prefabPath);
+                item.iconName = ExtractFileName(item.iconPath);
+            }
+        }
+        else if (table is PortiaBuildingTable buildingTable && buildingTable.buildings != null)
+        {
+            foreach (var b in buildingTable.buildings)
+                b.prefabName = ExtractFileName(b.prefabPath);
+        }
+        else if (table is PortiaSettingsTable settings && settings.resourceNodes != null)
+        {
+            foreach (var node in settings.resourceNodes)
+                node.prefabName = ExtractFileName(node.prefabPath);
+        }
+    }
+
+    static string ExtractFileName(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return "";
+        return Path.GetFileNameWithoutExtension(path.Replace('\\', '/'));
     }
 
     static PortiaSettingsTable CreateDefaultSettingsTable()
