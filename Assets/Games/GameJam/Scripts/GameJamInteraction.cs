@@ -194,6 +194,7 @@ public class GameJamInteraction : MonoBehaviour
 
         while (target != null && target.IsAlive)
         {
+            if (inventory == null || inventory.Model == null) break;
             var rewards = target.PeekHarvestRewards();
             if (!inventory.Model.CanAddItems(rewards))
             {

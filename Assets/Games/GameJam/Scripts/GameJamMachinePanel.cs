@@ -14,8 +14,11 @@ public class GameJamMachinePanel : MonoBehaviour
     // Left column
     Transform recipeCardParent;
     RectTransform recipeCardRect;
+    GameObject cardTemplate;
     List<GameObject> recipeCards = new List<GameObject>();
     List<Image> cardBgImages = new List<Image>();
+    Sprite cardBgNormal;
+    Sprite cardBgSelected;
     int selectedIndex = -1;
     GameJamRecipe selectedRecipe;
     List<GameJamRecipe> currentRecipes;
@@ -76,7 +79,12 @@ public class GameJamMachinePanel : MonoBehaviour
 
     void EnsureUI()
     {
-        if (canvasGo == null) BuildUI();
+        if (canvasGo == null)
+        {
+            cardBgNormal = Resources.Load<Sprite>("bg_gray");
+            cardBgSelected = Resources.Load<Sprite>("bg_gray_select");
+            BuildUI();
+        }
     }
 
     void BuildUI()
@@ -132,6 +140,14 @@ public class GameJamMachinePanel : MonoBehaviour
         var content = leftCol.Find("Scroll/VP/Content");
         recipeCardParent = content;
         recipeCardRect = content.GetComponent<RectTransform>();
+        cardTemplate = content.Find("Card_0")?.gameObject;
+        if (cardTemplate != null)
+            cardTemplate.SetActive(false);
+        for (int i = content.childCount - 1; i >= 0; i--)
+        {
+            var child = content.GetChild(i).gameObject;
+            if (child != cardTemplate) Destroy(child);
+        }
 
         detailRoot = panelGo.transform.Find("Detail").gameObject;
         var infoBox = detailRoot.transform.Find("InfoBox");
@@ -251,6 +267,54 @@ public class GameJamMachinePanel : MonoBehaviour
         scroll.content = recipeCardRect;
         scroll.viewport = vp.GetComponent<RectTransform>();
         recipeCardParent = content.transform;
+
+        cardTemplate = BuildCardTemplate(content.transform);
+        cardTemplate.SetActive(false);
+    }
+
+    GameObject BuildCardTemplate(Transform parent)
+    {
+        float cardH = 62f;
+
+        var card = MakeRect("Card_0", parent);
+        var r = card.GetComponent<RectTransform>();
+        r.anchorMin = new Vector2(0, 1);
+        r.anchorMax = new Vector2(1, 1);
+        r.pivot = new Vector2(0.5f, 1);
+        r.anchoredPosition = Vector2.zero;
+        r.sizeDelta = new Vector2(0, cardH);
+
+        card.AddComponent<Image>().color = CardBG;
+        card.AddComponent<Button>().transition = Selectable.Transition.None;
+
+        var iconGo = MakeRect("Icon", card.transform);
+        var ic = iconGo.GetComponent<RectTransform>();
+        ic.anchorMin = ic.anchorMax = new Vector2(0, 0.5f);
+        ic.pivot = new Vector2(0, 0.5f);
+        ic.anchoredPosition = new Vector2(8, 0);
+        ic.sizeDelta = new Vector2(44, 44);
+        iconGo.AddComponent<Image>();
+
+        var badge = MakeRect("Badge", card.transform);
+        var br2 = badge.GetComponent<RectTransform>();
+        br2.anchorMin = br2.anchorMax = new Vector2(0, 0);
+        br2.pivot = new Vector2(0, 0);
+        br2.anchoredPosition = new Vector2(8, 4);
+        br2.sizeDelta = new Vector2(24, 16);
+        badge.AddComponent<Image>().color = BadgeBG;
+        var bt = MakeText("Cnt", badge.transform, 10, TextAnchor.MiddleCenter, TextLight,
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Stretch(bt.gameObject);
+
+        MakeText("Name", card.transform, 15, TextAnchor.MiddleLeft, TextDark,
+            new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 0.5f),
+            new Vector2(60, 0), new Vector2(-50, 0));
+
+        MakeText("Amt", card.transform, 14, TextAnchor.MiddleRight, TextMid,
+            new Vector2(1, 0), new Vector2(1, 1), new Vector2(1, 0.5f),
+            new Vector2(-8, 0), new Vector2(40, 0));
+
+        return card;
     }
 
     void BuildRightColumn()
@@ -523,61 +587,48 @@ public class GameJamMachinePanel : MonoBehaviour
 
     void CreateRecipeCard(GameJamRecipe recipe, int index)
     {
+        if (cardTemplate == null) return;
         float cardH = 62f, gap = 6f;
 
-        var card = MakeRect("Card_" + index, recipeCardParent);
-        var r = card.GetComponent<RectTransform>();
-        r.anchorMin = new Vector2(0, 1);
-        r.anchorMax = new Vector2(1, 1);
-        r.pivot = new Vector2(0.5f, 1);
-        r.anchoredPosition = new Vector2(0, -(index * (cardH + gap)));
-        r.sizeDelta = new Vector2(0, cardH);
+        var card = Instantiate(cardTemplate, recipeCardParent);
+        card.name = "Card_" + index;
+        card.SetActive(true);
 
-        var bgImg = card.AddComponent<Image>();
-        bgImg.color = CardBG;
+        var r = card.GetComponent<RectTransform>();
+        r.anchoredPosition = new Vector2(0, -(index * (cardH + gap)));
+
+        var bgImg = card.transform.Find("Bg").GetComponent<Image>();
+        bgImg.sprite = cardBgNormal;
+        bgImg.color = Color.white;
         cardBgImages.Add(bgImg);
 
         int idx = index;
-        var btn = card.AddComponent<Button>();
-        btn.transition = Selectable.Transition.None;
+        var btn = card.GetComponent<Button>();
+        btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(() => SelectRecipe(idx));
 
         var outDef = GameJamItemDB.Get(recipe.outputItemId);
         string outName = outDef != null ? outDef.name : recipe.outputItemId;
 
-        var iconGo = MakeRect("Icon", card.transform);
-        var ic = iconGo.GetComponent<RectTransform>();
-        ic.anchorMin = ic.anchorMax = new Vector2(0, 0.5f);
-        ic.pivot = new Vector2(0, 0.5f);
-        ic.anchoredPosition = new Vector2(8, 0);
-        ic.sizeDelta = new Vector2(44, 44);
-        var icon = iconGo.AddComponent<Image>();
+        var icon = card.transform.Find("Icon").GetComponent<Image>();
         GameJamArtLoader.ApplyItemIcon(icon, recipe.outputItemId,
             outDef != null ? outDef.iconColor : Color.gray);
 
-        int owned = inventory != null ? inventory.Model.GetTotalCount(recipe.outputItemId) : 0;
-        if (owned > 0)
-        {
-            var badge = MakeRect("Badge", card.transform);
-            var br2 = badge.GetComponent<RectTransform>();
-            br2.anchorMin = br2.anchorMax = new Vector2(0, 0);
-            br2.pivot = new Vector2(0, 0);
-            br2.anchoredPosition = new Vector2(8, 4);
-            br2.sizeDelta = new Vector2(24, 16);
-            badge.AddComponent<Image>().color = BadgeBG;
-            var bt = MakeText("Cnt", badge.transform, 10, TextAnchor.MiddleCenter, TextLight,
-                Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            Stretch(bt.gameObject);
-            bt.text = owned.ToString();
-        }
+        // int owned = inventory != null && inventory.Model != null ? inventory.Model.GetTotalCount(recipe.outputItemId) : 0;
+        // var badge = card.transform.Find("Badge").gameObject;
+        // if (owned > 0)
+        // {
+        //     badge.SetActive(true);
+        //     badge.transform.Find("Cnt").GetComponent<Text>().text = owned.ToString();
+        // }
+        // else
+        // {
+        //     badge.SetActive(false);
+        //     badge.transform.Find("Cnt").GetComponent<Text>().text = "";
+        // }
 
-        MakeText("Name", card.transform, 15, TextAnchor.MiddleLeft, TextDark,
-            new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 0.5f),
-            new Vector2(60, 0), new Vector2(-50, 0)).text = outName;
-
-        MakeText("Amt", card.transform, 14, TextAnchor.MiddleRight, TextMid,
-            new Vector2(1, 0), new Vector2(1, 1), new Vector2(1, 0.5f),
-            new Vector2(-8, 0), new Vector2(40, 0)).text = $"x{recipe.outputAmount}";
+        card.transform.Find("Name").GetComponent<Text>().text = outName;
+        card.transform.Find("Amt").GetComponent<Text>().text = $"x{recipe.outputAmount}";
 
         recipeCards.Add(card);
     }
@@ -593,7 +644,7 @@ public class GameJamMachinePanel : MonoBehaviour
         for (int i = 0; i < cardBgImages.Count; i++)
         {
             if (cardBgImages[i] != null)
-                cardBgImages[i].color = i == index ? CardSelectedBG : CardBG;
+                cardBgImages[i].sprite = i == index ? cardBgSelected : cardBgNormal;
         }
 
         RefreshDetailPanel();

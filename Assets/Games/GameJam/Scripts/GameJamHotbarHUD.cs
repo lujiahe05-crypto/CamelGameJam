@@ -5,6 +5,7 @@ public class GameJamHotbarHUD : MonoBehaviour
 {
     GameJamInventoryModel model;
     GameObject canvasGo;
+    GameObject slotTemplate;
     Image[] slotBGs;
     Image[] slotIcons;
     Text[] slotCounts;
@@ -59,63 +60,45 @@ public class GameJamHotbarHUD : MonoBehaviour
         var barBG = bar.AddComponent<Image>();
         barBG.color = new Color(0.08f, 0.08f, 0.1f, 0.7f);
 
-        int count = GameJamInventoryModel.HotbarSlotCount;
-        slotBGs = new Image[count];
-        slotIcons = new Image[count];
-        slotCounts = new Text[count];
-        slotBorders = new Image[count];
-        slotNumbers = new Text[count];
-
-        float startX = -(totalWidth - 20f) / 2f + SlotSize / 2f;
-
-        for (int i = 0; i < count; i++)
-        {
-            float x = startX + i * (SlotSize + SlotSpacing);
-            CreateSlot(bar.transform, i, x);
-        }
+        slotTemplate = BuildSlotTemplate(bar.transform);
+        slotTemplate.SetActive(false);
 
         BuildTooltip(canvasGo.transform);
         GameJamUIPrefabHelper.SavePrefab(canvasGo, "HotbarPanel");
+
+        InstantiateSlots(bar.transform);
     }
 
     void FindReferences()
     {
-        int count = GameJamInventoryModel.HotbarSlotCount;
-        slotBGs = new Image[count];
-        slotIcons = new Image[count];
-        slotCounts = new Text[count];
-        slotBorders = new Image[count];
-        slotNumbers = new Text[count];
-
         var bar = canvasGo.transform.Find("HotbarBar");
-        for (int i = 0; i < count; i++)
+        slotTemplate = bar.Find("Slot_0")?.gameObject;
+        if (slotTemplate != null)
+            slotTemplate.SetActive(false);
+        for (int i = bar.childCount - 1; i >= 0; i--)
         {
-            var slot = bar.Find("Slot_" + i);
-            slotBorders[i] = slot.GetComponent<Image>();
-            slotBGs[i] = slot.Find("BG").GetComponent<Image>();
-            slotIcons[i] = slot.Find("BG/Icon").GetComponent<Image>();
-            slotCounts[i] = slot.Find("BG/Count").GetComponent<Text>();
-            slotNumbers[i] = slot.Find("Number").GetComponent<Text>();
+            var child = bar.GetChild(i).gameObject;
+            if (child != slotTemplate) Destroy(child);
         }
+
+        InstantiateSlots(bar);
 
         tooltipGo = canvasGo.transform.Find("Tooltip").gameObject;
         tooltipText = tooltipGo.transform.Find("Text").GetComponent<Text>();
         tooltipGo.SetActive(false);
     }
 
-    void CreateSlot(Transform parent, int index, float x)
+    GameObject BuildSlotTemplate(Transform parent)
     {
-        var slot = CreateRect("Slot_" + index, parent);
+        var slot = CreateRect("Slot_0", parent);
         var slotRect = slot.GetComponent<RectTransform>();
         slotRect.anchorMin = new Vector2(0.5f, 0.5f);
         slotRect.anchorMax = new Vector2(0.5f, 0.5f);
         slotRect.pivot = new Vector2(0.5f, 0.5f);
         slotRect.sizeDelta = new Vector2(SlotSize, SlotSize);
-        slotRect.anchoredPosition = new Vector2(x, 2f);
+        slotRect.anchoredPosition = Vector2.zero;
 
-        var border = slot.AddComponent<Image>();
-        border.color = index == 0 ? BorderSelected : BorderNormal;
-        slotBorders[index] = border;
+        slot.AddComponent<Image>().color = BorderNormal;
 
         var inner = CreateRect("BG", slot.transform);
         var innerRect = inner.GetComponent<RectTransform>();
@@ -123,9 +106,7 @@ public class GameJamHotbarHUD : MonoBehaviour
         innerRect.anchorMax = Vector2.one;
         innerRect.sizeDelta = new Vector2(-4f, -4f);
         innerRect.anchoredPosition = Vector2.zero;
-        var bg = inner.AddComponent<Image>();
-        bg.color = index == 0 ? SlotBGSelected : SlotBG;
-        slotBGs[index] = bg;
+        inner.AddComponent<Image>().color = SlotBG;
 
         var icon = CreateRect("Icon", inner.transform);
         var iconRect = icon.GetComponent<RectTransform>();
@@ -133,9 +114,7 @@ public class GameJamHotbarHUD : MonoBehaviour
         iconRect.anchorMax = new Vector2(0.9f, 0.9f);
         iconRect.sizeDelta = Vector2.zero;
         iconRect.anchoredPosition = Vector2.zero;
-        var iconImg = icon.AddComponent<Image>();
-        iconImg.color = Color.clear;
-        slotIcons[index] = iconImg;
+        icon.AddComponent<Image>().color = Color.clear;
 
         var countGo = CreateRect("Count", inner.transform);
         var countRect = countGo.GetComponent<RectTransform>();
@@ -150,10 +129,9 @@ public class GameJamHotbarHUD : MonoBehaviour
         countText.alignment = TextAnchor.LowerRight;
         countText.color = Color.white;
         countText.text = "";
-        var countOutline = countGo.AddComponent<Outline>();
-        countOutline.effectColor = new Color(0, 0, 0, 0.8f);
-        countOutline.effectDistance = new Vector2(1, -1);
-        slotCounts[index] = countText;
+        var outline = countGo.AddComponent<Outline>();
+        outline.effectColor = new Color(0, 0, 0, 0.8f);
+        outline.effectDistance = new Vector2(1, -1);
 
         var numGo = CreateRect("Number", slot.transform);
         var numRect = numGo.GetComponent<RectTransform>();
@@ -167,8 +145,44 @@ public class GameJamHotbarHUD : MonoBehaviour
         numText.fontSize = 12;
         numText.alignment = TextAnchor.UpperLeft;
         numText.color = new Color(0.7f, 0.7f, 0.7f, 0.8f);
-        numText.text = (index + 1).ToString();
-        slotNumbers[index] = numText;
+        numText.text = "";
+
+        return slot;
+    }
+
+    void InstantiateSlots(Transform bar)
+    {
+        int count = GameJamInventoryModel.HotbarSlotCount;
+        slotBGs = new Image[count];
+        slotIcons = new Image[count];
+        slotCounts = new Text[count];
+        slotBorders = new Image[count];
+        slotNumbers = new Text[count];
+
+        float totalWidth = count * SlotSize + (count - 1) * SlotSpacing + 20f;
+        float startX = -(totalWidth - 20f) / 2f + SlotSize / 2f;
+
+        int sel = model != null ? model.selectedHotbar : 0;
+        for (int i = 0; i < count; i++)
+        {
+            var slot = Instantiate(slotTemplate, bar);
+            slot.name = "Slot_" + i;
+            slot.SetActive(true);
+
+            var rt = slot.GetComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(startX + i * (SlotSize + SlotSpacing), 2f);
+
+            slotBorders[i] = slot.GetComponent<Image>();
+            slotBorders[i].color = i == sel ? BorderSelected : BorderNormal;
+
+            slotBGs[i] = slot.transform.Find("BG").GetComponent<Image>();
+            slotBGs[i].color = i == sel ? SlotBGSelected : SlotBG;
+
+            slotIcons[i] = slot.transform.Find("BG/Icon").GetComponent<Image>();
+            slotCounts[i] = slot.transform.Find("BG/Count").GetComponent<Text>();
+            slotNumbers[i] = slot.transform.Find("Number").GetComponent<Text>();
+            slotNumbers[i].text = (i + 1).ToString();
+        }
     }
 
     void BuildTooltip(Transform parent)
