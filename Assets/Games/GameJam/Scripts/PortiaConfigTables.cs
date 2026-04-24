@@ -151,6 +151,7 @@ public class PortiaSettingsTable
     public float playerGravity = -20f;
     public float playerTurnSmoothTime = 0.1f;
     public float interactRadius = 2.5f;
+    public PortiaVector3Data playerSpawnPosition;
     public PortiaInventoryGrantConfig[] initialInventory;
     public PortiaResourceNodeConfig[] resourceNodes;
     public PortiaPlacedMachineConfig[] placedMachines;
@@ -243,6 +244,7 @@ public static class PortiaConfigTables
     {
         return new PortiaSettingsTable
         {
+            playerSpawnPosition = new PortiaVector3Data { x = 207.857f, y = 46.668f, z = -112.925f },
             initialInventory = Array.Empty<PortiaInventoryGrantConfig>(),
             resourceNodes = Array.Empty<PortiaResourceNodeConfig>(),
             placedMachines = Array.Empty<PortiaPlacedMachineConfig>()

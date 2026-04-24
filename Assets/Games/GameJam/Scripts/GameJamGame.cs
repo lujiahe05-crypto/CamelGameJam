@@ -9,8 +9,6 @@ public class GameJamGame : MonoBehaviour
 {
     public Action OnReturnToLobby;
 
-    static readonly Vector3 SceneMainSpawnPoint = new Vector3(218.546f, 44.508f, -131.222f);
-
     GameObject sceneRoot;
     GameObject player;
     GameObject eventSystemGo;
@@ -27,7 +25,7 @@ public class GameJamGame : MonoBehaviour
 
         settings = PortiaConfigTables.SettingsTableData;
         isSceneMain = SceneManager.GetActiveScene().name == "SceneMain";
-        spawnOffset = isSceneMain ? SceneMainSpawnPoint : Vector3.zero;
+        spawnOffset = isSceneMain ? GetSceneMainSpawnPoint() : Vector3.zero;
         sceneRoot = new GameObject("GameJamScene");
 
         BuildScene();
@@ -411,7 +409,7 @@ public class GameJamGame : MonoBehaviour
 
         prefab = Resources.Load<GameObject>("Npc_Oaks");
 
-        Vector3 spawnPos = isSceneMain ? SceneMainSpawnPoint : Vector3.zero;
+        Vector3 spawnPos = isSceneMain ? GetSceneMainSpawnPoint() : Vector3.zero;
 
         if (prefab != null)
         {
@@ -461,6 +459,14 @@ public class GameJamGame : MonoBehaviour
         var anim = player.GetComponentInChildren<Animator>();
         if (anim != null && anim.GetComponent<GameJamAnimEventReceiver>() == null)
             anim.gameObject.AddComponent<GameJamAnimEventReceiver>();
+    }
+
+    Vector3 GetSceneMainSpawnPoint()
+    {
+        if (settings != null && settings.playerSpawnPosition != null)
+            return settings.playerSpawnPosition.ToVector3();
+
+        return new Vector3(207.857f, 46.668f, -112.925f);
     }
 
     Material BuildResourceMaterial(PortiaResourceNodeConfig entry, string itemId)
