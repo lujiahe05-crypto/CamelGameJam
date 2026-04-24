@@ -18,6 +18,7 @@ public class GameJamInteraction : MonoBehaviour
     GameJamMachine currentMachine;
     GameJamGroundPickup currentPickup;
     GameJamStorageBox currentStorage;
+    GameJamPlanter currentPlanter;
 
     bool isGathering;
     bool wasPanelOpen;
@@ -125,6 +126,12 @@ public class GameJamInteraction : MonoBehaviour
             currentPickup = null;
             if (pickupUI != null)
                 pickupUI.Hide();
+            return;
+        }
+
+        if (currentPlanter != null)
+        {
+            currentPlanter.Interact(inventory);
             return;
         }
 
@@ -368,6 +375,16 @@ public class GameJamInteraction : MonoBehaviour
             currentStorage = null;
             ui.Hide();
             Toast.ShowToast("Building removed.");
+            return;
+        }
+
+        if (currentPlanter != null)
+        {
+            Destroy(currentPlanter.gameObject);
+            inventory.Add(GameJamCropDB.PlanterItemId, 1);
+            currentPlanter = null;
+            ui.Hide();
+            Toast.ShowToast("Building removed.");
         }
     }
 
@@ -377,6 +394,7 @@ public class GameJamInteraction : MonoBehaviour
         currentMachine = null;
         currentPickup = null;
         currentStorage = null;
+        currentPlanter = null;
     }
 
     void FindNearest()
@@ -387,6 +405,7 @@ public class GameJamInteraction : MonoBehaviour
         GameJamMachine nearestMachine = null;
         GameJamGroundPickup nearestPickup = null;
         GameJamStorageBox nearestStorage = null;
+        GameJamPlanter nearestPlanter = null;
         float nearestDist = float.MaxValue;
 
         foreach (var col in cols)
@@ -452,17 +471,36 @@ public class GameJamInteraction : MonoBehaviour
                     nearestPickup = null;
                     nearestStorage = null;
                 }
+                continue;
+            }
+
+            var planter = col.GetComponent<GameJamPlanter>();
+            if (planter == null) planter = col.GetComponentInParent<GameJamPlanter>();
+            if (planter != null)
+            {
+                float dist = Vector3.Distance(transform.position, planter.transform.position);
+                if (dist <= interactRadius && dist < nearestDist)
+                {
+                    nearestDist = dist;
+                    nearestPlanter = planter;
+                    nearestNode = null;
+                    nearestMachine = null;
+                    nearestPickup = null;
+                    nearestStorage = null;
+                }
             }
         }
 
         bool changed = nearestNode != currentTarget
             || nearestMachine != currentMachine
             || nearestPickup != currentPickup
-            || nearestStorage != currentStorage;
+            || nearestStorage != currentStorage
+            || nearestPlanter != currentPlanter;
         currentTarget = nearestNode;
         currentMachine = nearestMachine;
         currentPickup = nearestPickup;
         currentStorage = nearestStorage;
+        currentPlanter = nearestPlanter;
 
         if (!changed)
             return;
@@ -501,6 +539,15 @@ public class GameJamInteraction : MonoBehaviour
                 pickupUI.Hide();
 
             ui.Show($"[E] Gather {currentTarget.resourceName} ({currentTarget.Hp}/{currentTarget.MaxHp})", true);
+            return;
+        }
+
+        if (currentPlanter != null)
+        {
+            if (pickupUI != null)
+                pickupUI.Hide();
+
+            ui.Show(currentPlanter.GetInteractionHint(inventory), true);
             return;
         }
 

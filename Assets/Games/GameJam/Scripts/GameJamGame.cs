@@ -241,6 +241,7 @@ public class GameJamGame : MonoBehaviour
         {
             CreatePlacedMachine("民用熔炉", new Vector3(-2, 0, -5));
             CreatePlacedMachine("工作台", new Vector3(2, 0, -3));
+            CreatePlacedMachine("组装台", new Vector3(6, 0, -3));
         }
     }
 
@@ -504,6 +505,8 @@ public class GameJamGame : MonoBehaviour
 
             inv.Add(entry.itemId, entry.amount);
         }
+
+        inv.Add(GameJamCropDB.RadishSeedItemId, 3);
     }
 
     void SetupCamera()

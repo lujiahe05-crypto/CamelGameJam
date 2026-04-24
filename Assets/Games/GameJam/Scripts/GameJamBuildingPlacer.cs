@@ -313,6 +313,9 @@ public class GameJamBuildingPlacer : MonoBehaviour
         if (currentItemId == "储物箱")
             building.AddComponent<GameJamStorageBox>();
 
+        if (currentItemId == GameJamCropDB.PlanterItemId)
+            building.AddComponent<GameJamPlanter>();
+
         string placedItemId = currentItemId;
         ExitPlaceMode(true);
 

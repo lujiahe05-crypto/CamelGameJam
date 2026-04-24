@@ -141,6 +141,24 @@ public static class GameJamItemDB
             GameJamItemType.Consumable, GameJamRarity.Common, 99, 5,
             new Color(0.9f, 0.88f, 0.8f)));
 
+        Reg(new GameJamItemDef(GameJamCropDB.PlanterItemId, GameJamCropDB.PlanterItemId, "可放置的种植容器。",
+            GameJamItemType.Building, GameJamRarity.Common, 99, 5,
+            new Color(0.50f, 0.34f, 0.20f),
+            iconPath: "Assets/Games/GameJam/assets/UI/sprites/package/Item_PlantBox01.png",
+            prefabPath: "Games/GameJam/assets/Model/itemmall/ItemMall_PlantBox_01.prefab"));
+
+        Reg(new GameJamItemDef(GameJamCropDB.RadishSeedItemId, GameJamCropDB.RadishSeedItemId, "用于种植萝卜。",
+            GameJamItemType.Material, GameJamRarity.Common, 999, 1,
+            new Color(0.72f, 0.58f, 0.20f),
+            iconPath: "Assets/Games/GameJam/assets/UI/sprites/package/Item_seed_radish.png",
+            prefabPath: "Games/GameJam/assets/Model/itemmall/Item_Plantseed.prefab"));
+
+        Reg(new GameJamItemDef(GameJamCropDB.RadishItemId, GameJamCropDB.RadishItemId, "成熟后可收获的萝卜。",
+            GameJamItemType.Material, GameJamRarity.Common, 999, 2,
+            new Color(0.84f, 0.28f, 0.30f),
+            iconPath: "Assets/Games/GameJam/assets/UI/sprites/package/Item_material_radish.png",
+            prefabPath: "Games/GameJam/assets/Model/plant/Plant_radish.prefab"));
+
         ApplyConfigOverrides();
     }
 
@@ -192,6 +210,9 @@ public static class GameJamItemDB
                 : existing != null ? existing.description : string.Empty;
             int maxStack = entry.maxStack > 0 ? entry.maxStack : existing != null ? existing.maxStack : 1;
             int sellPrice = entry.sellPrice;
+            string iconPath = !string.IsNullOrWhiteSpace(entry.iconPath)
+                ? entry.iconPath
+                : existing != null ? existing.iconPath : null;
             Color iconColor = entry.iconColor != null
                 ? entry.iconColor.ToColor()
                 : existing != null ? existing.iconColor : Color.white;
