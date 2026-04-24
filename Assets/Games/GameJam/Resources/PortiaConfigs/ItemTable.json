@@ -322,6 +322,57 @@
             },
             "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_metal_006",
             "prefabPath": ""
+        },
+        {
+            "itemId": "萝卜",
+            "displayName": "萝卜",
+            "description": "成熟后可收获的萝卜。",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.8399999737739563,
+                "g": 0.2800000011920929,
+                "b": 0.30000001192092898,
+                "a": 1.0
+            },
+            "iconPath": "",
+            "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\plant\\Plant_radish.prefab"
+        },
+        {
+            "itemId": "萝卜种子",
+            "displayName": "萝卜种子",
+            "description": "用于种植萝卜。",
+            "itemType": "Material",
+            "rarity": "Common",
+            "maxStack": 999,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.7200000286102295,
+                "g": 0.5799999833106995,
+                "b": 0.20000000298023225,
+                "a": 1.0
+            },
+            "iconPath": "",
+            "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\Item_Plantseed.prefab"
+        },
+        {
+            "itemId": "种植盆",
+            "displayName": "种植盆",
+            "description": "可放置的种植容器。",
+            "itemType": "Building",
+            "rarity": "Common",
+            "maxStack": 99,
+            "sellPrice": 0,
+            "iconColor": {
+                "r": 0.5,
+                "g": 0.3400000035762787,
+                "b": 0.20000000298023225,
+                "a": 1.0
+            },
+            "iconPath": "",
+            "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\ItemMall_PlantBox_01.prefab"
         }
     ]
 }

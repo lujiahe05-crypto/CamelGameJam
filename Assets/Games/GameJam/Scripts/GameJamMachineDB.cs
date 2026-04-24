@@ -99,6 +99,21 @@ public static class GameJamMachineDB
 
         Reg(new GameJamMachineDef
         {
+            machineId = "组装台",
+            displayName = "组装台",
+            hasFuelSystem = false,
+            fuelItemId = null,
+            fuelPerWood = 0f,
+            maxFuelUnits = 0,
+            recipes = new List<GameJamRecipe>
+            {
+                new GameJamRecipe("assembly_planter", GameJamCropDB.PlanterItemId, 1,
+                    new Dictionary<string, int> { { "石头", 1 } }, 1f, false),
+            }
+        });
+
+        Reg(new GameJamMachineDef
+        {
             machineId = "工作台",
             displayName = "工作台",
             hasFuelSystem = false,

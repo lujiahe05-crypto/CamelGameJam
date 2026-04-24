@@ -164,6 +164,19 @@
                             "amount": 6
                         }
                     ]
+                },
+                {
+                    "recipeId": "assembly_planter",
+                    "outputItemId": "种植盆",
+                    "outputAmount": 1,
+                    "craftTime": 0.0,
+                    "requiresFuel": false,
+                    "inputs": [
+                        {
+                            "itemId": "石头",
+                            "amount": 1
+                        }
+                    ]
                 }
             ]
         },

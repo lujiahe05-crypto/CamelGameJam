@@ -25,6 +25,14 @@ public static class GameJamBuildingDB
         Reg(new GameJamBuildingDef { itemId = "熔炉", gridW = 2, gridH = 2, height = 1.8f });
         Reg(new GameJamBuildingDef { itemId = "切割机", gridW = 3, gridH = 2, height = 1.4f });
         Reg(new GameJamBuildingDef { itemId = "储物箱", gridW = 1, gridH = 1, height = 0.8f });
+        Reg(new GameJamBuildingDef
+        {
+            itemId = GameJamCropDB.PlanterItemId,
+            gridW = 2,
+            gridH = 1,
+            height = 1f,
+            prefabPath = "Games/GameJam/assets/Model/itemmall/ItemMall_PlantBox_01.prefab"
+        });
 
         ApplyConfigOverrides();
     }
@@ -108,6 +116,8 @@ public static class GameJamBuildingDB
                 return CreateCutter();
             case "储物箱":
                 return CreateStorageBox();
+            case "种植盆":
+                return CreatePlanterBox();
             default:
                 return CreateFallbackBox(displayName);
         }
@@ -219,6 +229,30 @@ public static class GameJamBuildingDB
         buckle.transform.localPosition = new Vector3(0, 0.5f, 0.33f);
         buckle.transform.localScale = new Vector3(0.15f, 0.12f, 0.04f);
         buckle.GetComponent<Renderer>().material = CreateMat(new Color(0.7f, 0.6f, 0.3f));
+
+        RemoveAllColliders(root);
+        return root;
+    }
+
+    static GameObject CreatePlanterBox()
+    {
+        var root = new GameObject("种植盆");
+        var woodColor = new Color(0.46f, 0.31f, 0.18f);
+        var soilColor = new Color(0.2f, 0.14f, 0.09f);
+
+        var box = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        box.name = "Box";
+        box.transform.SetParent(root.transform);
+        box.transform.localPosition = new Vector3(0f, 0.24f, 0f);
+        box.transform.localScale = new Vector3(1.4f, 0.48f, 0.75f);
+        box.GetComponent<Renderer>().material = CreateMat(woodColor);
+
+        var soil = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        soil.name = "Soil";
+        soil.transform.SetParent(root.transform);
+        soil.transform.localPosition = new Vector3(0f, 0.42f, 0f);
+        soil.transform.localScale = new Vector3(1.18f, 0.12f, 0.55f);
+        soil.GetComponent<Renderer>().material = CreateMat(soilColor);
 
         RemoveAllColliders(root);
         return root;

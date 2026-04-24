@@ -27,6 +27,13 @@
             "gridH": 2,
             "height": 1.0,
             "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\home\\HomeItem_CookMachine.prefab"
+        },
+        {
+            "itemId": "种植盆",
+            "gridW": 2,
+            "gridH": 1,
+            "height": 1.0,
+            "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\ItemMall_PlantBox_01.prefab"
         }
     ]
 }
