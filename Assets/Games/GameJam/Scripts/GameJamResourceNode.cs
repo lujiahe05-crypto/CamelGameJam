@@ -40,7 +40,6 @@ public class GameJamResourceNode : MonoBehaviour
     {
         hp = maxHp;
         originalScale = transform.localScale;
-        CreateNameLabel();
     }
 
     float GetRendererTopY()
