@@ -6,10 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class GameJamLobby : MonoBehaviour
 {
-    const string BackgroundImagePath = "Games/GameJam/assets/UI/loadingmask/Standard.png";
-    const string TitleImagePath = "Games/GameJam/assets/UI/sprites/loadingscreen/portia_zh_hans.png";
-    const string StartButtonImagePath = "Games/GameJam/assets/UI/Texture2D/startui_board.png";
-
     GameObject canvasGo;
     Sprite backgroundSprite;
     Sprite titleSprite;
@@ -63,10 +59,10 @@ public class GameJamLobby : MonoBehaviour
             DontDestroyOnLoad(esGo);
         }
 
-        backgroundSprite = LoadSpriteFromAssetPath(BackgroundImagePath);
-        titleSprite = LoadSpriteFromAssetPath(TitleImagePath);
-        startButtonSprite = LoadSpriteFromAssetPath(StartButtonImagePath);
-
+        backgroundSprite = Resources.Load<Sprite>("Standard");
+        titleSprite = Resources.Load<Sprite>("portia_zh_hans");
+        startButtonSprite = Resources.Load<Sprite>("startui_board");
+        
         CreateBackground(canvasGo.transform);
         CreateTitle(canvasGo.transform);
         CreateStartButton(canvasGo.transform);
@@ -158,29 +154,6 @@ public class GameJamLobby : MonoBehaviour
     {
         string[] fontNames = { "SimHei", "Microsoft YaHei", "Microsoft JhengHei", "Arial" };
         return Font.CreateDynamicFontFromOSFont(fontNames, 40);
-    }
-
-    static Sprite LoadSpriteFromAssetPath(string relativeAssetPath)
-    {
-        string fullPath = Path.Combine(Application.dataPath, relativeAssetPath);
-        if (!File.Exists(fullPath))
-            return null;
-
-        byte[] bytes = File.ReadAllBytes(fullPath);
-        if (bytes == null || bytes.Length == 0)
-            return null;
-
-        var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-        if (!texture.LoadImage(bytes))
-        {
-            Object.Destroy(texture);
-            return null;
-        }
-
-        texture.name = Path.GetFileNameWithoutExtension(relativeAssetPath);
-        texture.wrapMode = TextureWrapMode.Clamp;
-        texture.filterMode = FilterMode.Bilinear;
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
     }
 
     void LaunchGame()
