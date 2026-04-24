@@ -31,7 +31,7 @@ public static class GameJamBuildingDB
             gridW = 2,
             gridH = 1,
             height = 1f,
-            prefabPath = "Games/GameJam/assets/Model/itemmall/ItemMall_PlantBox_01.prefab"
+            prefabName = "ItemMall_PlantBox_01.prefab"
         });
 
         ApplyConfigOverrides();

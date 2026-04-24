@@ -25,8 +25,8 @@ public class GameJamCoordinateProbe : MonoBehaviour
 
     void Start()
     {
-        BuildUI();
-        RefreshVisibility();
+        // BuildUI();
+        // RefreshVisibility();
     }
 
     void Update()

@@ -337,7 +337,7 @@
                 "b": 0.30000001192092898,
                 "a": 1.0
             },
-            "iconPath": "",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_material_radish",
             "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\plant\\Plant_radish.prefab"
         },
         {
@@ -354,7 +354,7 @@
                 "b": 0.20000000298023225,
                 "a": 1.0
             },
-            "iconPath": "",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_seed_radish",
             "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\Item_Plantseed.prefab"
         },
         {
@@ -371,7 +371,7 @@
                 "b": 0.20000000298023225,
                 "a": 1.0
             },
-            "iconPath": "",
+            "iconPath": "Assets\\Games\\GameJam\\assets\\UI\\sprites\\package\\Item_PlantBox01",
             "prefabPath": "Assets\\Games\\GameJam\\assets\\Model\\itemmall\\ItemMall_PlantBox_01.prefab"
         }
     ]
