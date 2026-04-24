@@ -799,16 +799,22 @@ public class GameJamMachinePanel : MonoBehaviour
         else
             currentMachine.EnqueueCraft(selectedRecipe, inventory, 1);
 
+        int savedIndex = selectedIndex;
         RefreshAll();
+        if (savedIndex > 0 && currentRecipes != null && savedIndex < currentRecipes.Count)
+            SelectRecipe(savedIndex);
     }
 
     void OnCollect()
     {
         if (currentMachine == null || inventory == null) return;
+        int savedIndex = selectedIndex;
         var (itemId, amount) = currentMachine.CollectProducts();
         if (itemId != null)
             inventory.Add(itemId, amount);
         RefreshAll();
+        if (savedIndex > 0 && currentRecipes != null && savedIndex < currentRecipes.Count)
+            SelectRecipe(savedIndex);
     }
 
     void OnAddFuel()

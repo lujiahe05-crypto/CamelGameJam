@@ -362,13 +362,25 @@ public static class GameJamArtLoader
             if (!Path.GetFileNameWithoutExtension(assetPath).Equals(fileName, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
+            string destDir = "Assets/Games/GameJam/assets/Resources/Prefab";
+            if (!System.IO.Directory.Exists(destDir))
+                System.IO.Directory.CreateDirectory(destDir);
+            string destPath = destDir + "/" + System.IO.Path.GetFileName(assetPath);
+            if (!System.IO.File.Exists(destPath))
+            {
+                UnityEditor.AssetDatabase.CopyAsset(assetPath, destPath);
+                UnityEditor.AssetDatabase.Refresh();
+            }
+
             var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
             if (prefab != null)
                 return prefab;
         }
 #endif
 
-        var res = Resources.Load<GameObject>(fileName);
+        var res = Resources.Load<GameObject>("Prefab/" + fileName);
+        if (res != null) return res;
+        res = Resources.Load<GameObject>(fileName);
         if (res != null) return res;
         res = Resources.Load<GameObject>("BuildingModels/" + fileName);
         if (res != null) return res;
