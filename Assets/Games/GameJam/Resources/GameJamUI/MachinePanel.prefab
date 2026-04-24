@@ -3392,7 +3392,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u6676\u83B9\u5254\u900F\uFF0C\u9700\u8981\u9AD8\u6E29"
+  m_Text: Building Item.
 --- !u!1 &8226911076637500678
 GameObject:
   m_ObjectHideFlags: 0

@@ -108,8 +108,8 @@ public class GameJamInventoryPanel : MonoBehaviour
         detailGo = FindRequired("Panel/Detail").gameObject;
         detailIcon = FindRequired("Panel/Detail/Icon").GetComponent<Image>();
         detailName = FindRequired("Panel/Detail/Name").GetComponent<Text>();
-        detailRarityBar = FindRequired("Panel/Detail/RarityBar").GetComponent<Image>();
-        detailType = FindRequired("Panel/Detail/RarityBar/TypeText").GetComponent<Text>();
+        // detailRarityBar = FindRequired("Panel/Detail/RarityBar").GetComponent<Image>();
+        // detailType = FindRequired("Panel/Detail/RarityBar/TypeText").GetComponent<Text>();
         detailDesc = FindRequired("Panel/Detail/Desc").GetComponent<Text>();
         detailPrice = FindRequired("Panel/Detail/Price").GetComponent<Text>();
         detailGo.SetActive(false);
@@ -594,7 +594,7 @@ public class GameJamInventoryPanel : MonoBehaviour
         detailGo.SetActive(true);
         GameJamArtLoader.ApplyItemIcon(detailIcon, slot.itemId, def.iconColor);
         detailName.text = def.name;
-        detailType.text = GameJamItemDB.GetTypeName(def.type) + " / " + GameJamItemDB.GetRarityName(def.rarity);
+        // detailType.text = GameJamItemDB.GetTypeName(def.type) + " / " + GameJamItemDB.GetRarityName(def.rarity);
         detailDesc.text = def.description;
         detailPrice.text = "Sell: " + def.sellPrice + "g";
 
